@@ -29,12 +29,23 @@
   .good { color:var(--accent); font-weight:600; } .fair { color:var(--warn); font-weight:600; } .poor { color:var(--bad); font-weight:600; }
   pre { background:#0f1a24; color:#d6e2ea; padding:10px; border-radius:4px; max-height:220px; overflow:auto; font-size:.8rem; white-space:pre-wrap; margin:0; }
   small, .note { color:var(--mute); font-size:.88rem; }
+.back-row { margin:0 0 4px; }
+  .back-btn { display:inline-flex; align-items:center; gap:4px; padding:5px 12px 5px 8px; border:none; border-radius:16px; background:var(--ink); color:#fff; font-size:.8rem; }
+  .back-btn:active { background:#2b3d4c; }
+    canvas { width:100%; height:120px; display:block; background:#f7fafb; border:1px solid var(--line); border-radius:4px; }
+  #offsetChart { height:90px; }
   [hidden] { display:none !important; }
   @media (prefers-reduced-motion: no-preference) { .strip > i { transition:width .2s linear; } }
 </style>
 </head>
 <body>
 <main>
+  <div class="back-row" id="backRow" hidden>
+    <button type="button" id="btnLeave" class="back-btn" aria-label="Leave room and go back">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Back
+    </button>
+  </div>
   <h1>SYNORA</h1>
   <p class="tag">One Sound. Every Speaker.</p>
   <div class="proto"><b>Prototype code (Phase 1, web).</b> Tests the timing method only. It does not prove Android or Bluetooth speaker behavior. Nothing here is verified on real devices yet.</div>
@@ -92,6 +103,18 @@
     <pre id="log"></pre>
   </section>
 
+  <section id="graphSec" hidden>
+    <h2>Live graph</h2>
+    <canvas id="pulse" aria-label="Live pulse graph of the clicks this phone is playing"></canvas>
+    <p class="note" id="pulseInfo">Waiting for sound...</p>
+    <p class="note">Each spike is a click this phone plays. Teal = 1000 Hz, orange = 1500 Hz (every 4th second). Grey lines are where the shared timeline says each click should land. Every phone uses the same time axis, so take screenshots together: spikes and labels should sit in the same place on all phones. This reads the sound inside the browser, before the speaker, so it cannot show speaker delay.</p>
+    <div id="offsetWrap" hidden>
+      <h2>Clock offset, last minute</h2>
+      <canvas id="offsetChart" aria-label="Clock offset over time"></canvas>
+      <p class="note" id="offsetInfo">Collecting...</p>
+    </div>
+  </section>
+
   <p class="note">Created by Joe (Creator / Builder). Original idea: Sai Krishna (Idea Contributor).</p>
 </main>
 
@@ -113,6 +136,8 @@
   let offset = 0;            // receiver: hostClock - localClock (ms). Host stays 0.
   let samples = [], pingTimer = null, helloSent = false;
   let state = C.initialState(), lastSeq = 0, seq = 0, offsetAtPlay = null;
+  let analyser = null, td = null, fd = null, pts = [], offPts = [], spikeUp = false, customFile = false;
+  const GRAPH_MS = 10000;
 
   function log(msg) {
     const el = $('log'); const t = (now() / 1000).toFixed(2);
@@ -126,6 +151,10 @@
     if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
     if (ctx.state !== 'running') await ctx.resume();
     if (!buffer) setClickBuffer();
+    if (!analyser) {
+      analyser = ctx.createAnalyser(); analyser.fftSize = 1024; analyser.connect(ctx.destination);
+      td = new Float32Array(analyser.fftSize); fd = new Float32Array(analyser.frequencyBinCount);
+    }
     try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) { log('Screen lock not available'); }
   }
   function setClickBuffer() {
@@ -152,7 +181,7 @@
     const when = Math.max(perfToCtx(now() + plan.waitMs), ctx.currentTime);
     const p = Math.min(plan.pos, buffer.duration - 0.01);
     src = ctx.createBufferSource();
-    src.buffer = buffer; src.connect(ctx.destination); src.start(when, p);
+    src.buffer = buffer; src.connect(analyser); src.start(when, p);
     offsetAtPlay = offset;
     log('play from ' + p.toFixed(2) + ' s in ' + plan.waitMs.toFixed(0) + ' ms' + (plan.late ? ' (LATE by ' + plan.lateMs.toFixed(0) + ' ms)' : ''));
   }
@@ -190,6 +219,8 @@
     const est = C.pickOffset(samples, 3);
     if (!est) return;
     offset = est.offset;
+    offPts.push({ t: now(), o: est.offset });
+    while (offPts.length && offPts[0].t < now() - 60000) offPts.shift();
     $('offset').textContent = est.offset.toFixed(1) + ' ms';
     $('rtt').textContent = est.rtt.toFixed(1) + ' ms';
     $('spread').textContent = est.spread.toFixed(1) + ' ms';
@@ -200,8 +231,10 @@
 
   // ---- Networking -------------------------------------------------------
   function showRoom() {
-    ['room', 'player', 'logSec'].forEach(id => $(id).hidden = false);
+    ['room', 'player', 'logSec', 'graphSec'].forEach(id => $(id).hidden = false);
     $('start').hidden = true;
+    $('backRow').hidden = false;
+    $('offsetWrap').hidden = role !== 'receiver';
     $('role').textContent = role === 'host' ? 'Host' : 'Receiver';
     $('roomCode').textContent = roomCode;
     $('hostControls').hidden = role !== 'host';
@@ -248,6 +281,89 @@
     });
   }
 
+  // ---- Live graphs (heart-rate style) -------------------------------------
+  function fit(c) {
+    const r = window.devicePixelRatio || 1, w = Math.round(c.clientWidth * r), h = Math.round(c.clientHeight * r);
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    return c.getContext('2d');
+  }
+  function sample() {
+    if (!analyser) return;
+    analyser.getFloatTimeDomainData(td);
+    let v = 0; for (let i = 0; i < td.length; i++) v = Math.max(v, Math.abs(td[i]));
+    const t = hostNow(); let hz = null;
+    if (v > 0.1) {
+      analyser.getFloatFrequencyData(fd);
+      let m = 1; for (let i = 2; i < fd.length; i++) if (fd[i] > fd[m]) m = i;
+      hz = Math.round(m * ctx.sampleRate / analyser.fftSize);
+    }
+    pts.push({ t: t, v: v, hz: hz });
+    while (pts.length && pts[0].t < t - GRAPH_MS) pts.shift();
+    if (v > 0.1 && !spikeUp && !customFile && state.status === 'playing') {
+      const p = C.positionAt(state, t, duration()), e = (p - Math.round(p)) * 1000;
+      $('pulseInfo').textContent = 'Last click: ' + hz + ' Hz, ' + (e >= 0 ? '+' : '') + e.toFixed(0) + ' ms from the timeline (rough, about +/-30 ms)';
+    }
+    spikeUp = v > 0.1;
+  }
+  function drawPulse() {
+    const c = $('pulse'), g = fit(c), w = c.width, h = c.height, r = window.devicePixelRatio || 1;
+    const t1 = hostNow(), t0 = t1 - GRAPH_MS, X = t => (t - t0) / GRAPH_MS * w, base = h * 0.85, amp = h * 0.7;
+    g.clearRect(0, 0, w, h);
+    if (!customFile && state.status === 'playing') {      // where each click should land
+      g.strokeStyle = '#cfd8df'; g.lineWidth = r;
+      const pA = state.startPos + (t0 - state.startHost) / 1000, pB = state.startPos + (t1 - state.startHost) / 1000;
+      for (let k = Math.ceil(Math.max(pA, state.startPos)); k <= Math.floor(pB); k++) {
+        const x = X(state.startHost + (k - state.startPos) * 1000);
+        g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke();
+      }
+    }
+    g.strokeStyle = '#13202b'; g.lineWidth = 1.5 * r; g.beginPath();
+    pts.forEach((p, i) => { const x = X(p.t), y = base - p.v * amp; if (i) g.lineTo(x, y); else g.moveTo(x, y); });
+    g.stroke();
+    g.font = (11 * r) + 'px system-ui, sans-serif'; let lastL = -1e9;
+    for (let i = 1; i < pts.length - 1; i++) {
+      const p = pts[i];
+      if (p.hz && p.v > 0.2 && p.v >= pts[i - 1].v && p.v > pts[i + 1].v && p.t - lastL > 400) {
+        lastL = p.t; g.fillStyle = p.hz > 1250 ? '#b4410c' : '#0b7a75';
+        g.fillText(p.hz + ' Hz', Math.min(X(p.t) + 3 * r, w - 52 * r), Math.max(12 * r, base - p.v * amp - 4 * r));
+      }
+    }
+  }
+  function drawOffset() {
+    if (role !== 'receiver') return;
+    const c = $('offsetChart'), g = fit(c), w = c.width, h = c.height, r = window.devicePixelRatio || 1;
+    g.clearRect(0, 0, w, h);
+    if (offPts.length < 2) return;
+    const o0 = offPts[0].o, t1 = now(), t0 = t1 - 60000;
+    let m = 5; offPts.forEach(p => { m = Math.max(m, Math.abs(p.o - o0)); });
+    g.strokeStyle = '#cfd8df'; g.lineWidth = r; g.beginPath(); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.stroke();
+    g.strokeStyle = '#0b7a75'; g.lineWidth = 1.5 * r; g.beginPath();
+    offPts.forEach((p, i) => { const x = (p.t - t0) / 60000 * w, y = h / 2 - (p.o - o0) / m * (h * 0.42); if (i) g.lineTo(x, y); else g.moveTo(x, y); });
+    g.stroke();
+    $('offsetInfo').textContent = 'Change over the last minute: ' + (offPts[offPts.length - 1].o - o0).toFixed(1) + ' ms (chart range +/-' + m.toFixed(0) + ' ms)';
+  }
+  (function loop() {
+    if (!$('graphSec').hidden) { sample(); drawPulse(); drawOffset(); }
+    requestAnimationFrame(loop);
+  })();
+
+  function leaveRoom() {
+    clearTimeout(pingTimer);
+    stopSource();
+    conns.forEach(c => { try { c.close(); } catch (e) {} });
+    if (hostConn) { try { hostConn.close(); } catch (e) {} }
+    if (peer) { try { peer.destroy(); } catch (e) {} }
+    peer = null; hostConn = null; conns = []; role = null; roomCode = '';
+    samples = []; offset = 0; helloSent = false;
+    state = C.initialState(); lastSeq = 0; seq = 0; offsetAtPlay = null;
+    pts = []; offPts = []; spikeUp = false; $('pulseInfo').textContent = 'Waiting for sound...';
+    ['room', 'player', 'sync', 'logSec', 'graphSec', 'backRow'].forEach(id => $(id).hidden = true);
+    $('start').hidden = false;
+    ['offset', 'rtt', 'spread', 'drift', 'health'].forEach(id => { $(id).textContent = '-'; $(id).className = ''; });
+    $('peers').textContent = '-';
+  }
+  $('btnLeave').onclick = leaveRoom;
+
   // ---- UI ---------------------------------------------------------------
   $('btnHost').onclick = async () => { await ensureAudio(); startHost(0); };
   $('btnJoin').onclick = async () => {
@@ -266,7 +382,7 @@
     try {
       buffer = await ctx.decodeAudioData(await f.arrayBuffer());
       $('srcInfo').textContent = 'Source: ' + f.name + ' (' + buffer.duration.toFixed(1) + ' s). Load the same file on every device.';
-      log('loaded ' + f.name);
+      customFile = true; log('loaded ' + f.name);
     } catch (err) { log('could not decode this file on this device'); }
   };
   const params = new URLSearchParams(location.search);
