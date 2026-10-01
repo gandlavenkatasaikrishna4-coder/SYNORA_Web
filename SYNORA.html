@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SYNORA Web Prototype - Phase 1</title>
+<style>
+  :root { --bg:#eef2f5; --ink:#13202b; --mute:#5b6b78; --line:#cfd8df; --card:#ffffff; --accent:#0b7a75; --warn:#b4410c; --bad:#a3262a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:560px; margin:0 auto; padding:16px 16px 48px; }
+  h1 { font-size:1.9rem; letter-spacing:.06em; margin:8px 0 0; }
+  .tag { color:var(--mute); margin:0 0 12px; }
+  .proto { border-left:4px solid var(--warn); background:#fff4ec; padding:8px 12px; font-size:.9rem; margin:12px 0; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:14px; margin:12px 0; }
+  h2 { font-size:1rem; margin:0 0 10px; }
+  button { font:inherit; padding:10px 14px; border:1px solid var(--ink); background:var(--ink); color:#fff; border-radius:4px; cursor:pointer; }
+  button.alt { background:#fff; color:var(--ink); }
+  button:disabled { opacity:.4; cursor:default; }
+  button:focus-visible, input:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+  input[type=text] { font:inherit; padding:9px 10px; border:1px solid var(--ink); border-radius:4px; width:7.5em; text-transform:uppercase; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:6px 0; }
+  .num { font-variant-numeric:tabular-nums; }
+  .big { font-size:2.4rem; line-height:1.1; font-weight:600; }
+  .strip { height:10px; background:var(--line); border-radius:5px; overflow:hidden; margin:8px 0; }
+  .strip > i { display:block; height:100%; width:0; background:var(--accent); }
+  dl { display:grid; grid-template-columns:auto 1fr; gap:4px 14px; margin:0; }
+  dt { color:var(--mute); } dd { margin:0; }
+  .good { color:var(--accent); font-weight:600; } .fair { color:var(--warn); font-weight:600; } .poor { color:var(--bad); font-weight:600; }
+  pre { background:#0f1a24; color:#d6e2ea; padding:10px; border-radius:4px; max-height:220px; overflow:auto; font-size:.8rem; white-space:pre-wrap; margin:0; }
+  small, .note { color:var(--mute); font-size:.88rem; }
+  [hidden] { display:none !important; }
+  @media (prefers-reduced-motion: no-preference) { .strip > i { transition:width .2s linear; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>SYNORA</h1>
+  <p class="tag">One Sound. Every Speaker.</p>
+  <div class="proto"><b>Prototype code (Phase 1, web).</b> Tests the timing method only. It does not prove Android or Bluetooth speaker behavior. Nothing here is verified on real devices yet.</div>
+
+  <section id="start">
+    <h2>Start</h2>
+    <div class="row"><button id="btnHost">Host a room</button></div>
+    <div class="row">
+      <input type="text" id="code" maxlength="4" placeholder="CODE" aria-label="Room code">
+      <button id="btnJoin" class="alt">Join room</button>
+    </div>
+    <p class="note">Open this page on every phone. One phone hosts, the others join with the code. Tap a button on each phone: browsers need a tap before they can play sound.</p>
+  </section>
+
+  <section id="room" hidden>
+    <h2>Room</h2>
+    <dl>
+      <dt>Role</dt><dd id="role"></dd>
+      <dt>Code</dt><dd class="num" id="roomCode"></dd>
+      <dt>Join link</dt><dd id="link" style="word-break:break-all"></dd>
+      <dt>Devices</dt><dd id="peers" class="num">-</dd>
+    </dl>
+  </section>
+
+  <section id="player" hidden>
+    <h2>Player</h2>
+    <div class="big num" id="pos">0.00 s</div>
+    <div class="strip"><i id="bar"></i></div>
+    <div class="row" id="hostControls" hidden>
+      <button id="btnPlay">Play</button>
+      <button id="btnPause" class="alt">Pause</button>
+      <button id="btnStop" class="alt">Stop</button>
+      <button id="btnBack" class="alt">-10 s</button>
+      <button id="btnFwd" class="alt">+10 s</button>
+    </div>
+    <p class="note" id="guestNote" hidden>The host controls playback.</p>
+    <div class="row"><label>Audio: <input type="file" id="file" accept="audio/*"></label></div>
+    <p class="note" id="srcInfo">Source: built-in click track (120 s). A custom file must be the same file on every device.</p>
+  </section>
+
+  <section id="sync" hidden>
+    <h2>Sync health</h2>
+    <dl>
+      <dt>Clock offset</dt><dd class="num" id="offset">-</dd>
+      <dt>Round trip</dt><dd class="num" id="rtt">-</dd>
+      <dt>Offset spread</dt><dd class="num" id="spread">-</dd>
+      <dt>Drift since start</dt><dd class="num" id="drift">-</dd>
+      <dt>Health</dt><dd id="health">-</dd>
+    </dl>
+    <p class="note">Offset is how far this phone's clock is from the host's. Spread is how much the best readings disagree. Health thresholds are guesses, not verified targets. Drift is only displayed; this prototype does not correct it yet.</p>
+  </section>
+
+  <section id="logSec" hidden>
+    <h2>Log</h2>
+    <pre id="log"></pre>
+  </section>
+
+  <p class="note">Created by Joe (Creator / Builder). Original idea: Sai Krishna (Idea Contributor).</p>
+</main>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="synora-core.js"></script>
+<script>
+(function () {
+  'use strict';
+  const C = SynoraCore;
+  const $ = id => document.getElementById(id);
+  const now = () => performance.now();
+  const LEAD_MS = 2000;      // start scheduled this far ahead so everyone can buffer
+  const PAUSE_LEAD_MS = 300;
+
+  let ctx = null, buffer = null, src = null;
+  let peer = null, role = null, roomCode = '';
+  let conns = [];            // host: receiver connections
+  let hostConn = null;       // receiver: connection to host
+  let offset = 0;            // receiver: hostClock - localClock (ms). Host stays 0.
+  let samples = [], pingTimer = null, helloSent = false;
+  let state = C.initialState(), lastSeq = 0, seq = 0, offsetAtPlay = null;
+
+  function log(msg) {
+    const el = $('log'); const t = (now() / 1000).toFixed(2);
+    el.textContent += '[' + t + '] ' + msg + '\n'; el.scrollTop = el.scrollHeight;
+  }
+  function duration() { return buffer ? buffer.duration : 120; }
+  function hostNow() { return now() + offset; }
+
+  // ---- Audio ------------------------------------------------------------
+  async function ensureAudio() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+    if (ctx.state !== 'running') await ctx.resume();
+    if (!buffer) setClickBuffer();
+    try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) { log('Screen lock not available'); }
+  }
+  function setClickBuffer() {
+    const data = C.clickTrack(ctx.sampleRate, 120);
+    buffer = ctx.createBuffer(1, data.length, ctx.sampleRate);
+    buffer.copyToChannel(data, 0);
+  }
+  // Convert a local performance.now() time into AudioContext time.
+  function perfToCtx(perfMs) {
+    if (ctx.getOutputTimestamp) {
+      const ts = ctx.getOutputTimestamp();
+      if (ts.performanceTime > 0) return ts.contextTime + (perfMs - ts.performanceTime) / 1000;
+    }
+    return ctx.currentTime + (perfMs - now()) / 1000;
+  }
+  function stopSource(atCtxTime) {
+    if (!src) return;
+    try { src.stop(atCtxTime || 0); } catch (e) {}
+    if (!atCtxTime) src = null;
+  }
+  function startSource(startHost, pos) {
+    stopSource();
+    const plan = C.planStart({ startHost: startHost, pos: pos }, offset, now());
+    const when = Math.max(perfToCtx(now() + plan.waitMs), ctx.currentTime);
+    const p = Math.min(plan.pos, buffer.duration - 0.01);
+    src = ctx.createBufferSource();
+    src.buffer = buffer; src.connect(ctx.destination); src.start(when, p);
+    offsetAtPlay = offset;
+    log('play from ' + p.toFixed(2) + ' s in ' + plan.waitMs.toFixed(0) + ' ms' + (plan.late ? ' (LATE by ' + plan.lateMs.toFixed(0) + ' ms)' : ''));
+  }
+
+  // ---- Commands ---------------------------------------------------------
+  function handle(cmd) {
+    const a = C.acceptCommand(lastSeq, cmd.seq);
+    if (!a.accept) { log('ignored old command #' + cmd.seq); return; }
+    lastSeq = a.lastSeq;
+    state = C.reduce(state, cmd, duration());
+    if (cmd.type === 'play' || (cmd.type === 'seek' && state.status === 'playing')) startSource(state.startHost, state.startPos);
+    else if (cmd.type === 'pause') { stopSource(Math.max(perfToCtx(C.hostToLocal(cmd.atHost, offset)), ctx.currentTime)); log('pause at ' + state.pos.toFixed(2) + ' s'); }
+    else if (cmd.type === 'stop') { stopSource(); log('stop'); }
+  }
+  function send(cmd) {           // host only
+    cmd.seq = ++seq;
+    conns.forEach(c => c.open && c.send(cmd));
+    handle(cmd);
+  }
+  function applyFullState(m) {   // receiver: joined late
+    lastSeq = m.seq; state = m.state;
+    if (state.status === 'playing') startSource(state.startHost, state.startPos);
+    log('synced to host state: ' + state.status);
+  }
+
+  // ---- Clock sync (receiver) -------------------------------------------
+  function schedulePing() {
+    if (!hostConn || !hostConn.open) return;
+    hostConn.send({ type: 'ping', t0: now() });
+    pingTimer = setTimeout(schedulePing, samples.length < 20 ? 400 : 3000);
+  }
+  function onPong(m) {
+    samples.push(C.clockSample(m.t0, m.t1, m.t2, now()));
+    if (samples.length > 30) samples.shift();
+    const est = C.pickOffset(samples, 3);
+    if (!est) return;
+    offset = est.offset;
+    $('offset').textContent = est.offset.toFixed(1) + ' ms';
+    $('rtt').textContent = est.rtt.toFixed(1) + ' ms';
+    $('spread').textContent = est.spread.toFixed(1) + ' ms';
+    const h = C.syncHealth(est.spread, est.rtt);
+    $('health').textContent = h; $('health').className = h;
+    if (!helloSent && samples.length >= 6) { helloSent = true; hostConn.send({ type: 'hello' }); }
+  }
+
+  // ---- Networking -------------------------------------------------------
+  function showRoom() {
+    ['room', 'player', 'logSec'].forEach(id => $(id).hidden = false);
+    $('start').hidden = true;
+    $('role').textContent = role === 'host' ? 'Host' : 'Receiver';
+    $('roomCode').textContent = roomCode;
+    $('hostControls').hidden = role !== 'host';
+    $('guestNote').hidden = role === 'host';
+    if (role === 'receiver') $('sync').hidden = false;
+    if (role === 'host') {
+      const url = location.origin + location.pathname + '?join=' + roomCode;
+      $('link').textContent = url;
+    } else $('link').textContent = '-';
+  }
+
+  function startHost(tries) {
+    roomCode = C.makeRoomCode(Math.random, 4);
+    peer = new Peer('synora-' + roomCode);
+    peer.on('open', () => { role = 'host'; showRoom(); log('room ' + roomCode + ' ready'); });
+    peer.on('error', e => {
+      if (e.type === 'unavailable-id' && (tries || 0) < 5) { startHost((tries || 0) + 1); return; }
+      log('network error: ' + e.type);
+    });
+    peer.on('connection', conn => {
+      conns.push(conn);
+      conn.on('open', () => { $('peers').textContent = conns.filter(c => c.open).length; log('device joined'); });
+      conn.on('data', m => {
+        if (m.type === 'ping') { const t1 = now(); conn.send({ type: 'pong', t0: m.t0, t1: t1, t2: now() }); }
+        else if (m.type === 'hello') conn.send({ type: 'state', seq: seq, state: state });
+      });
+      conn.on('close', () => { conns = conns.filter(c => c !== conn); $('peers').textContent = conns.length; log('device left'); });
+    });
+  }
+
+  function startJoin(code) {
+    roomCode = code;
+    peer = new Peer();
+    peer.on('error', e => log('network error: ' + e.type + (e.type === 'peer-unavailable' ? ' (check the code)' : '')));
+    peer.on('open', () => {
+      hostConn = peer.connect('synora-' + code, { reliable: true });
+      hostConn.on('open', () => { role = 'receiver'; showRoom(); log('connected to host'); schedulePing(); });
+      hostConn.on('data', m => {
+        if (m.type === 'pong') onPong(m);
+        else if (m.type === 'state') applyFullState(m);
+        else if (m.type === 'play' || m.type === 'pause' || m.type === 'stop' || m.type === 'seek') handle(m);
+      });
+      hostConn.on('close', () => { log('host disconnected'); stopSource(); clearTimeout(pingTimer); });
+    });
+  }
+
+  // ---- UI ---------------------------------------------------------------
+  $('btnHost').onclick = async () => { await ensureAudio(); startHost(0); };
+  $('btnJoin').onclick = async () => {
+    const code = $('code').value.trim().toUpperCase();
+    if (code.length !== 4) { alert('Enter the 4-character room code.'); return; }
+    await ensureAudio(); startJoin(code);
+  };
+  $('btnPlay').onclick = () => send({ type: 'play', startHost: now() + LEAD_MS, pos: state.status === 'paused' ? state.pos : (state.status === 'playing' ? C.positionAt(state, now(), duration()) : 0) });
+  $('btnPause').onclick = () => send({ type: 'pause', atHost: now() + PAUSE_LEAD_MS });
+  $('btnStop').onclick = () => send({ type: 'stop' });
+  function seekBy(d) { send({ type: 'seek', pos: C.positionAt(state, now(), duration()) + d, startHost: now() + LEAD_MS }); }
+  $('btnBack').onclick = () => seekBy(-10);
+  $('btnFwd').onclick = () => seekBy(10);
+  $('file').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      buffer = await ctx.decodeAudioData(await f.arrayBuffer());
+      $('srcInfo').textContent = 'Source: ' + f.name + ' (' + buffer.duration.toFixed(1) + ' s). Load the same file on every device.';
+      log('loaded ' + f.name);
+    } catch (err) { log('could not decode this file on this device'); }
+  };
+  const params = new URLSearchParams(location.search);
+  if (params.get('join')) $('code').value = params.get('join').toUpperCase();
+
+  setInterval(() => {
+    const p = C.positionAt(state, hostNow(), duration());
+    $('pos').textContent = p.toFixed(2) + ' s';
+    $('bar').style.width = Math.min(100, p / duration() * 100) + '%';
+    if (role === 'receiver' && offsetAtPlay !== null && state.status === 'playing')
+      $('drift').textContent = (offset - offsetAtPlay).toFixed(1) + ' ms';
+  }, 100);
+})();
+</script>
+</body>
+</html>
