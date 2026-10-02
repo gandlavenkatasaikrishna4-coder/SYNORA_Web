@@ -11,7 +11,7 @@
   // t0 = receiver send time, t1 = host receive time, t2 = host send time,
   // t3 = receiver receive time. offset = hostClock - receiverClock (ms).
   function clockSample(t0, t1, t2, t3) {
-    return { offset: ((t1 - t0) + (t2 - t3)) / 2, rtt: (t3 - t0) - (t2 - t1) };
+    return { offset: ((t1 - t0) + (t2 - t3)) / 2, rtt: (t3 - t0) - (t2 - t1), t: t3 };
   }
 
   function median(values) {
@@ -35,12 +35,32 @@
     };
   }
 
+  // Offset now, using a straight-line fit over the last minute so slow clock
+  // drift (ppm) is tracked. Falls back to pickOffset when there is too little data.
+  function predictOffset(samples, tNow, keep) {
+    const win = samples.filter(s => s.t != null && tNow - s.t <= 60000 && isFinite(s.offset) && s.rtt >= 0);
+    const base = pickOffset(win.length ? win : samples, keep);
+    if (!base) return null;
+    const plain = Object.assign({ slopePpm: null }, base);
+    if (win.length < 8) return plain;
+    const ts = win.map(s => s.t);
+    if (Math.max.apply(null, ts) - Math.min.apply(null, ts) < 15000) return plain;
+    const good = win.slice().sort((a, b) => a.rtt - b.rtt).slice(0, Math.max(6, win.length >> 1));
+    const n = good.length; let sx = 0, sy = 0, sxx = 0, sxy = 0;
+    good.forEach(s => { const x = s.t - tNow; sx += x; sy += s.offset; sxx += x * x; sxy += x * s.offset; });
+    const den = n * sxx - sx * sx; if (Math.abs(den) < 1e-6) return plain;
+    const b = (n * sxy - sx * sy) / den, a = (sy - b * sx) / n;
+    if (Math.abs(b) > 1e-3 || Math.abs(a - base.offset) > 50) return plain;   // implausible fit
+    let ss = 0; good.forEach(s => { const r = s.offset - (a + b * (s.t - tNow)); ss += r * r; });
+    return { offset: a, rtt: base.rtt, spread: Math.sqrt(ss / n), slopePpm: b * 1e6, used: n };
+  }
+
   function hostToLocal(hostMs, offset) { return hostMs - offset; }
   function localToHost(localMs, offset) { return localMs + offset; }
 
   // ---- Session timeline -------------------------------------------------
   function initialState() {
-    return { status: 'idle', startHost: 0, startPos: 0, pos: 0 };
+    return { status: 'idle', startHost: 0, startPos: 0, pos: 0, track: null };
   }
 
   // Track position (seconds) at a given host-clock time (ms).
@@ -58,18 +78,18 @@
     switch (cmd.type) {
       case 'play': {
         const p = clamp(cmd.pos == null ? state.pos : cmd.pos);
-        return { status: 'playing', startHost: cmd.startHost, startPos: p, pos: p };
+        return { status: 'playing', startHost: cmd.startHost, startPos: p, pos: p, track: cmd.track !== undefined ? cmd.track : state.track };
       }
       case 'pause': {
         if (state.status !== 'playing') return state;
-        return { status: 'paused', startHost: 0, startPos: 0, pos: positionAt(state, cmd.atHost, duration) };
+        return { status: 'paused', startHost: 0, startPos: 0, pos: positionAt(state, cmd.atHost, duration), track: state.track };
       }
       case 'stop':
         return initialState();
       case 'seek': {
         const p = clamp(cmd.pos);
-        if (state.status === 'playing') return { status: 'playing', startHost: cmd.startHost, startPos: p, pos: p };
-        return { status: 'paused', startHost: 0, startPos: 0, pos: p };
+        if (state.status === 'playing') return { status: 'playing', startHost: cmd.startHost, startPos: p, pos: p, track: state.track };
+        return { status: 'paused', startHost: 0, startPos: 0, pos: p, track: state.track };
       }
       default:
         return state;
@@ -122,7 +142,39 @@
     return out;
   }
 
+  // ---- Playlist ---------------------------------------------------------
+  function moveItem(arr, i, d) {
+    const j = i + d, a = arr.slice();
+    if (i < 0 || i >= a.length || j < 0 || j >= a.length) return a;
+    const t = a[i]; a[i] = a[j]; a[j] = t; return a;
+  }
+  // q: { n, idx, trackPlays, trackReps, listPlays, listReps, shuffle }. null = finished.
+  function advance(q, rand) {
+    const m = function (o) { return Object.assign({}, q, o); };
+    if (q.trackPlays < q.trackReps) return m({ trackPlays: q.trackPlays + 1 });
+    if (q.shuffle && q.n > 1) { let k = Math.floor(rand() * (q.n - 1)); if (k >= q.idx) k++; return m({ idx: k, trackPlays: 1 }); }
+    if (q.idx + 1 < q.n) return m({ idx: q.idx + 1, trackPlays: 1 });
+    if (q.listPlays < q.listReps) return m({ idx: 0, trackPlays: 1, listPlays: q.listPlays + 1 });
+    return null;
+  }
+  function skip(q, dir) {
+    if (!q.n) return q;
+    return Object.assign({}, q, { idx: (q.idx + dir + q.n) % q.n, trackPlays: 1, listPlays: 1 });
+  }
+  // Thresholds are PROTOTYPE GUESSES based on round-trip time (ms).
+  function strengthLabel(rttMs, lost) {
+    if (lost) return 'Network loss';
+    if (rttMs == null) return 'Measuring';
+    if (rttMs <= 40) return 'Excellent';
+    if (rttMs <= 80) return 'Very good';
+    if (rttMs <= 150) return 'Good';
+    if (rttMs <= 300) return 'Fair';
+    if (rttMs <= 600) return 'Bad';
+    return 'Poor';
+  }
+
   return {
+    moveItem, advance, skip, strengthLabel, median, predictOffset,
     clockSample, pickOffset, hostToLocal, localToHost,
     initialState, positionAt, reduce, acceptCommand, planStart,
     syncHealth, makeRoomCode, clickTrack
