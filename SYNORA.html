@@ -3,146 +3,168 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#E9EBEE">
+<meta name="theme-color" content="#0B0B10">
 <title>SYNORA - One Sound. Every Speaker.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500;600&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#E9EBEE; --pearl:#FBFBFC; --ink:#2B2A2F; --mute:#666872; --goldD:#8A6A1F; --silver:#AEB3BB; --line:#D3D6DB; --warn:#A9561E; --bad:#A3262E;
-    --serif:"Bodoni Moda",Didot,"Bodoni 72",Georgia,serif; --sans:"Jost",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    --goldGrad:linear-gradient(135deg,#B8923A 0%,#EBD595 35%,#C9A24D 60%,#F1E0A8 80%,#B8923A 100%);
-    --silverGrad:linear-gradient(135deg,#C4C8CE 0%,#F7F8FA 40%,#D5D8DD 70%,#FFFFFF 100%);
-    --goldText:linear-gradient(135deg,#7A5C14 0%,#B8923A 40%,#8A6A1F 65%,#C9A24D 100%); }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font:400 16px/1.55 var(--sans); }
-  main { max-width:560px; margin:0 auto; padding:18px 18px 56px; }
-  header { padding:10px 0 4px; }
-  h1 { font:500 2.6rem/1 var(--serif); letter-spacing:.22em; margin:0; }
-  .tag { font:400 .95rem var(--sans); letter-spacing:.2em; color:var(--goldD); margin:8px 0 10px; }
-  section { position:relative; padding:20px 0; border-top:1px solid var(--line); }
-  section::before { content:""; position:absolute; top:-1px; left:0; width:48px; height:2px; background:var(--goldGrad); }
-  h2 { font:600 1.25rem var(--serif); letter-spacing:.04em; margin:0 0 12px; }
-  #player { background:var(--pearl); border:1px solid #C9A24D; border-radius:6px; padding:22px 20px; margin-top:14px;
-    box-shadow:inset 0 0 0 4px var(--pearl), inset 0 0 0 5px var(--line), 0 1px 3px rgba(60,50,20,.12); }
-  #player::before { display:none; }
-  .big { font:500 4rem/1 var(--serif); font-variant-numeric:lining-nums tabular-nums; color:var(--goldD);
-    background:var(--goldText); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-  .strip { position:relative; height:2px; background:var(--silver); margin:20px 7px 22px 0; }
-  .strip > i { display:block; position:relative; height:100%; width:0; background:var(--goldGrad); }
-  .strip > i::after { content:""; position:absolute; right:-7px; top:50%; width:14px; height:14px; margin-top:-7px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #fff, #EBD595 40%, #B8923A); box-shadow:0 0 0 1px var(--goldD); }
-  button { font:500 .98rem var(--sans); letter-spacing:.06em; padding:11px 18px; border:1px solid var(--goldD); background:var(--goldGrad); color:var(--ink); border-radius:4px; cursor:pointer; text-shadow:0 1px 0 rgba(255,255,255,.35); }
-  button.alt { background:var(--silverGrad); border-color:var(--silver); }
-  button:active { filter:brightness(.93); }
-  button:disabled { opacity:.45; cursor:default; }
-  button:focus-visible, input:focus-visible { outline:2px solid var(--ink); outline-offset:3px; }
-  input[type=text] { font:500 1rem var(--sans); width:7.5em; padding:10px; text-align:center; letter-spacing:.3em; text-transform:uppercase; background:#fff; color:var(--ink); border:1px solid var(--silver); border-radius:4px; }
-  input::placeholder { color:var(--mute); letter-spacing:.1em; }
-  input[type=file] { color:var(--mute); font-size:.9rem; max-width:100%; }
-  input[type=file]::file-selector-button { font:500 .85rem var(--sans); margin-right:10px; padding:7px 12px; background:var(--silverGrad); color:var(--ink); border:1px solid var(--silver); border-radius:4px; }
-  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:10px 0; }
-  .num { font-variant-numeric:tabular-nums; }
-  .back-row { margin:0 0 6px; }
-  .back-btn { display:inline-flex; align-items:center; gap:5px; padding:5px 14px 5px 9px; font-size:.8rem; border-radius:999px; }
-  .roombar { display:flex; justify-content:space-between; align-items:flex-end; gap:12px; }
-  .lbl { display:block; color:var(--mute); font-size:.8rem; }
-  .code { font:500 2rem/1.1 var(--serif); letter-spacing:.22em; color:var(--goldD); }
-  .linkrow { display:flex; gap:10px; align-items:center; margin-top:12px; }
-  #link { flex:1; color:var(--mute); font-size:.8rem; word-break:break-all; }
-  .linkrow button { padding:7px 12px; font-size:.82rem; flex-shrink:0; }
-  dl { display:grid; grid-template-columns:auto 1fr; gap:6px 18px; margin:0; }
-  dt { color:var(--mute); } dd { margin:0; font-variant-numeric:tabular-nums; }
-  .good::before, .fair::before, .poor::before { content:"\25C6\00a0"; }
-  .good { color:var(--goldD); font-weight:600; } .fair { color:var(--warn); font-weight:600; } .poor { color:var(--bad); font-weight:600; }
-  canvas { width:100%; height:120px; display:block; background:var(--pearl); border:1px solid var(--line); border-radius:6px; }
-  #offsetChart { height:90px; }
-  pre { background:#F1F2F4; color:#3A3940; border:1px solid var(--line); padding:10px; border-radius:6px; max-height:180px; overflow:auto; font-size:.8rem; white-space:pre-wrap; margin:0; }
-  .note { color:var(--mute); font-size:.86rem; margin:10px 0 0; }
-  .foot { border-top:1px solid var(--line); padding-top:16px; color:var(--mute); font-size:.82rem; }
-  [hidden] { display:none !important; }
-  @media (prefers-reduced-motion: no-preference) { .strip > i { transition:width .2s linear; } }
+:root{--bg:#0B0B10;--panel:#17171F;--ink:#EDEAE4;--mute:#A6A7B3;--gold:#D9B86C;--silver:#DDE2EA;--ok:#5FD08A;--warn:#E8B26A;--bad:#EF7A86;--head:"Cinzel",Georgia,serif;--body:"Jost",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body)}
+.bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;background:
+radial-gradient(55% 35% at 12% 8%,rgba(244,198,224,.16),transparent 70%),radial-gradient(50% 32% at 92% 28%,rgba(191,232,255,.15),transparent 70%),
+radial-gradient(60% 38% at 20% 92%,rgba(233,245,201,.11),transparent 70%),radial-gradient(45% 30% at 88% 88%,rgba(217,184,108,.16),transparent 70%),
+repeating-linear-gradient(45deg,rgba(217,184,108,.09) 0 1px,transparent 1px 44px),repeating-linear-gradient(-45deg,rgba(217,184,108,.09) 0 1px,transparent 1px 44px)}
+.bg::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.08) 46%,rgba(244,198,224,.10) 49%,rgba(191,232,255,.10) 52%,rgba(233,245,201,.08) 55%,transparent 62%);background-size:300% 100%;background-position:100% 0}
+.gem{position:absolute;width:var(--s);height:var(--s);background:radial-gradient(circle,#fff 0,#fff 25%,#EAF0F8 60%);clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);opacity:.75}
+.frame{position:fixed;inset:7px;border:1px solid rgba(217,184,108,.45);border-radius:6px;pointer-events:none}
+.frame::before{content:"";position:absolute;inset:4px;border:1px solid rgba(217,184,108,.2);border-radius:4px}
+.frame i{position:absolute;font-style:normal;color:var(--gold);font-size:12px;line-height:1;background:var(--bg);padding:2px}
+@media(prefers-reduced-motion:no-preference){.gem{animation:gl 4.5s ease-in-out infinite;animation-delay:var(--d)}.bg::before{animation:rf 9s ease-in-out infinite alternate}h1{animation:sh 7s linear infinite}}
+@keyframes gl{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}@keyframes rf{to{background-position:0 0}}@keyframes sh{to{background-position:-250% 0}}
+main{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:16px 16px 56px}
+h1{font:700 2.5rem/1.1 var(--head);letter-spacing:.2em;margin:6px 0 0;text-align:center;color:transparent;-webkit-background-clip:text;background-clip:text;background-size:250% 100%;
+background-image:linear-gradient(100deg,#B9BEC8 10%,#fff 22%,#F4C6E0 34%,#BFE8FF 46%,#E9F5C9 58%,#fff 70%,#B9BEC8 85%)}
+.tag{font:300 1rem var(--body);letter-spacing:.3em;color:var(--gold);text-align:center;margin:2px 0 0;text-transform:uppercase}
+.gl{display:flex;align-items:center;gap:10px;color:var(--gold);margin:10px 0 16px}
+.gl::before,.gl::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}.gl::after{transform:scaleX(-1)}
+.card{border:1px solid transparent;border-radius:14px;padding:16px;margin:14px 0;background:linear-gradient(var(--panel),var(--panel)) padding-box,linear-gradient(135deg,#F0D590,#8E6F2F 30%,#EAF0F8 55%,#B8964A 80%,#F0D590) border-box}
+.card{position:relative;margin:28px 0}
+.card::before{content:"";position:absolute;left:14%;right:14%;top:-15px;height:1px;background:linear-gradient(90deg,transparent,#D9B86C,#EAF0F8,#D9B86C,transparent)}
+.card::after{content:"\25C6";position:absolute;top:-23px;left:50%;transform:translateX(-50%);font-size:11px;line-height:1;color:var(--gold);background:var(--bg);padding:0 8px}
+h2{font:500 1.05rem var(--head);letter-spacing:.12em;margin:0 0 12px;color:var(--silver)}
+h2::before{content:"◆ ";color:var(--gold);font-size:.7em}
+button{font:500 .95rem var(--body);letter-spacing:.04em;padding:10px 16px;border:0;border-radius:999px;cursor:pointer;color:#1B1405;background:linear-gradient(180deg,#F5DDA0,#C09A4B);box-shadow:inset 0 1px 0 rgba(255,255,255,.55)}
+button.alt,.ic{background:transparent;color:var(--silver);box-shadow:none;border:1px solid #8E94A3}
+button.on{background:linear-gradient(180deg,#F5DDA0,#C09A4B);color:#1B1405;border-color:transparent}
+button:disabled{opacity:.35;cursor:default}
+button:focus-visible,input:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.ic{padding:0;width:34px;height:34px;font-size:.9rem}
+input[type=text]{font:inherit;width:7.5em;padding:10px;text-align:center;letter-spacing:.3em;text-transform:uppercase;background:#0B0B10;color:var(--silver);caret-color:var(--silver);border:1px solid var(--gold);border-radius:8px}
+#btnJoin{color:var(--silver);border:1px solid var(--silver)}
+input[type=file]{color:var(--mute);font-size:.9rem;max-width:100%}
+input[type=file]::file-selector-button{font:inherit;margin-right:10px;padding:7px 14px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold)}
+input[type=range]{width:100%;accent-color:var(--gold)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+.back-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 13px 5px 9px;font-size:.8rem}
+.note{color:var(--mute);font-size:.85rem;margin:10px 0 0}
+.lbl{display:block;color:var(--mute);font-size:.78rem}
+.roombar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.code{font:700 1.9rem/1.1 var(--head);letter-spacing:.2em;color:var(--gold)}
+.linkrow{display:flex;gap:10px;align-items:center;margin-top:12px}
+#link{flex:1;color:var(--mute);font-size:.78rem;word-break:break-all}
+.linkrow button{padding:6px 12px;font-size:.8rem}
+#nowName{font:500 1.15rem var(--head);text-align:center;margin:0}
+.big{font:500 3.2rem/1.1 var(--head);text-align:center;font-variant-numeric:tabular-nums;margin:6px 0}
+.ctl{display:flex;justify-content:center;align-items:center;gap:14px;margin:10px 0}
+#btnPlay{width:68px;height:68px;font-size:1.4rem;padding:0}
+.ctl .ic{width:48px;height:48px;font-size:1.1rem}
+.badge{display:block;text-align:center;font-size:.85rem;color:var(--mute);margin:4px 0 10px}.badge.ok{color:var(--gold)}
+.small button{padding:7px 14px;font-size:.82rem}
+.bar{position:relative;height:16px;background:#0A0A0F;border:1px solid rgba(221,226,234,.3);border-radius:8px;overflow:hidden}
+.bar i{position:absolute;inset:0}.bar b{position:absolute;inset:0;display:grid;place-items:center;font:500 .7rem var(--body);color:#fff;text-shadow:0 0 3px #000,0 0 3px #000}
+ul{list-style:none;margin:0;padding:0}
+#devList li{display:grid;grid-template-columns:28px 1fr auto;gap:2px 10px;align-items:center;padding:8px 0;border-top:1px solid rgba(217,184,108,.18)}
+#devList li:first-child{border-top:0}.ds{font-size:.82rem;color:var(--gold)}#devList .bar{grid-column:2/4}
+#libList li{padding:10px 0;border-top:1px solid rgba(217,184,108,.18);display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center}
+#libList li:first-child{border-top:0}#libList li.cur .nm{color:var(--gold)}
+.trk{display:flex;align-items:center;gap:10px;min-width:0}.nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dia{color:var(--gold);width:34px;text-align:center}
+.tick{color:var(--ok);font-weight:700}.mv{display:flex;gap:6px}.empty{color:var(--mute)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:5px 18px;margin:0}dt{color:var(--mute)}dd{margin:0;font-variant-numeric:tabular-nums}
+.good{color:var(--gold);font-weight:500}.fair{color:var(--warn);font-weight:500}.poor{color:var(--bad);font-weight:500}
+canvas{width:100%;height:130px;display:block;background:#0A0A0F;border:1px solid rgba(217,184,108,.4);border-radius:8px}
+pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padding:10px;border-radius:8px;max-height:170px;overflow:auto;font-size:.78rem;white-space:pre-wrap;margin:0}
+#alert{background:#2C1519;border:1px solid var(--bad);color:#FFD9DC;border-radius:10px;padding:10px 14px;margin:12px 0}
+.foot{color:var(--mute);font-size:.8rem;text-align:center;margin-top:24px}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
+<div class="bg" aria-hidden="true"><i class="gem" style="left:4%;top:9%;--s:20px;--d:0s"></i><i class="gem" style="left:90%;top:6%;--s:16px;--d:1.2s"></i><i class="gem" style="left:8%;top:30%;--s:12px;--d:2.4s"></i><i class="gem" style="left:94%;top:38%;--s:18px;--d:0.6s"></i><i class="gem" style="left:3%;top:55%;--s:16px;--d:3.1s"></i><i class="gem" style="left:92%;top:62%;--s:12px;--d:1.8s"></i><i class="gem" style="left:6%;top:78%;--s:18px;--d:0.9s"></i><i class="gem" style="left:95%;top:85%;--s:16px;--d:2.7s"></i><i class="gem" style="left:48%;top:3%;--s:12px;--d:3.6s"></i><i class="gem" style="left:50%;top:97%;--s:14px;--d:1.5s"></i></div>
+<div class="frame" aria-hidden="true"><i style="left:-7px;top:-7px">&#9670;</i><i style="right:-7px;top:-7px">&#9670;</i><i style="left:-7px;bottom:-7px">&#9670;</i><i style="right:-7px;bottom:-7px">&#9670;</i></div>
 <main>
-  <div class="back-row" id="backRow" hidden>
-    <button type="button" id="btnLeave" class="back-btn" aria-label="Leave room and go back">
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      Back
-    </button>
-  </div>
+  <div id="backRow" hidden><button type="button" id="btnLeave" class="alt back-btn" aria-label="Leave room and go back">&#8249; Back</button></div>
+  <h1>SYNORA</h1>
+  <p class="tag">One Sound. Every Speaker.</p>
+  <div class="gl">&#9670;</div>
+  <div id="alert" role="alert" hidden></div>
 
-  <header>
-    <h1>SYNORA</h1>
-    <p class="tag">One Sound. Every Speaker.</p>
-  </header>
-
-  <section id="start">
+  <section id="start" class="card">
     <h2>Start a shared sound</h2>
     <div class="row"><button id="btnHost">Host a room</button></div>
-    <div class="row">
-      <input type="text" id="code" maxlength="4" placeholder="CODE" aria-label="Room code">
-      <button id="btnJoin" class="alt">Join room</button>
-    </div>
+    <div class="row"><input type="text" id="code" maxlength="4" placeholder="CODE" aria-label="Room code"><button id="btnJoin" class="alt">Join room</button></div>
     <p class="note">Open this page on every phone. One phone hosts and the others join with the code. Tap a button on each phone: browsers need a tap before they can play sound.</p>
   </section>
 
-  <section id="room" hidden>
+  <section id="room" class="card" hidden>
     <div class="roombar">
-      <div><span class="lbl">Room code</span><span class="code num" id="roomCode"></span></div>
+      <div><span class="lbl">Room code</span><span class="code" id="roomCode"></span></div>
       <div><span class="lbl">Role</span><span id="role"></span></div>
-      <div><span class="lbl">Devices</span><span class="num" id="peers">-</span></div>
+      <div><span class="lbl">Devices</span><span id="peers">-</span></div>
     </div>
     <div class="linkrow" id="linkRow"><span id="link"></span><button type="button" id="btnCopy" class="alt">Copy link</button></div>
   </section>
 
-  <section id="player" hidden>
-    <h2>Now playing</h2>
-    <div class="big num" id="pos">0.00 s</div>
-    <div class="strip"><i id="bar"></i></div>
-    <div class="row" id="hostControls" hidden>
-      <button id="btnPlay">Play</button>
-      <button id="btnPause" class="alt">Pause</button>
-      <button id="btnStop" class="alt">Stop</button>
-      <button id="btnBack" class="alt">-10 s</button>
-      <button id="btnFwd" class="alt">+10 s</button>
+  <section id="player" class="card" hidden>
+    <p id="nowName">Built-in click track</p>
+    <div class="big" id="pos">0:00 / 2:00</div>
+    <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek">
+    <div class="ctl">
+      <button id="btnPrev" class="ic" aria-label="Previous song">&#9198;</button>
+      <button id="btnPlay" aria-label="Play or pause">&#9654;</button>
+      <button id="btnNext" class="ic" aria-label="Next song">&#9197;</button>
     </div>
-    <p class="note" id="guestNote" hidden>The host controls playback.</p>
-    <div class="row"><label>Song: <input type="file" id="file" accept="audio/*"></label></div>
-    <p class="note" id="srcInfo">Source: built-in click track (120 s). Pick a song on the host phone and it is sent to the other phones.</p>
+    <span class="badge" id="ready"></span>
+    <div class="row small" style="justify-content:center">
+      <button id="btnShuf" class="alt">Shuffle</button>
+      <button id="btnRepEach" class="alt">Each x1</button>
+      <button id="btnRepAll" class="alt">All x1</button>
+    </div>
+    <div class="row"><label class="lbl" for="vol" style="min-width:3.5em">Volume</label><input type="range" id="vol" min="0" max="100" value="80" style="flex:1" aria-label="Volume on this phone"></div>
+    <p class="note">Only the host has the play controls. Volume is for this phone only. There is a short gap of about 2 seconds between songs.</p>
   </section>
 
-  <section id="sync" hidden>
+  <section id="devs" class="card" hidden>
+    <h2>Connected devices</h2>
+    <ul id="devList"></ul>
+    <p class="note">&#128728; = Wi-Fi, &#128246; = mobile data, &#10068; = this browser does not say. Strength comes from the measured round-trip time.</p>
+  </section>
+
+  <section id="lib" class="card" hidden>
+    <h2>Songs <span id="libCount" class="lbl" style="display:inline"></span></h2>
+    <div class="row" id="addRow"><input type="file" id="file" accept="audio/*" multiple aria-label="Add songs"></div>
+    <ul id="libList"></ul>
+    <p class="note">Songs are sent from the host to every phone before playing, and are cleared when the host closes the room. Keep to a few songs, because each one uses a lot of phone memory.</p>
+  </section>
+
+  <section id="sync" class="card" hidden>
     <h2>Sync health</h2>
     <dl>
-      <dt>Health</dt><dd id="health">-</dd>
-      <dt>Drift since start</dt><dd id="drift">-</dd>
-      <dt>Offset spread</dt><dd id="spread">-</dd>
-      <dt>Round trip</dt><dd id="rtt">-</dd>
-      <dt>Clock offset</dt><dd id="offset">-</dd>
+      <dt>Health</dt><dd id="health">-</dd><dt>Drift since start</dt><dd id="drift">-</dd><dt>Offset spread</dt><dd id="spread">-</dd>
+      <dt>Round trip</dt><dd id="rtt">-</dd><dt>Clock offset</dt><dd id="offset">-</dd><dt>Clock rate difference</dt><dd id="ppm">-</dd>
     </dl>
-    <p class="note">Offset is how far this phone's clock is from the host's. Spread is how much the best readings disagree. Health thresholds are guesses, not verified targets. Drift is only displayed; this prototype does not correct it yet.</p>
+    <p class="note">Offset is how far this phone's clock is from the host's. Health thresholds are guesses, not verified targets. Drift is shown, not corrected yet.</p>
   </section>
 
-  <section id="graphSec" hidden>
+  <section id="tune" class="card" hidden>
+    <h2>Sync tuning (this phone)</h2>
+    <dl><dt>Trim</dt><dd id="trim">0.0 ms</dd><dt>Speed correction</dt><dd id="rate">-</dd></dl>
+    <div class="row small"><button class="alt nudge" data-n="-10">Later 10</button><button class="alt nudge" data-n="-1">Later 1</button><button class="alt nudge" data-n="1">Earlier 1</button><button class="alt nudge" data-n="10">Earlier 10</button></div>
+    <div class="row small"><button id="btnCal">Auto-calibrate</button><button id="btnTrim0" class="alt">Reset trim</button></div>
+    <p class="note">Trim moves this phone's sound earlier or later. If this phone sounds late, press Earlier. Auto-calibrate: the host plays with no songs (click track), wait 10 seconds, then tap it on each phone. It measures how late this phone is before the speaker. Speaker and Bluetooth delay still need tuning by ear or by recording. Speed correction is a tiny speed-up or slow-down (at most 0.3%) that keeps the phone locked to the host's timeline.</p>
+  </section>
+
+  <section id="graphSec" class="card" hidden>
     <h2>Live graph</h2>
-    <canvas id="pulse" aria-label="Live pulse graph of the sound this phone is playing"></canvas>
+    <canvas id="pulse" aria-label="Live graph of the sound this phone is playing"></canvas>
     <p class="note" id="pulseInfo">Waiting for sound...</p>
-    <p class="note">Each spike is a click this phone plays. Gold = 1000 Hz, copper = 1500 Hz (every 4th second). Faint lines are where the shared timeline says each click should land. Every phone uses the same time axis, so take screenshots together: spikes should sit in the same place on all phones. This reads the sound inside the browser, before the speaker, so it cannot show speaker delay.</p>
-    <div id="offsetWrap" hidden>
-      <h2 style="margin-top:18px">Clock offset, last minute</h2>
-      <canvas id="offsetChart" aria-label="Clock offset over time"></canvas>
-      <p class="note" id="offsetInfo">Collecting...</p>
-    </div>
+    <p class="note">White line = loudness over the last 10 seconds. Numbers = the loudest frequency (Hz). Every phone uses the same time axis, so take screenshots together and compare. This reads the sound inside the browser, before the speaker, so it cannot show speaker delay.</p>
   </section>
 
-  <section id="logSec" hidden>
-    <h2>Log</h2>
-    <pre id="log"></pre>
-  </section>
+  <section id="logSec" class="card" hidden><h2>Log</h2><pre id="log"></pre></section>
 
-  <p class="foot">Prototype (Phase 1, web). Tests the timing method only; it does not prove Android or Bluetooth speaker behavior and is not verified on real devices yet.<br>Created by Joe (Creator / Builder). Original idea: Sai Krishna (Idea Contributor).</p>
+  <p class="foot">Prototype (Phase 1, web). Tests the timing method only; not verified on real devices or Bluetooth speakers.<br>Created and developed by Joe. Original concept: Sai Krishna. Annamacharya Institute of Technology and Sciences, Rajampet (AITS) &middot; B.Tech Mechanical Engineering.</p>
 </main>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -150,323 +172,363 @@
 <script>
 (function () {
   'use strict';
-  const C = SynoraCore;
-  const $ = id => document.getElementById(id);
-  const now = () => performance.now();
-  const LEAD_MS = 2000;      // start scheduled this far ahead so everyone can buffer
-  const PAUSE_LEAD_MS = 300;
+  const C = SynoraCore, $ = id => document.getElementById(id), now = () => performance.now();
+  const LEAD = 2000, PAUSE_LEAD = 300, MAXF = 8, GRAPH_MS = 10000;
+  let ctx = null, gain = null, analyser = null, td = null, fd = null, clickBuf = null, src = null;
+  let peer = null, role = null, roomCode = '', conns = [], hostConn = null, devN = 0, devTimer = null;
+  let offset = 0, samples = [], pingTimer = null, helloSent = false, lastPong = 0, lastRtt = null, offsetAtPlay = null;
+  let state = C.initialState(), lastSeq = 0, seq = 0, left = false;
+  let lib = [], q = { idx: 0, trackPlays: 1, trackReps: 1, listPlays: 1, listReps: 1, shuffle: false };
+  let bufs = {}, mine = {}, raw = {}, rx = {}, jew = {}, sent = {}, counter = 0, devList = [], readyAll = false;
+  let pts = [], spikeUp = false, liveHz = null;
+  let seg = null, lastHard = 0, ratePpm = 0, trimMs = 0, errs = [], trimTimer = null;
+  try { trimMs = +localStorage.getItem('synora.trim') || 0; } catch (e) {}
 
-  let ctx = null, buffer = null, src = null;
-  let peer = null, role = null, roomCode = '';
-  let conns = [];            // host: receiver connections
-  let hostConn = null;       // receiver: connection to host
-  let offset = 0;            // receiver: hostClock - localClock (ms). Host stays 0.
-  let samples = [], pingTimer = null, helloSent = false;
-  let state = C.initialState(), lastSeq = 0, seq = 0, offsetAtPlay = null;
-  let analyser = null, td = null, fd = null, pts = [], offPts = [], spikeUp = false, customFile = false;
-  const GRAPH_MS = 10000;
-  let rawFile = null, rx = null;   // host: file bytes to share; receiver: file being received
+  const log = m => { const el = $('log'); el.textContent += '[' + (now() / 1000).toFixed(1) + '] ' + m + '\n'; el.scrollTop = el.scrollHeight; };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  const bufFor = id => id ? bufs[id] : clickBuf;
+  const durOf = id => { const b = bufFor(id); return b ? b.duration : 120; };
+  const hostNow = () => now() + offset;
+  const alertMsg = t => { $('alert').textContent = t; $('alert').hidden = !t; };
+  const netType = () => { const c = navigator.connection; return c && c.type ? c.type : 'unknown'; };
+  const netIcon = t => t === 'wifi' ? '\u{1F6DC}' : t === 'cellular' ? '\u{1F4F6}' : '\u2754';
 
-  function log(msg) {
-    const el = $('log'); const t = (now() / 1000).toFixed(2);
-    el.textContent += '[' + t + '] ' + msg + '\n'; el.scrollTop = el.scrollHeight;
+  // Random gold / silver / diamond / aluminium filling for progress bars
+  function jewel(id) {
+    if (jew[id]) return jew[id];
+    const cols = ['#D9B86C', '#F0D590', '#DDE2EA', '#A9B2BD', '#FFFFFF'], st = []; let p = 0;
+    while (p < 100) { const w = 5 + Math.random() * 11, c = cols[Math.floor(Math.random() * cols.length)]; st.push(c + ' ' + p.toFixed(1) + '% ' + Math.min(100, p + w).toFixed(1) + '%'); p += w; }
+    return (jew[id] = 'linear-gradient(90deg,' + st.join(',') + ')');
   }
-  function duration() { return buffer ? buffer.duration : 120; }
-  function hostNow() { return now() + offset; }
+  const barHtml = (id, pct) => '<div class="bar"><i style="background:' + jewel(id) + ';clip-path:inset(0 ' + (100 - pct) + '% 0 0)"></i><b>' + pct + '%</b></div>';
 
-  // ---- Audio ------------------------------------------------------------
+  // ---- Audio -----------------------------------------------------------
   async function ensureAudio() {
-    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
+      gain = ctx.createGain(); gain.gain.value = $('vol').value / 100; gain.connect(ctx.destination);
+      analyser = ctx.createAnalyser(); analyser.fftSize = 1024; analyser.connect(gain);
+      td = new Float32Array(1024); fd = new Float32Array(512);
+      const d = C.clickTrack(ctx.sampleRate, 120); clickBuf = ctx.createBuffer(1, d.length, ctx.sampleRate); clickBuf.copyToChannel(d, 0);
+    }
     if (ctx.state !== 'running') await ctx.resume();
-    if (!buffer) setClickBuffer();
-    if (!analyser) {
-      analyser = ctx.createAnalyser(); analyser.fftSize = 1024; analyser.connect(ctx.destination);
-      td = new Float32Array(analyser.fftSize); fd = new Float32Array(analyser.frequencyBinCount);
-    }
-    try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) { log('Screen lock not available'); }
+    try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) {}
   }
-  function setClickBuffer() {
-    const data = C.clickTrack(ctx.sampleRate, 120);
-    buffer = ctx.createBuffer(1, data.length, ctx.sampleRate);
-    buffer.copyToChannel(data, 0);
+  function perfToCtx(ms) {
+    if (ctx.getOutputTimestamp) { const ts = ctx.getOutputTimestamp(); if (ts.performanceTime > 0) return ts.contextTime + (ms - ts.performanceTime) / 1000; }
+    return ctx.currentTime + (ms - now()) / 1000;
   }
-  // Convert a local performance.now() time into AudioContext time.
-  function perfToCtx(perfMs) {
-    if (ctx.getOutputTimestamp) {
-      const ts = ctx.getOutputTimestamp();
-      if (ts.performanceTime > 0) return ts.contextTime + (perfMs - ts.performanceTime) / 1000;
-    }
-    return ctx.currentTime + (perfMs - now()) / 1000;
-  }
-  function stopSource(atCtxTime) {
-    if (!src) return;
-    try { src.stop(atCtxTime || 0); } catch (e) {}
-    if (!atCtxTime) src = null;
-  }
+  function stopSource(at) { if (!src) return; try { src.stop(at || 0); } catch (e) {} if (!at) src = null; }
   function startSource(startHost, pos) {
     stopSource();
+    const b = bufFor(state.track);
+    if (!b) { log('song not ready on this device yet'); return; }
     const plan = C.planStart({ startHost: startHost, pos: pos }, offset, now());
-    const when = Math.max(perfToCtx(now() + plan.waitMs), ctx.currentTime);
-    const p = Math.min(plan.pos, buffer.duration - 0.01);
-    src = ctx.createBufferSource();
-    src.buffer = buffer; src.connect(analyser); src.start(when, p);
-    offsetAtPlay = offset;
-    log('play from ' + p.toFixed(2) + ' s in ' + plan.waitMs.toFixed(0) + ' ms' + (plan.late ? ' (LATE by ' + plan.lateMs.toFixed(0) + ' ms)' : ''));
+    const when = Math.max(perfToCtx(now() + plan.waitMs), ctx.currentTime), p = Math.max(0, Math.min(plan.pos + trimMs / 1000, b.duration - 0.01));
+    src = ctx.createBufferSource(); src.buffer = b; src.connect(analyser); src.start(when, p);
+    seg = { ctx0: when, pos0: p, rate: 1 }; errs = []; offsetAtPlay = offset;
+    log('play ' + (plan.late ? 'LATE by ' + plan.lateMs.toFixed(0) + ' ms, ' : '') + 'from ' + p.toFixed(1) + ' s');
   }
 
-  // ---- Commands ---------------------------------------------------------
+  // ---- Commands ----------------------------------------------------------
   function handle(cmd) {
     const a = C.acceptCommand(lastSeq, cmd.seq);
-    if (!a.accept) { log('ignored old command #' + cmd.seq); return; }
-    lastSeq = a.lastSeq;
-    state = C.reduce(state, cmd, duration());
+    if (!a.accept) return; lastSeq = a.lastSeq;
+    const trk = cmd.type === 'play' && cmd.track !== undefined ? cmd.track : state.track;
+    state = C.reduce(state, cmd, durOf(trk));
     if (cmd.type === 'play' || (cmd.type === 'seek' && state.status === 'playing')) startSource(state.startHost, state.startPos);
-    else if (cmd.type === 'pause') { stopSource(Math.max(perfToCtx(C.hostToLocal(cmd.atHost, offset)), ctx.currentTime)); log('pause at ' + state.pos.toFixed(2) + ' s'); }
-    else if (cmd.type === 'stop') { stopSource(); log('stop'); }
+    else if (cmd.type === 'pause') stopSource(Math.max(perfToCtx(C.hostToLocal(cmd.atHost, offset)), ctx.currentTime));
+    else if (cmd.type === 'stop') stopSource();
+    renderLib();
   }
-  function send(cmd) {           // host only
-    cmd.seq = ++seq;
-    conns.forEach(c => c.open && c.send(cmd));
-    handle(cmd);
+  function send(cmd) { cmd.seq = ++seq; conns.forEach(c => c.open && c.send(cmd)); handle(cmd); }
+  function pushMeta() { const m = { type: 'meta', lib: lib, q: q }; conns.forEach(c => c.open && c.send(m)); renderLib(); renderCtl(); }
+
+  // ---- Host playback actions ---------------------------------------------
+  const curId = () => lib[q.idx] ? lib[q.idx].id : null;
+  function allReady() {
+    return lib.every(it => mine[it.id] === 100) && conns.filter(c => c.open).every(c => devProgress(c.info.prog) === 100);
   }
-  function applyFullState(m) {   // receiver: joined late
-    lastSeq = m.seq; state = m.state;
-    if (state.status === 'playing') startSource(state.startHost, state.startPos);
-    log('synced to host state: ' + state.status);
+  function devProgress(prog) { return lib.length ? Math.round(lib.reduce((n, it) => n + (prog[it.id] || 0), 0) / lib.length) : 100; }
+  function playIdx(i, pos) {
+    if (!lib.length) { send({ type: 'play', startHost: now() + LEAD, pos: 0, track: null }); return; }
+    q = Object.assign({}, q, { idx: i, trackPlays: 1, listPlays: 1 }); pushMeta();
+    send({ type: 'play', startHost: now() + LEAD, pos: pos || 0, track: lib[i].id });
+  }
+  function togglePlay() {
+    if (state.status === 'playing') send({ type: 'pause', atHost: now() + PAUSE_LEAD });
+    else if (state.status === 'paused') send({ type: 'play', startHost: now() + LEAD, pos: state.pos, track: state.track });
+    else playIdx(Math.min(q.idx, Math.max(lib.length - 1, 0)), 0);
+  }
+  function skipTrack(d) { if (!lib.length) return; playIdx(C.skip(Object.assign({ n: lib.length }, q), d).idx, 0); }
+  function autoAdvance() {
+    const dur = durOf(state.track);
+    if (C.positionAt(state, now(), dur) < dur - 0.05) return;
+    const nx = C.advance(Object.assign({ n: lib.length }, q), Math.random);
+    if (!nx) { send({ type: 'stop' }); return; }
+    q = Object.assign({}, q, { idx: nx.idx, trackPlays: nx.trackPlays, listPlays: nx.listPlays }); pushMeta();
+    send({ type: 'play', startHost: now() + LEAD, pos: 0, track: lib.length ? lib[nx.idx].id : null });
   }
 
-  // ---- Clock sync (receiver) -------------------------------------------
-  function schedulePing() {
-    if (!hostConn || !hostConn.open) return;
-    hostConn.send({ type: 'ping', t0: now() });
-    pingTimer = setTimeout(schedulePing, samples.length < 20 ? 400 : 3000);
+  // ---- Keep this phone locked to the host's timeline ------------------------
+  // Compares where the audio really is with where the timeline says it should be.
+  // Small error: nudge playbackRate (max +/-0.3%). Large error: restart at the right spot.
+  function control() {
+    if (!src || !seg || !ctx || state.status !== 'playing') return;
+    const nowP = now(), cNow = perfToCtx(nowP);
+    if (cNow < seg.ctx0 + 0.5) return;
+    const actual = seg.pos0 + (cNow - seg.ctx0) * seg.rate;
+    const e = C.positionAt(state, hostNow(), durOf(state.track)) + trimMs / 1000 - actual;
+    if (Math.abs(e) > 0.12) { if (nowP - lastHard > 5000) { lastHard = nowP; log('resync: was ' + (e * 1000).toFixed(0) + ' ms off'); startSource(state.startHost, state.startPos); } return; }
+    const r = Math.abs(e) < 0.001 ? 1 : 1 + Math.max(-0.003, Math.min(0.003, e * 0.2));
+    seg = { ctx0: cNow, pos0: actual, rate: r }; src.playbackRate.value = r; ratePpm = (r - 1) * 1e6;
   }
-  function onPong(m) {
-    samples.push(C.clockSample(m.t0, m.t1, m.t2, now()));
-    if (samples.length > 30) samples.shift();
-    const est = C.pickOffset(samples, 3);
-    if (!est) return;
-    offset = est.offset;
-    offPts.push({ t: now(), o: est.offset });
-    while (offPts.length && offPts[0].t < now() - 60000) offPts.shift();
-    $('offset').textContent = est.offset.toFixed(1) + ' ms';
-    $('rtt').textContent = est.rtt.toFixed(1) + ' ms';
-    $('spread').textContent = est.spread.toFixed(1) + ' ms';
-    const h = C.syncHealth(est.spread, est.rtt);
-    $('health').textContent = h; $('health').className = h;
-    if (!helloSent && samples.length >= 6) { helloSent = true; hostConn.send({ type: 'hello' }); }
+  function setTrim(v) {
+    trimMs = Math.round(v * 10) / 10; $('trim').textContent = trimMs.toFixed(1) + ' ms';
+    try { localStorage.setItem('synora.trim', trimMs); } catch (e) {}
+    clearTimeout(trimTimer); if (state.status === 'playing' && src) trimTimer = setTimeout(() => startSource(state.startHost, state.startPos), 400);
   }
 
-  // ---- Networking -------------------------------------------------------
-  function showRoom() {
-    ['room', 'player', 'logSec', 'graphSec'].forEach(id => $(id).hidden = false);
-    $('start').hidden = true;
-    $('backRow').hidden = false;
-    $('offsetWrap').hidden = role !== 'receiver';
-    $('linkRow').hidden = role !== 'host';
-    $('role').textContent = role === 'host' ? 'Host' : 'Receiver';
-    $('roomCode').textContent = roomCode;
-    $('hostControls').hidden = role !== 'host';
-    $('guestNote').hidden = role === 'host';
-    if (role === 'receiver') $('sync').hidden = false;
-    if (role === 'host') {
-      const url = location.origin + location.pathname + '?join=' + roomCode;
-      $('link').textContent = url;
-    } else $('link').textContent = '-';
+  // ---- Songs: add, send, receive -----------------------------------------
+  async function addFiles(files) {
+    for (const f of files) {
+      if (lib.length >= MAXF) { log('Limit is ' + MAXF + ' songs'); break; }
+      const id = 's' + (++counter); lib.push({ id: id, name: f.name, size: f.size }); mine[id] = 5; renderLib();
+      try {
+        const ab = await f.arrayBuffer(), copy = ab.slice(0); mine[id] = 50; renderLib();
+        bufs[id] = await ctx.decodeAudioData(ab); raw[id] = copy; mine[id] = 100;
+      } catch (e) { lib = lib.filter(x => x.id !== id); delete mine[id]; log('could not decode ' + f.name); renderLib(); continue; }
+      pushMeta(); conns.forEach(c => { if (c.open) sendFile(c, id); });
+    }
   }
-
-  function startHost(tries) {
-    roomCode = C.makeRoomCode(Math.random, 4);
-    peer = new Peer('synora-' + roomCode);
-    peer.on('open', () => { role = 'host'; showRoom(); log('room ' + roomCode + ' ready'); });
-    peer.on('error', e => {
-      if (e.type === 'unavailable-id' && (tries || 0) < 5) { startHost((tries || 0) + 1); return; }
-      log('network error: ' + e.type);
-    });
-    peer.on('connection', conn => {
-      conns.push(conn);
-      conn.on('open', () => { $('peers').textContent = conns.filter(c => c.open).length; log('device joined'); });
-      conn.on('data', m => {
-        if (m.type === 'ping') { const t1 = now(); conn.send({ type: 'pong', t0: m.t0, t1: t1, t2: now() }); }
-        else if (m.type === 'hello') { conn.send({ type: 'state', seq: seq, state: state }); sendFile(conn); }
-        else if (m.type === 'file-ready') log('a device has the file');
-      });
-      conn.on('close', () => { conns = conns.filter(c => c !== conn); $('peers').textContent = conns.length; log('device left'); });
-    });
-  }
-
-  function startJoin(code) {
-    roomCode = code;
-    peer = new Peer();
-    peer.on('error', e => log('network error: ' + e.type + (e.type === 'peer-unavailable' ? ' (check the code)' : '')));
-    peer.on('open', () => {
-      hostConn = peer.connect('synora-' + code, { reliable: true });
-      hostConn.on('open', () => { role = 'receiver'; showRoom(); log('connected to host'); schedulePing(); });
-      hostConn.on('data', m => {
-        if (m.type === 'pong') onPong(m);
-        else if (m.type === 'state') applyFullState(m);
-        else if (m.type === 'file-start') { rx = { name: m.name, total: m.total, parts: new Array(m.total), got: 0 }; log('receiving ' + m.name); }
-        else if (m.type === 'file-chunk' && rx) {
-          rx.parts[m.i] = new Uint8Array(m.data); rx.got++;
-          if (rx.got % 20 === 0) $('srcInfo').textContent = 'Receiving ' + rx.name + ': ' + Math.round(rx.got / rx.total * 100) + '%';
-        }
-        else if (m.type === 'file-end' && rx) finishFile();
-        else if (m.type === 'play' || m.type === 'pause' || m.type === 'stop' || m.type === 'seek') handle(m);
-      });
-      hostConn.on('close', () => { log('host disconnected'); stopSource(); clearTimeout(pingTimer); });
-    });
-  }
-
-  // ---- Share the song from host to receivers (before playing, not live) ----
-  async function sendFile(conn) {
-    if (!rawFile) return;
-    const bytes = rawFile.bytes, CH = 32768, total = Math.ceil(bytes.byteLength / CH);
-    log('sending ' + rawFile.name + ' (' + (bytes.byteLength / 1048576).toFixed(1) + ' MB)');
-    conn.send({ type: 'file-start', name: rawFile.name, size: bytes.byteLength, total: total });
+  async function sendFile(conn, id) {
+    const bytes = raw[id]; if (!bytes) return;
+    const CH = 32768, total = Math.ceil(bytes.byteLength / CH), it = lib.find(x => x.id === id);
+    conn.send({ type: 'file-start', id: id, name: it ? it.name : id, total: total });
     for (let i = 0; i < total; i++) {
       if (!conn.open) return;
       while (conn.dataChannel && conn.dataChannel.bufferedAmount > 1048576) await new Promise(r => setTimeout(r, 25));
-      conn.send({ type: 'file-chunk', i: i, data: bytes.slice(i * CH, (i + 1) * CH) });
+      conn.send({ type: 'file-chunk', id: id, i: i, data: bytes.slice(i * CH, (i + 1) * CH) });
     }
-    conn.send({ type: 'file-end' });
+    conn.send({ type: 'file-end', id: id });
   }
-  async function finishFile() {
-    const r = rx; rx = null;
-    const size = r.parts.reduce((n, p) => n + p.byteLength, 0), all = new Uint8Array(size);
-    let o = 0; r.parts.forEach(p => { all.set(p, o); o += p.byteLength; });
+  async function finishFile(id) {
+    const r = rx[id]; delete rx[id];
+    const all = new Uint8Array(r.parts.reduce((n, p) => n + p.byteLength, 0)); let o = 0;
+    r.parts.forEach(p => { all.set(p, o); o += p.byteLength; });
     try {
-      buffer = await ctx.decodeAudioData(all.buffer); customFile = true;
-      $('srcInfo').textContent = 'Source: ' + r.name + ' (' + buffer.duration.toFixed(1) + ' s), received from the host.';
-      log('file ready: ' + r.name);
-      if (hostConn && hostConn.open) hostConn.send({ type: 'file-ready' });
-      if (state.status === 'playing') startSource(state.startHost, state.startPos);
+      bufs[id] = await ctx.decodeAudioData(all.buffer); mine[id] = 100; sent[id] = 100;
+      if (hostConn && hostConn.open) hostConn.send({ type: 'prog', id: id, pct: 100 });
+      if (state.status === 'playing' && state.track === id) startSource(state.startHost, state.startPos);
     } catch (e) { log('could not decode ' + r.name + ' on this device'); }
+    renderLib();
   }
 
-  // ---- Live graphs (heart-rate style) -------------------------------------
-  function fit(c) {
-    const r = window.devicePixelRatio || 1, w = Math.round(c.clientWidth * r), h = Math.round(c.clientHeight * r);
-    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
-    return c.getContext('2d');
+  // ---- Clock sync (receiver) ---------------------------------------------
+  function schedulePing() {
+    if (!hostConn || !hostConn.open) return;
+    hostConn.send({ type: 'ping', t0: now(), net: netType(), rtt: lastRtt });
+    pingTimer = setTimeout(schedulePing, samples.length < 15 ? 300 : 1000);
   }
+  function onPong(m) {
+    lastPong = now(); samples.push(C.clockSample(m.t0, m.t1, m.t2, now()));
+    if (samples.length > 150) samples.shift();
+    const est = C.predictOffset(samples, now(), 3); if (!est) return;
+    offset = est.offset; lastRtt = est.rtt;
+    $('offset').textContent = est.offset.toFixed(1) + ' ms'; $('rtt').textContent = est.rtt.toFixed(1) + ' ms'; $('spread').textContent = est.spread.toFixed(1) + ' ms'; $('ppm').textContent = est.slopePpm == null ? 'measuring' : est.slopePpm.toFixed(0) + ' ppm';
+    const h = C.syncHealth(est.spread, est.rtt); $('health').textContent = h; $('health').className = h;
+    if (!helloSent && samples.length >= 6) { helloSent = true; hostConn.send({ type: 'hello' }); }
+  }
+
+  // ---- Rendering ---------------------------------------------------------
+  function renderLib() {
+    const host = role === 'host';
+    $('libList').innerHTML = lib.length ? lib.map((it, i) => {
+      const p = mine[it.id] || 0;
+      return '<li class="' + (i === q.idx ? 'cur' : '') + '"><div class="trk">' +
+        (host ? '<button class="ic" data-a="play" data-i="' + i + '" aria-label="Play this song">&#9654;</button>' : '<span class="dia">&#9670;</span>') +
+        '<span class="nm">' + esc(it.name) + '</span>' + (p === 100 ? '<span class="tick" aria-label="ready">&#10003;</span>' : '') + '</div>' +
+        (host ? '<div class="mv"><button class="ic" data-a="up" data-i="' + i + '" aria-label="Move up">&#11014;</button><button class="ic" data-a="dn" data-i="' + i + '" aria-label="Move down">&#11015;</button></div>' : '<span></span>') +
+        '<div style="grid-column:1/3">' + barHtml(it.id, p) + '</div></li>';
+    }).join('') : '<li class="empty">No songs yet.</li>';
+    $('libCount').textContent = lib.length + ' / ' + MAXF;
+  }
+  function renderDevs() {
+    $('devList').innerHTML = devList.map(d => '<li><span>' + netIcon(d.net) + '</span><span>' + esc(d.name) + '</span><span class="ds">' + esc(d.str) + '</span>' + barHtml('d' + d.name, d.pct) + '</li>').join('');
+    $('peers').textContent = devList.length;
+  }
+  function renderCtl() {
+    const host = role === 'host', ok = !lib.length || (host ? allReady() : readyAll);
+    $('ready').textContent = !lib.length ? 'Built-in click track. Add songs below.' : ok ? '\u2713 Ready To Play' : 'Loading songs on all devices...';
+    $('ready').className = 'badge' + (ok ? ' ok' : '');
+    ['btnPrev', 'btnPlay', 'btnNext'].forEach(id => { $(id).disabled = !host || !ok; });
+    ['btnShuf', 'btnRepEach', 'btnRepAll', 'seek', 'file'].forEach(id => { $(id).disabled = !host; });
+    $('btnPlay').innerHTML = state.status === 'playing' ? '&#10074;&#10074;' : '&#9654;';
+    $('btnShuf').className = 'alt' + (q.shuffle ? ' on' : '');
+    $('btnRepEach').textContent = 'Each x' + q.trackReps; $('btnRepAll').textContent = 'All x' + q.listReps;
+  }
+  function broadcastDevs() {
+    devList = [{ name: 'Host', net: netType(), str: '', pct: devProgress(mine) }].concat(conns.filter(c => c.open).map(c => ({
+      name: c.info.name, net: c.info.net, str: C.strengthLabel(c.info.rtt, now() - c.info.seen > 6000), pct: devProgress(c.info.prog) })));
+    readyAll = allReady();
+    conns.forEach(c => c.open && c.send({ type: 'devs', list: devList, ready: readyAll }));
+    renderDevs(); renderCtl();
+  }
+  function showRoom() {
+    ['room', 'player', 'devs', 'lib', 'tune', 'graphSec', 'logSec', 'backRow'].forEach(id => { $(id).hidden = false; });
+    $('start').hidden = true; $('sync').hidden = role !== 'receiver';
+    $('role').textContent = role === 'host' ? 'Host' : 'Receiver'; $('roomCode').textContent = roomCode;
+    $('linkRow').hidden = role !== 'host'; $('addRow').hidden = role !== 'host';
+    $('link').textContent = location.origin + location.pathname + '?join=' + roomCode;
+    renderLib(); renderCtl(); renderDevs();
+  }
+
+  // ---- Networking --------------------------------------------------------
+  function startHost(tries) {
+    roomCode = C.makeRoomCode(Math.random, 4); peer = new Peer('synora-' + roomCode);
+    peer.on('open', () => { role = 'host'; showRoom(); log('room ' + roomCode + ' ready'); broadcastDevs(); devTimer = setInterval(broadcastDevs, 1500); });
+    peer.on('error', e => { if (e.type === 'unavailable-id' && (tries || 0) < 5) { startHost((tries || 0) + 1); return; } log('network error: ' + e.type); });
+    peer.on('connection', conn => {
+      conn.info = { name: 'Device ' + (++devN), net: 'unknown', rtt: null, seen: now(), prog: {} };
+      conns.push(conn);
+      conn.on('open', () => log(conn.info.name + ' joined'));
+      conn.on('data', async m => {
+        if (m.type === 'ping') { const t1 = now(); conn.info.net = m.net; conn.info.rtt = m.rtt; conn.info.seen = t1; conn.send({ type: 'pong', t0: m.t0, t1: t1, t2: now() }); }
+        else if (m.type === 'hello') { conn.send({ type: 'state', seq: seq, state: state }); conn.send({ type: 'meta', lib: lib, q: q }); for (const it of lib.slice()) await sendFile(conn, it.id); }
+        else if (m.type === 'prog') conn.info.prog[m.id] = m.pct;
+      });
+      conn.on('close', () => { conns = conns.filter(c => c !== conn); log(conn.info.name + ' left'); });
+    });
+  }
+  function startJoin(code) {
+    roomCode = code; left = false; peer = new Peer();
+    peer.on('error', e => log('network error: ' + e.type + (e.type === 'peer-unavailable' ? ' (check the code)' : '')));
+    peer.on('open', () => {
+      hostConn = peer.connect('synora-' + code, { reliable: true });
+      hostConn.on('open', () => { role = 'receiver'; lastPong = now(); showRoom(); log('connected to host'); schedulePing(); });
+      hostConn.on('data', m => {
+        if (m.type === 'pong') onPong(m);
+        else if (m.type === 'state') { lastSeq = m.seq; state = m.state; if (state.status === 'playing') startSource(state.startHost, state.startPos); }
+        else if (m.type === 'meta') { lib = m.lib; q = m.q; renderLib(); renderCtl(); }
+        else if (m.type === 'devs') { devList = m.list; readyAll = m.ready; renderDevs(); renderCtl(); }
+        else if (m.type === 'file-start') { rx[m.id] = { name: m.name, total: m.total, parts: new Array(m.total), got: 0 }; mine[m.id] = 0; }
+        else if (m.type === 'file-chunk' && rx[m.id]) {
+          const r = rx[m.id]; r.parts[m.i] = new Uint8Array(m.data); r.got++;
+          const pct = Math.floor(r.got / r.total * 90);
+          if (pct !== mine[m.id]) { mine[m.id] = pct; renderLib(); if (pct - (sent[m.id] || 0) >= 10) { sent[m.id] = pct; hostConn.send({ type: 'prog', id: m.id, pct: pct }); } }
+        }
+        else if (m.type === 'file-end' && rx[m.id]) finishFile(m.id);
+        else if (['play', 'pause', 'stop', 'seek'].indexOf(m.type) >= 0) handle(m);
+      });
+      hostConn.on('close', () => { left = true; stopSource(); clearTimeout(pingTimer); alertMsg('Host has left the room (ran out).'); });
+    });
+  }
+  function leaveRoom() {
+    clearTimeout(pingTimer); clearInterval(devTimer); stopSource();
+    conns.forEach(c => { try { c.close(); } catch (e) {} });
+    if (hostConn) { try { hostConn.close(); } catch (e) {} }
+    if (peer) { try { peer.destroy(); } catch (e) {} }
+    peer = null; hostConn = null; conns = []; role = null; roomCode = ''; devN = 0; counter = 0; left = false;
+    samples = []; offset = 0; helloSent = false; lastRtt = null; offsetAtPlay = null; state = C.initialState(); lastSeq = 0; seq = 0;
+    lib = []; q = { idx: 0, trackPlays: 1, trackReps: 1, listPlays: 1, listReps: 1, shuffle: false };
+    bufs = {}; mine = {}; raw = {}; rx = {}; sent = {}; devList = []; readyAll = false; pts = []; seg = null; errs = []; ratePpm = 0;
+    ['room', 'player', 'devs', 'lib', 'sync', 'tune', 'graphSec', 'logSec', 'backRow'].forEach(id => { $(id).hidden = true; });
+    $('start').hidden = false; alertMsg('');
+    ['offset', 'rtt', 'spread', 'drift', 'health'].forEach(id => { $(id).textContent = '-'; $(id).className = ''; });
+  }
+
+  // ---- Live graph (white line, frequency numbers) ---------------------------
   function sample() {
     if (!analyser) return;
     analyser.getFloatTimeDomainData(td);
     let v = 0; for (let i = 0; i < td.length; i++) v = Math.max(v, Math.abs(td[i]));
     const t = hostNow(); let hz = null;
-    if (v > 0.1) {
-      analyser.getFloatFrequencyData(fd);
-      let m = 1; for (let i = 2; i < fd.length; i++) if (fd[i] > fd[m]) m = i;
-      hz = Math.round(m * ctx.sampleRate / analyser.fftSize);
-    }
-    pts.push({ t: t, v: v, hz: hz });
+    if (v > 0.03) { analyser.getFloatFrequencyData(fd); let m = 3; for (let i = 4; i < fd.length; i++) if (fd[i] > fd[m]) m = i; hz = Math.round(m * ctx.sampleRate / 1024); }
+    liveHz = hz; pts.push({ t: t, v: v, hz: hz });
     while (pts.length && pts[0].t < t - GRAPH_MS) pts.shift();
-    if (v > 0.1 && !spikeUp && !customFile && state.status === 'playing') {
-      const p = C.positionAt(state, t, duration()), e = (p - Math.round(p)) * 1000;
-      $('pulseInfo').textContent = 'Last click: ' + hz + ' Hz, ' + (e >= 0 ? '+' : '') + e.toFixed(0) + ' ms from the timeline (rough, about +/-30 ms)';
-    }
+    let info = null;
+    if (!state.track && v > 0.1 && !spikeUp && state.status === 'playing') {
+      let k = 0; while (k < td.length && Math.abs(td[k]) <= 0.1) k++;
+      const p = C.positionAt(state, t - (td.length - k) / ctx.sampleRate * 1000, 120), e = (p - Math.round(p)) * 1000;
+      if (p > state.startPos + 1) { errs.push(e); if (errs.length > 12) errs.shift(); }
+      info = 'Last click: ' + hz + ' Hz, ' + (e >= 0 ? '+' : '') + e.toFixed(0) + ' ms from the timeline (about +/-15 ms, measured before the speaker)';
+    } else if (state.track && state.status === 'playing') info = 'Song playing. Numbers show the loudest frequency (Hz).';
+    if (info && $('pulseInfo').textContent !== info) $('pulseInfo').textContent = info;
     spikeUp = v > 0.1;
-    const note = 'Music: the trace should rise and fall at the same moments on every phone.';
-    if (customFile && $('pulseInfo').textContent !== note) $('pulseInfo').textContent = note;
   }
   function drawPulse() {
-    const c = $('pulse'), g = fit(c), w = c.width, h = c.height, r = window.devicePixelRatio || 1;
-    const t1 = hostNow(), t0 = t1 - GRAPH_MS, X = t => (t - t0) / GRAPH_MS * w, base = h * 0.85, amp = h * 0.7;
+    const c = $('pulse'), r = window.devicePixelRatio || 1, w = Math.round(c.clientWidth * r), h = Math.round(c.clientHeight * r);
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    const g = c.getContext('2d'), t1 = hostNow(), t0 = t1 - GRAPH_MS, X = t => (t - t0) / GRAPH_MS * w, base = h * 0.88, amp = h * 0.66;
     g.clearRect(0, 0, w, h);
-    if (!customFile && state.status === 'playing') {      // where each click should land
-      g.strokeStyle = 'rgba(138,106,31,0.25)'; g.lineWidth = r;
+    if (!state.track && state.status === 'playing') {
+      g.strokeStyle = 'rgba(221,226,234,0.22)'; g.lineWidth = r;
       const pA = state.startPos + (t0 - state.startHost) / 1000, pB = state.startPos + (t1 - state.startHost) / 1000;
-      for (let k = Math.ceil(Math.max(pA, state.startPos)); k <= Math.floor(pB); k++) {
-        const x = X(state.startHost + (k - state.startPos) * 1000);
-        g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke();
-      }
+      for (let k = Math.ceil(Math.max(pA, state.startPos)); k <= Math.floor(pB); k++) { const x = X(state.startHost + (k - state.startPos) * 1000); g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
     }
-    g.strokeStyle = '#2B2A2F'; g.lineWidth = 1.5 * r; g.beginPath();
-    pts.forEach((p, i) => { const x = X(p.t), y = base - p.v * amp; if (i) g.lineTo(x, y); else g.moveTo(x, y); });
-    g.stroke();
-    g.font = (11 * r) + 'px system-ui, sans-serif'; let lastL = -1e9;
+    g.strokeStyle = '#FFFFFF'; g.lineWidth = 1.5 * r; g.beginPath();
+    pts.forEach((p, i) => { const x = X(p.t), y = base - Math.min(1, p.v) * amp; if (i) g.lineTo(x, y); else g.moveTo(x, y); }); g.stroke();
+    g.fillStyle = '#FFFFFF'; g.font = (11 * r) + 'px sans-serif'; let last = -1e9;
     for (let i = 1; i < pts.length - 1; i++) {
       const p = pts[i];
-      if (!customFile && p.hz && p.v > 0.2 && p.v >= pts[i - 1].v && p.v > pts[i + 1].v && p.t - lastL > 400) {
-        lastL = p.t; g.fillStyle = p.hz > 1250 ? '#A9561E' : '#8A6A1F';
-        g.fillText(p.hz + ' Hz', Math.min(X(p.t) + 3 * r, w - 52 * r), Math.max(12 * r, base - p.v * amp - 4 * r));
-      }
+      if (p.hz && p.v > 0.15 && p.v >= pts[i - 1].v && p.v > pts[i + 1].v && p.t - last > 700) { last = p.t; g.fillText(p.hz + ' Hz', Math.min(X(p.t) + 3 * r, w - 52 * r), Math.max(24 * r, base - p.v * amp - 4 * r)); }
     }
+    g.font = (12 * r) + 'px sans-serif'; g.fillText(liveHz ? 'Now: ' + liveHz + ' Hz' : 'Now: -', 8 * r, 14 * r);
   }
-  function drawOffset() {
-    if (role !== 'receiver') return;
-    const c = $('offsetChart'), g = fit(c), w = c.width, h = c.height, r = window.devicePixelRatio || 1;
-    g.clearRect(0, 0, w, h);
-    if (offPts.length < 2) return;
-    const o0 = offPts[0].o, t1 = now(), t0 = t1 - 60000;
-    let m = 5; offPts.forEach(p => { m = Math.max(m, Math.abs(p.o - o0)); });
-    g.strokeStyle = 'rgba(138,106,31,0.25)'; g.lineWidth = r; g.beginPath(); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.stroke();
-    g.strokeStyle = '#8A6A1F'; g.lineWidth = 1.5 * r; g.beginPath();
-    offPts.forEach((p, i) => { const x = (p.t - t0) / 60000 * w, y = h / 2 - (p.o - o0) / m * (h * 0.42); if (i) g.lineTo(x, y); else g.moveTo(x, y); });
-    g.stroke();
-    $('offsetInfo').textContent = 'Change over the last minute: ' + (offPts[offPts.length - 1].o - o0).toFixed(1) + ' ms (chart range +/-' + m.toFixed(0) + ' ms)';
-  }
-  (function loop() {
-    if (!$('graphSec').hidden) { sample(); drawPulse(); drawOffset(); }
-    requestAnimationFrame(loop);
-  })();
+  (function loop() { if (!$('graphSec').hidden) { sample(); drawPulse(); } requestAnimationFrame(loop); })();
 
-  function leaveRoom() {
-    clearTimeout(pingTimer);
-    stopSource();
-    conns.forEach(c => { try { c.close(); } catch (e) {} });
-    if (hostConn) { try { hostConn.close(); } catch (e) {} }
-    if (peer) { try { peer.destroy(); } catch (e) {} }
-    peer = null; hostConn = null; conns = []; role = null; roomCode = '';
-    samples = []; offset = 0; helloSent = false;
-    state = C.initialState(); lastSeq = 0; seq = 0; offsetAtPlay = null;
-    pts = []; offPts = []; spikeUp = false; rawFile = null; rx = null; $('pulseInfo').textContent = 'Waiting for sound...';
-    ['room', 'player', 'sync', 'logSec', 'graphSec', 'backRow'].forEach(id => $(id).hidden = true);
-    $('start').hidden = false;
-    ['offset', 'rtt', 'spread', 'drift', 'health'].forEach(id => { $(id).textContent = '-'; $(id).className = ''; });
-    $('peers').textContent = '-';
-  }
-  $('btnLeave').onclick = leaveRoom;
-  $('btnCopy').onclick = async () => {
-    try { await navigator.clipboard.writeText($('link').textContent); $('btnCopy').textContent = 'Copied'; setTimeout(() => { $('btnCopy').textContent = 'Copy link'; }, 1500); }
-    catch (e) { log('Could not copy. Select the link and copy it by hand.'); }
-  };
-
-  // ---- UI ---------------------------------------------------------------
+  // ---- Buttons -----------------------------------------------------------
   $('btnHost').onclick = async () => { await ensureAudio(); startHost(0); };
   $('btnJoin').onclick = async () => {
     const code = $('code').value.trim().toUpperCase();
     if (code.length !== 4) { alert('Enter the 4-character room code.'); return; }
     await ensureAudio(); startJoin(code);
   };
-  $('btnPlay').onclick = () => send({ type: 'play', startHost: now() + LEAD_MS, pos: state.status === 'paused' ? state.pos : (state.status === 'playing' ? C.positionAt(state, now(), duration()) : 0) });
-  $('btnPause').onclick = () => send({ type: 'pause', atHost: now() + PAUSE_LEAD_MS });
-  $('btnStop').onclick = () => send({ type: 'stop' });
-  function seekBy(d) { send({ type: 'seek', pos: C.positionAt(state, now(), duration()) + d, startHost: now() + LEAD_MS }); }
-  $('btnBack').onclick = () => seekBy(-10);
-  $('btnFwd').onclick = () => seekBy(10);
-  $('file').onchange = async e => {
-    const f = e.target.files[0]; if (!f) return;
-    try {
-      const ab = await f.arrayBuffer(), copy = ab.slice(0);
-      buffer = await ctx.decodeAudioData(ab);
-      customFile = true; log('loaded ' + f.name);
-      if (role === 'host') {
-        rawFile = { name: f.name, bytes: copy };
-        $('srcInfo').textContent = 'Source: ' + f.name + ' (' + buffer.duration.toFixed(1) + ' s). Sent to the other phones automatically.';
-        conns.forEach(c => { if (c.open) sendFile(c); });
-      } else $('srcInfo').textContent = 'Source: ' + f.name + ' (' + buffer.duration.toFixed(1) + ' s), chosen on this phone.';
-    } catch (err) { log('could not decode this file on this device'); }
+  $('btnLeave').onclick = () => { if (role === 'host' && !confirm('Close the room? Uploaded songs will be cleared for everyone.')) return; leaveRoom(); };
+  $('btnCopy').onclick = async () => {
+    try { await navigator.clipboard.writeText($('link').textContent); $('btnCopy').textContent = 'Copied'; setTimeout(() => { $('btnCopy').textContent = 'Copy link'; }, 1500); }
+    catch (e) { log('Could not copy. Select the link and copy it by hand.'); }
   };
+  $('btnPlay').onclick = togglePlay; $('btnPrev').onclick = () => skipTrack(-1); $('btnNext').onclick = () => skipTrack(1);
+  $('btnShuf').onclick = () => { q = Object.assign({}, q, { shuffle: !q.shuffle }); pushMeta(); if (q.shuffle && lib.length > 1 && allReady()) playIdx(Math.floor(Math.random() * lib.length), 0); };
+  $('btnRepEach').onclick = () => { q = Object.assign({}, q, { trackReps: q.trackReps % 3 + 1 }); pushMeta(); };
+  $('btnRepAll').onclick = () => { q = Object.assign({}, q, { listReps: q.listReps % 3 + 1 }); pushMeta(); };
+  $('seek').onchange = () => { if (role === 'host' && state.status !== 'idle') send({ type: 'seek', pos: $('seek').value / 1000 * durOf(state.track), startHost: now() + LEAD }); };
+  $('vol').oninput = () => { if (gain) gain.gain.value = $('vol').value / 100; };
+  $('file').onchange = async e => { const f = Array.from(e.target.files); e.target.value = ''; await addFiles(f); };
+  $('libList').onclick = e => {
+    const b = e.target.closest('button'); if (!b || role !== 'host') return;
+    const i = +b.dataset.i, a = b.dataset.a;
+    if (a === 'play') { if (allReady()) playIdx(i, 0); else log('Wait until it says Ready To Play'); return; }
+    const cid = curId(); lib = C.moveItem(lib, i, a === 'up' ? -1 : 1); q = Object.assign({}, q, { idx: Math.max(0, lib.findIndex(x => x.id === cid)) }); pushMeta();
+  };
+  document.querySelectorAll('.nudge').forEach(b => { b.onclick = () => setTrim(trimMs + +b.dataset.n); });
+  $('btnTrim0').onclick = () => setTrim(0);
+  $('btnCal').onclick = () => {
+    if (state.track || state.status !== 'playing') { log('Calibrate: the host must play the click track (no song) first'); return; }
+    if (errs.length < 6) { log('Calibrate: wait a few more clicks, then try again'); return; }
+    const m = C.median(errs.slice(-10)); setTrim(trimMs + m); log('calibrated: this phone was ' + m.toFixed(0) + ' ms late; trim is now ' + trimMs.toFixed(1) + ' ms');
+  };
+  $('trim').textContent = trimMs.toFixed(1) + ' ms';
+  setInterval(control, 1000);
   const params = new URLSearchParams(location.search);
   if (params.get('join')) $('code').value = params.get('join').toUpperCase();
 
   setInterval(() => {
-    const p = C.positionAt(state, hostNow(), duration());
-    $('pos').textContent = p.toFixed(2) + ' s';
-    $('bar').style.width = Math.min(100, p / duration() * 100) + '%';
-    if (role === 'receiver' && offsetAtPlay !== null && state.status === 'playing')
-      $('drift').textContent = (offset - offsetAtPlay).toFixed(1) + ' ms';
+    if (role === null) return;
+    const dur = durOf(state.track), p = C.positionAt(state, hostNow(), dur);
+    $('pos').textContent = fmt(p) + ' / ' + fmt(dur);
+    if (document.activeElement !== $('seek')) $('seek').value = dur ? Math.round(p / dur * 1000) : 0;
+    const it = lib.find(x => x.id === state.track) || (state.status === 'idle' ? lib[q.idx] : null);
+    $('nowName').textContent = it ? it.name : 'Built-in click track';
+    $('btnPlay').innerHTML = state.status === 'playing' ? '&#10074;&#10074;' : '&#9654;';
+    if (role === 'host' && state.status === 'playing') autoAdvance();
+    $('rate').textContent = (ratePpm >= 0 ? '+' : '') + ratePpm.toFixed(0) + ' ppm';
+    if (role === 'receiver') {
+      if (offsetAtPlay !== null && state.status === 'playing') $('drift').textContent = (offset - offsetAtPlay).toFixed(1) + ' ms';
+      if (!left && hostConn && hostConn.open) alertMsg(now() - lastPong > 6000 ? 'Host network is low. Waiting for the host...' : '');
+    }
   }, 100);
 })();
 </script>

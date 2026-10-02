@@ -1,7 +1,8 @@
 # SYNORA Web Prototype (Phase 1)
 
 PROTOTYPE CODE. Tests the sync timing method in a browser. It does not prove Android or Bluetooth speaker behavior.
-Created by Joe (Creator / Builder). Idea: Sai Krishna (Idea Contributor).
+SYNORA was created and developed by Joe as an engineering project focused on synchronized multi-speaker audio experiences. The original concept was contributed by Sai Krishna.
+Annamacharya Institute of Technology and Sciences, Rajampet (AITS) - B.Tech Mechanical Engineering.
 
 ## Files
 - `SYNORA.html` - the page (host and receiver in one)
@@ -29,3 +30,9 @@ Created by Joe (Creator / Builder). Idea: Sai Krishna (Idea Contributor).
 - Browser audio delay differs per device and is not corrected yet.
 - Drift is displayed, not corrected, in this version.
 - Health thresholds are guesses.
+- The song is sent from the host to receivers over the peer connection before playing (not live streaming). Large files take longer to arrive.
+
+## Sync accuracy (v0.4)
+- Clock offset is a straight-line fit over the last minute, so slow clock drift (ppm) is tracked.
+- Each phone compares where its audio really is with the host timeline once a second and corrects with a tiny speed change (max 0.3%), or restarts if more than 120 ms off.
+- Sync tuning card: Earlier/Later trim in ms and Auto-calibrate (host plays the click track). Calibration measures lateness before the speaker. Speaker and Bluetooth delay are not measured.
