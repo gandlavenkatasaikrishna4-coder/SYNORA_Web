@@ -78,8 +78,28 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 #alert{background:#2C1519;border:1px solid var(--bad);color:#FFD9DC;border-radius:10px;padding:10px 14px;margin:12px 0}
 .foot{color:var(--mute);font-size:.8rem;text-align:center;margin-top:24px}
 #devList .dact{grid-column:2/4;display:flex;gap:8px;margin-top:4px}.dact button{padding:5px 12px;font-size:.78rem}
-#modal{position:fixed;inset:0;background:rgba(5,5,8,.82);display:grid;place-items:center;z-index:50;padding:20px}.mbox{max-width:360px;border:1px solid var(--gold);border-radius:14px;background:var(--panel);padding:20px;text-align:center}
+#modal,#leaveModal{position:fixed;inset:0;background:rgba(5,5,8,.82);display:grid;place-items:center;z-index:50;padding:20px}.mbox{max-width:360px;border:1px solid var(--gold);border-radius:14px;background:var(--panel);padding:20px;text-align:center}
 #propList li{padding:10px 0;border-top:1px solid rgba(217,184,108,.18);display:grid;gap:4px}#propList li:first-child{border-top:0}#propList .dact{display:flex;gap:8px;margin-top:4px}
+#libList li{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}.rm{border-color:#EF7A86!important}
+.bar u{position:absolute;top:0;bottom:0;display:flex;align-items:center;font:500 .55rem var(--body);letter-spacing:.04em;text-decoration:none;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000;pointer-events:none}
+.bar i.fx-s{animation:sweep 2.4s linear infinite}.bar i.fx-p{animation:pulse 1.5s ease-in-out infinite alternate}
+.bar i.fx-sp{animation:sweep 2.6s linear infinite,pulse 1.8s ease-in-out infinite alternate}.bar i.fx-h{animation:sweep 3s linear infinite,hue 6s linear infinite}
+@keyframes sweep{from{background-position:130% 0,0 0}to{background-position:-40% 0,0 0}}
+@keyframes pulse{from{filter:brightness(.85)}to{filter:brightness(1.35)}}@keyframes hue{to{filter:hue-rotate(360deg)}}
+.mbox .row{margin-top:46px}
+.hot{position:relative;overflow:visible;color:#fff;border:0;background:linear-gradient(180deg,#FF6A3D,#B3111F);box-shadow:0 0 16px rgba(255,90,40,.75);animation:glow 1.1s ease-in-out infinite alternate}
+.hot .fl{position:absolute;left:6px;right:6px;bottom:80%;height:36px;pointer-events:none}
+.hot .fl i{position:absolute;bottom:0;width:16px;height:30px;border-radius:50% 50% 45% 45%/85% 85% 25% 25%;background:linear-gradient(0deg,#FFE066,#FF8A1F 55%,rgba(255,60,20,0));transform-origin:50% 100%;animation:flick .45s ease-in-out infinite alternate}
+.hot .fl i:nth-child(1){left:2%;height:22px;animation-delay:-.1s}.hot .fl i:nth-child(2){left:22%;height:34px;animation-delay:-.25s}.hot .fl i:nth-child(3){left:44%;height:28px;animation-delay:-.05s}.hot .fl i:nth-child(4){left:64%;height:36px;animation-delay:-.3s}.hot .fl i:nth-child(5){left:84%;height:24px;animation-delay:-.15s}
+@keyframes flick{from{transform:scaleY(.75) scaleX(1.05) rotate(-4deg);opacity:.85}to{transform:scaleY(1.15) scaleX(.85) rotate(4deg);opacity:1}}@keyframes glow{to{box-shadow:0 0 28px rgba(255,120,40,1)}}
+#fire{position:fixed;inset:0;z-index:90;overflow:hidden}
+#fire .base{position:absolute;left:-10%;right:-10%;bottom:-20vh;height:0;background:linear-gradient(0deg,#FFF3A8,#FFB327 22%,#FF5A1F 48%,#C1121F 75%,rgba(120,10,10,0));filter:blur(6px);animation:rise 2.3s ease-in forwards}
+#fire .t{position:absolute;bottom:-10vh;width:24vw;height:0;border-radius:50% 50% 40% 40%/90% 90% 20% 20%;background:linear-gradient(0deg,#FFF3A8,#FF9A1F 40%,#E5391B 75%,rgba(229,57,27,0));filter:blur(3px);transform-origin:50% 100%;animation:tongue 2.3s ease-in forwards,flick .35s ease-in-out infinite alternate}
+@keyframes rise{to{height:75vh}}@keyframes tongue{0%{height:0}70%{height:var(--h)}100%{height:calc(var(--h)*1.3)}}
+#fire.out{animation:fout .7s ease forwards}@keyframes fout{to{opacity:0}}
+body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forwards}
+@keyframes burnpage{0%{filter:none;opacity:1}35%{filter:sepia(.9) saturate(3) brightness(1.1)}65%{filter:sepia(1) saturate(4) brightness(.55) contrast(1.3);opacity:.9}100%{filter:sepia(1) brightness(.1) blur(3px);opacity:0;transform:translateY(-30px) scale(.97)}}
+@media(prefers-reduced-motion:reduce){.bar i,.hot,.hot .fl i{animation:none!important}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -136,17 +156,17 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     <p class="note">Gold arcs = Wi-Fi, gold bars = mobile data, ? = this browser does not say. Strength comes from the measured round-trip time. Make host gives that device the host role; you become a member like the others. Only a device that has all the songs can be chosen.</p>
   </section>
 
-  <section id="props" class="card" hidden>
-    <h2>File confirm list</h2>
-    <ul id="propList"></ul>
-    <p class="note">Songs suggested by other devices wait here: device, song, upload status. The host taps Add to put a song in the list for everyone, or Cancel. A song can be added once it says Uploaded. The suggesting device can cancel its own song.</p>
-  </section>
-
   <section id="lib" class="card" hidden>
     <h2>Songs <span id="libCount" class="lbl" style="display:inline"></span></h2>
     <div class="row" id="addRow"><input type="file" id="file" accept="audio/*" multiple aria-label="Add songs"></div>
     <ul id="libList"></ul>
-    <p class="note">Songs are sent from the host to every phone before playing, and are cleared when the host closes the room. Keep to a few songs, because each one uses a lot of phone memory. On other devices, this button suggests a song; the host must approve it.</p>
+    <p class="note">Songs are sent from the host to every phone before playing, and are cleared when the host closes the room. Keep to a few songs, because each one uses a lot of phone memory. On other devices, this button suggests a song; the host must approve it. Host: press and hold a song to show &#10060;, then tap it to remove the song for everyone.</p>
+  </section>
+
+  <section id="props" class="card" hidden>
+    <h2>File confirm list</h2>
+    <ul id="propList"></ul>
+    <p class="note">Songs suggested by other devices wait here: device, song, upload status. The host taps Add to put a song in the list for everyone, or Cancel. A song can be added once it says Uploaded. The suggesting device can cancel its own song.</p>
   </section>
 
   <section id="sync" class="card" hidden>
@@ -166,6 +186,13 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     <p class="note">Trim moves this phone's sound earlier or later. If this phone sounds late, press Earlier. Auto-calibrate: the host plays with no songs (click track), wait 10 seconds, then tap it on each phone. It measures how late this phone is before the speaker. Speaker and Bluetooth delay still need tuning by ear or by recording. Speed correction is a tiny speed-up or slow-down (at most 0.3%) that keeps the phone locked to the host's timeline.</p>
   </section>
 
+  <section id="meter" class="card" hidden>
+    <h2>Sync meter (microphone)</h2>
+    <p class="note" style="margin-top:0">Measures how many milliseconds apart the phones' sounds really arrive, speakers included. 1) Put the phones that will play close together. 2) On a separate phone (the meter), set the volume to 0 and tap Start listening near them. 3) The host taps Play meter signal. Use a quiet room. Echoes can look like extra phones, so set the number of playing phones correctly.</p>
+    <div class="row small"><label class="lbl" for="meterK">Phones playing</label><input type="text" id="meterK" value="2" maxlength="1" style="width:3em;letter-spacing:0"><button id="btnMeter">Start listening</button><button id="btnMeterPlay" class="alt" hidden>Play meter signal</button></div>
+    <p class="note" id="meterOut">Not listening.</p>
+  </section>
+
   <section id="graphSec" class="card" hidden>
     <h2>Live graph</h2>
     <canvas id="pulse" aria-label="Live graph of the sound this phone is playing"></canvas>
@@ -178,6 +205,8 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   <p class="foot">Prototype (Phase 1, web). Tests the timing method only; not verified on real devices or Bluetooth speakers.<br>Created and developed by Joe. Original concept: Sai Krishna. Annamacharya Institute of Technology and Sciences, Rajampet (AITS) &middot; B.Tech Mechanical Engineering.</p>
 </main>
 
+<div id="leaveModal" hidden role="dialog" aria-modal="true"><div class="mbox"><p id="lmText"></p><div class="row" style="justify-content:center"><button id="lmNo" class="alt">Stay</button><button id="lmYes" class="hot">Leave<span class="fl"><i></i><i></i><i></i><i></i><i></i></span></button></div></div></div>
+<div id="fire" hidden aria-hidden="true"><i class="base"></i><i class="t" style="left:-6vw;--h:70vh;animation-delay:0.15s,0s"></i><i class="t" style="left:8vw;--h:85vh;animation-delay:0.00s,0s"></i><i class="t" style="left:22vw;--h:65vh;animation-delay:0.25s,0s"></i><i class="t" style="left:36vw;--h:90vh;animation-delay:0.10s,0s"></i><i class="t" style="left:50vw;--h:72vh;animation-delay:0.30s,0s"></i><i class="t" style="left:62vw;--h:88vh;animation-delay:0.05s,0s"></i><i class="t" style="left:76vw;--h:68vh;animation-delay:0.20s,0s"></i><i class="t" style="left:88vw;--h:80vh;animation-delay:0.12s,0s"></i></div>
 <div id="modal" hidden role="dialog" aria-modal="true"><div class="mbox"><p id="mtext"></p><div class="row" style="justify-content:center"><button id="mNo" class="alt">&#10060; Cancel</button><button id="mYes">&#9989; Confirm</button></div></div></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -187,7 +216,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   'use strict';
   const C = SynoraCore, $ = id => document.getElementById(id), now = () => performance.now();
   const LEAD = 2000, PAUSE_LEAD = 300, MAXF = 8, GRAPH_MS = 10000;
-  let ctx = null, gain = null, analyser = null, td = null, fd = null, clickBuf = null, src = null;
+  let ctx = null, gain = null, analyser = null, td = null, fd = null, clickBuf = null, meterBuf = null, src = null;
   let peer = null, role = null, roomCode = '', conns = [], hostConn = null, devN = 0, devTimer = null;
   let offset = 0, samples = [], pingTimer = null, helloSent = false, lastPong = 0, lastRtt = null, offsetAtPlay = null;
   let state = C.initialState(), lastSeq = 0, seq = 0, left = false;
@@ -196,6 +225,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   let pts = [], spikeUp = false, liveHz = null;
   let seg = null, lastHard = 0, ratePpm = 0, trimMs = 0, errs = [], trimTimer = null;
   try { trimMs = +localStorage.getItem('synora.trim') || 0; } catch (e) {}
+  let showRm = null, rmTimer = null, pressTimer = null, pressing = false;
   let myCode = '', myModel = 'Phone', blocked = {}, readySet = new Set(), reconTries = 0, storedP = null, localInfo = {}, pend = {}, myProps = {}, props = [], propN = 0;
   try { myCode = localStorage.getItem('synora.dev') || ''; if (!myCode) { myCode = C.makeRoomCode(Math.random, 4); localStorage.setItem('synora.dev', myCode); } } catch (e) { myCode = C.makeRoomCode(Math.random, 4); }
   try { if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) navigator.userAgentData.getHighEntropyValues(['model']).then(v => { if (v.model) myModel = v.model; }).catch(() => {}); } catch (e) {}
@@ -204,7 +234,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   const log = m => { const el = $('log'); el.textContent += '[' + (now() / 1000).toFixed(1) + '] ' + m + '\n'; el.scrollTop = el.scrollHeight; };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-  const bufFor = id => id ? bufs[id] : clickBuf;
+  const bufFor = id => id === 'meter' ? meterBuf : id ? bufs[id] : clickBuf;
   const durOf = id => { const b = bufFor(id); return b ? b.duration : 120; };
   const hostNow = () => now() + offset;
   const alertMsg = t => { $('alert').textContent = t; $('alert').hidden = !t; };
@@ -216,19 +246,40 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   };
   const netIcon = t => ICON[t] || ICON.unknown;
 
-  // Each bar is made of ONE material, picked at random for that bar
-  const MATERIALS = [
-    ['Gold', 'linear-gradient(90deg,#B8964A,#F5DDA0,#D9B86C,#F5DDA0,#B8964A)'],
-    ['Silver', 'linear-gradient(90deg,#9AA0AA,#F2F4F8,#C9CED6,#F2F4F8,#9AA0AA)'],
-    ['Copper', 'linear-gradient(90deg,#8A4B2A,#E0905F,#B87333,#E0905F,#8A4B2A)'],
-    ['Diamond', 'linear-gradient(120deg,#FFFFFF,#BFE8FF,#F4C6E0,#FFFFFF,#E9F5C9,#BFE8FF,#FFFFFF)'],
-    ['Glass', 'linear-gradient(180deg,rgba(220,240,250,.85),rgba(120,175,200,.55) 55%,rgba(200,230,245,.8))'],
-    ['Aluminium', 'repeating-linear-gradient(90deg,#B5BDC7 0 2px,#DDE2E8 2px 4px)'],
-    ['Zinc', 'linear-gradient(90deg,#6F7D8B,#C8D2DC,#8C9AA8,#C8D2DC,#6F7D8B)'],
-    ['Iron', 'linear-gradient(90deg,#3F444C,#8A9099,#5A5F68,#8A9099,#3F444C)']
+  // Each bar gets its OWN element (no repeats while unused ones remain), with its own animation.
+  const g = (...c) => 'linear-gradient(90deg,' + c.join(',') + ')';
+  const SHINE = 'linear-gradient(110deg,transparent 40%,rgba(255,255,255,.6) 50%,transparent 60%)';
+  const MATERIALS = [   // [name, look, effect: s = shine sweep, p = glow pulse, sp = both, h = rainbow shift]
+    ['Platinum', g('#9EA3AB', '#F4F6F9', '#C9CED6', '#F4F6F9', '#9EA3AB'), 's'], ['Titanium', g('#6E7480', '#BFC6D0', '#8A929E', '#BFC6D0', '#6E7480'), 's'],
+    ['Bronze', g('#6B4423', '#CD7F32', '#9C5F23', '#E3A15A', '#6B4423'), 'p'], ['Brass', g('#8A6B1F', '#E6C253', '#B8942E', '#F1D87A', '#8A6B1F'), 's'],
+    ['Nickel', g('#7A8087', '#D4D8DD', '#9AA0A8', '#D4D8DD', '#7A8087'), 's'], ['Tin', g('#9AA1A8', '#E9ECEF', '#B7BDC4', '#E9ECEF', '#9AA1A8'), 's'],
+    ['Lead', g('#3B4048', '#707882', '#4A5059', '#707882', '#3B4048'), 'p'], ['Mercury', g('#AEB6C0', '#FFFFFF', '#8F98A4', '#FFFFFF', '#AEB6C0'), 's'],
+    ['Chromium', g('#8D96A3', '#FFFFFF', '#B6BEC9', '#EAF0F8', '#8D96A3'), 's'], ['Cobalt', g('#1B3A8C', '#4F7BE8', '#2A52BE', '#7FA0F2', '#1B3A8C'), 'p'],
+    ['Ruby', g('#7A0C1E', '#E0314B', '#B3122E', '#F0627A', '#7A0C1E'), 'p'], ['Sapphire', g('#0B2A6B', '#3A6FE0', '#1B49B8', '#7AA2F5', '#0B2A6B'), 'sp'],
+    ['Emerald', g('#0B5A3A', '#2FBF7A', '#138A55', '#6FE0A8', '#0B5A3A'), 'sp'], ['Amethyst', g('#4B1F7A', '#A66BE0', '#7A3FB8', '#C9A0F0', '#4B1F7A'), 'sp'],
+    ['Topaz', g('#B36A12', '#F5B642', '#D98B1E', '#FFD98A', '#B36A12'), 'sp'], ['Pearl', g('#E8E2D8', '#FFFFFF', '#F3D9E4', '#DCEBF5', '#E8E2D8'), 'h'],
+    ['Opal', g('#BFE8FF', '#F4C6E0', '#E9F5C9', '#D9C6F5', '#BFE8FF'), 'h'], ['Obsidian', g('#0A0A0F', '#3A3A48', '#15151D', '#4A4A5C', '#0A0A0F'), 's'],
+    ['Quartz', g('#F0E6F2', '#FFFFFF', '#E3D5EA', '#FFFFFF', '#F0E6F2'), 'sp'], ['Rose Gold', g('#B76E79', '#F4C2C2', '#D99A9A', '#FFD9D4', '#B76E79'), 's'],
+    ['Steel', g('#4C5560', '#A9B4C0', '#6E7986', '#A9B4C0', '#4C5560'), 's'], ['Magnesium', g('#B8BFC7', '#FFFFFF', '#D7DCE2', '#FFFFFF', '#B8BFC7'), 'p'],
+    // the first eight, used only after all the new ones are taken
+    ['Gold', g('#B8964A', '#F5DDA0', '#D9B86C', '#F5DDA0', '#B8964A'), 's'], ['Silver', g('#9AA0AA', '#F2F4F8', '#C9CED6', '#F2F4F8', '#9AA0AA'), 's'],
+    ['Copper', g('#8A4B2A', '#E0905F', '#B87333', '#E0905F', '#8A4B2A'), 'p'], ['Diamond', 'linear-gradient(120deg,#FFFFFF,#BFE8FF,#F4C6E0,#FFFFFF,#E9F5C9,#BFE8FF,#FFFFFF)', 'h'],
+    ['Glass', 'linear-gradient(180deg,rgba(220,240,250,.85),rgba(120,175,200,.55) 55%,rgba(200,230,245,.8))', 'sp'], ['Aluminium', 'repeating-linear-gradient(90deg,#B5BDC7 0 2px,#DDE2E8 2px 4px)', 's'],
+    ['Zinc', g('#6F7D8B', '#C8D2DC', '#8C9AA8', '#C8D2DC', '#6F7D8B'), 's'], ['Iron', g('#3F444C', '#8A9099', '#5A5F68', '#8A9099', '#3F444C'), 'p']
   ];
-  function jewel(id) { return jew[id] || (jew[id] = MATERIALS[Math.floor(Math.random() * MATERIALS.length)]); }
-  const barHtml = (id, pct) => { const m = jewel(id); return '<div class="bar"><i style="background:' + m[1] + ';clip-path:inset(0 ' + (100 - pct) + '% 0 0)"></i><b>' + m[0] + ' ' + pct + '%</b></div>'; };
+  const OLD = new Set(['Gold', 'Silver', 'Copper', 'Diamond', 'Glass', 'Aluminium', 'Zinc', 'Iron']);
+  let usedMat = new Set();
+  function jewel(id) {
+    if (jew[id]) return jew[id];
+    const free = MATERIALS.filter(m => !usedMat.has(m[0])), fresh = free.filter(m => !OLD.has(m[0]));
+    const pick = fresh.length ? fresh : free.length ? free : (usedMat = new Set(), MATERIALS);
+    const m = pick[Math.floor(Math.random() * pick.length)]; usedMat.add(m[0]); return (jew[id] = m);
+  }
+  const barHtml = (id, pct) => {
+    const m = jewel(id);   // percentage in the middle; the element name sits small at the end of the fill (hidden mid-way so they never overlap)
+    const nm = pct >= 70 ? '<u style="right:' + (101 - pct) + '%">' + m[0] + '</u>' : pct <= 30 ? '<u style="left:' + (pct + 1) + '%">' + m[0] + '</u>' : '';
+    return '<div class="bar"><i class="fx fx-' + m[2] + '" style="background-image:' + SHINE + ',' + m[1] + ';background-size:220% 100%,100% 100%;background-repeat:no-repeat,repeat;clip-path:inset(0 ' + (100 - pct) + '% 0 0)"></i>' + nm + '<b>' + pct + '%</b></div>';
+  };
 
   // ---- Audio -----------------------------------------------------------
   async function ensureAudio() {
@@ -238,6 +289,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
       analyser = ctx.createAnalyser(); analyser.fftSize = 1024; analyser.connect(gain);
       td = new Float32Array(1024); fd = new Float32Array(512);
       const d = C.clickTrack(ctx.sampleRate, 120); clickBuf = ctx.createBuffer(1, d.length, ctx.sampleRate); clickBuf.copyToChannel(d, 0);
+      const mt = C.measureTrack(ctx.sampleRate, 120); meterBuf = ctx.createBuffer(1, mt.length, ctx.sampleRate); meterBuf.copyToChannel(mt, 0);
     }
     if (ctx.state !== 'running') await ctx.resume();
     try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) {}
@@ -294,6 +346,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   function autoAdvance() {
     const dur = durOf(state.track);
     if (C.positionAt(state, now(), dur) < dur - 0.05) return;
+    if (state.track === 'meter') { send({ type: 'stop' }); return; }
     const nx = C.advance(Object.assign({ n: lib.length }, q), Math.random);
     if (!nx) { send({ type: 'stop' }); return; }
     q = Object.assign({}, q, { idx: nx.idx, trackPlays: nx.trackPlays, listPlays: nx.listPlays }); pushMeta();
@@ -317,6 +370,33 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     trimMs = Math.round(v * 10) / 10; $('trim').textContent = trimMs.toFixed(1) + ' ms';
     try { localStorage.setItem('synora.trim', trimMs); } catch (e) {}
     clearTimeout(trimTimer); if (state.status === 'playing' && src) trimTimer = setTimeout(() => startSource(state.startHost, state.startPos), 400);
+  }
+
+  // ---- Remove a song (host: press and hold, then tap the red cross) ---------------
+  function removeSong(i) {
+    const it = lib[i]; if (!it) return;
+    const cid = curId();
+    if (state.status !== 'idle' && state.track === it.id) send({ type: 'stop' });
+    lib.splice(i, 1);
+    delete bufs[it.id]; delete raw[it.id]; delete mine[it.id];
+    conns.forEach(c => { delete c.info.prog[it.id]; });
+    idbDel([roomCode + ':' + it.id]).catch(() => {});
+    q = Object.assign({}, q, { idx: Math.min(Math.max(0, lib.findIndex(x => x.id === cid)), Math.max(lib.length - 1, 0)) });
+    showRm = null; pushMeta(); broadcastDevs(); log('removed ' + it.name);
+  }
+  {
+    const lp = $('libList');
+    lp.addEventListener('pointerdown', e => {
+      if (role !== 'host' || e.target.closest('button')) return;
+      const li = e.target.closest('li[data-id]'); if (!li) return;
+      pressing = true; clearTimeout(pressTimer);
+      pressTimer = setTimeout(() => {
+        pressing = false; showRm = li.dataset.id; renderLib(); if (navigator.vibrate) navigator.vibrate(30);
+        clearTimeout(rmTimer); rmTimer = setTimeout(() => { showRm = null; renderLib(); }, 5000);
+      }, 550);
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => lp.addEventListener(ev, () => { clearTimeout(pressTimer); pressing = false; }));
+    lp.addEventListener('contextmenu', e => e.preventDefault());
   }
 
   // ---- Songs suggested by other devices (host approves) -----------------------
@@ -364,6 +444,40 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     conns.forEach(c => { if (c.open && c !== pc) sendFile(c, id); });
     broadcastDevs();
   }
+
+  // ---- Sync meter: listen with the microphone and measure arrival gaps ------------
+  let mic = null, micBuf = [], micLen = 0, meterRes = [];
+  async function startMeter() {
+    try {
+      const st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+      const node = ctx.createMediaStreamSource(st), sp = ctx.createScriptProcessor(4096, 1, 1), mute = ctx.createGain(); mute.gain.value = 0;
+      sp.onaudioprocess = e => {
+        const d = new Float32Array(e.inputBuffer.getChannelData(0)); micBuf.push(d); micLen += d.length;
+        while (micBuf.length > 1 && micLen - micBuf[0].length > ctx.sampleRate * 2.6) micLen -= micBuf.shift().length;
+      };
+      node.connect(sp); sp.connect(mute); mute.connect(ctx.destination);
+      mic = { st: st, node: node, sp: sp, timer: setInterval(analyseMeter, 2000) }; meterRes = [];
+      $('btnMeter').textContent = 'Stop listening'; $('meterOut').textContent = 'Listening... host: tap Play meter signal.';
+    } catch (e) { $('meterOut').textContent = 'Microphone not available: ' + (e.message || e.name); }
+  }
+  function stopMeter() {
+    if (!mic) return;
+    clearInterval(mic.timer); try { mic.sp.disconnect(); mic.node.disconnect(); } catch (e) {}
+    mic.st.getTracks().forEach(t => t.stop()); mic = null; micBuf = []; micLen = 0;
+    $('btnMeter').textContent = 'Start listening'; $('meterOut').textContent = 'Not listening.';
+  }
+  function analyseMeter() {
+    if (micLen < ctx.sampleRate * 2) return;
+    const sig = new Float32Array(micLen); let o = 0; micBuf.forEach(b => { sig.set(b, o); o += b.length; });
+    const K = Math.max(1, Math.min(6, parseInt($('meterK').value, 10) || 2)), sr = ctx.sampleRate;
+    const ev = C.groupEvents(C.findArrivals(sig, C.chirp(sr), sr, 1, 0.25), 300).filter(e => e.length >= K);
+    if (!ev.length) { $('meterOut').textContent = 'Listening... no clear signal yet. Move closer, raise the playing phones\' volume, or check the number of phones.'; return; }
+    const offs = C.offsetsOf(ev[ev.length - 1], K), spread = offs[offs.length - 1];
+    meterRes.push(spread); if (meterRes.length > 9) meterRes.shift();
+    $('meterOut').textContent = 'Last signal, ms after the first phone: ' + offs.map(x => x.toFixed(1)).join(', ') + '. Gap between first and last phone: median ' + C.median(meterRes).toFixed(1) + ' ms (lowest ' + Math.min.apply(null, meterRes).toFixed(1) + ', highest ' + Math.max.apply(null, meterRes).toFixed(1) + ', over ' + meterRes.length + ' readings; readings overlap).';
+  }
+  $('btnMeter').onclick = () => { if (mic) stopMeter(); else startMeter(); };
+  $('btnMeterPlay').onclick = () => { if (role !== 'host') return; if (state.status === 'playing' && state.track === 'meter') send({ type: 'stop' }); else send({ type: 'play', startHost: now() + LEAD, pos: 0, track: 'meter' }); };
 
   // ---- Host handover: one main host, the old host becomes a member -----------
   let hoPending = null, askRes = null;
@@ -461,7 +575,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     const CH = 32768, total = Math.ceil(bytes.byteLength / CH), it = lib.find(x => x.id === id);
     conn.send({ type: 'file-start', id: id, name: it ? it.name : id, total: total });
     for (let i = 0; i < total; i++) {
-      if (!conn.open) return;
+      if (!conn.open || !raw[id]) return;
       while (conn.dataChannel && conn.dataChannel.bufferedAmount > 1048576) await new Promise(r => setTimeout(r, 25));
       conn.send({ type: 'file-chunk', id: id, i: i, data: bytes.slice(i * CH, (i + 1) * CH) });
     }
@@ -469,6 +583,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   }
   async function finishFile(id) {
     const r = rx[id]; delete rx[id];
+    if (!lib.some(x => x.id === id)) { delete mine[id]; return; }
     const all = new Uint8Array(r.parts.reduce((n, p) => n + p.byteLength, 0)); let o = 0;
     r.parts.forEach(p => { all.set(p, o); o += p.byteLength; });
     try {
@@ -497,13 +612,14 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 
   // ---- Rendering ---------------------------------------------------------
   function renderLib() {
+    if (pressing) return;
     const host = role === 'host';
     $('libList').innerHTML = lib.length ? lib.map((it, i) => {
       const p = mine[it.id] || 0;
-      return '<li class="' + (state.status !== 'idle' && it.id === state.track ? 'cur' : '') + '"><div class="trk">' +
+      return '<li data-id="' + it.id + '" class="' + (state.status !== 'idle' && it.id === state.track ? 'cur' : '') + '"><div class="trk">' +
         (host ? '<button class="ic" data-a="play" data-i="' + i + '"' + (isReady(it.id) ? '' : ' disabled') + ' aria-label="Play this song">&#9654;</button>' : '<span class="dia">&#9670;</span>') +
         '<span class="nm">' + esc(it.name) + '</span>' + (p === 100 ? '<span class="tick" aria-label="ready">&#10003;</span>' : '') + '</div>' +
-        (host ? '<div class="mv"><button class="ic" data-a="up" data-i="' + i + '" aria-label="Move up">&#11014;</button><button class="ic" data-a="dn" data-i="' + i + '" aria-label="Move down">&#11015;</button></div>' : '<span></span>') +
+        (host ? '<div class="mv">' + (showRm === it.id ? '<button class="ic rm" data-a="rm" data-i="' + i + '" aria-label="Remove this song">&#10060;</button>' : '') + '<button class="ic" data-a="up" data-i="' + i + '" aria-label="Move up">&#11014;</button><button class="ic" data-a="dn" data-i="' + i + '" aria-label="Move down">&#11015;</button></div>' : '<span></span>') +
         '<div style="grid-column:1/3">' + barHtml(it.id, p) + '</div></li>';
     }).join('') : '<li class="empty">No songs yet.</li>';
     $('libCount').textContent = lib.length + ' / ' + MAXF;
@@ -533,10 +649,10 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     renderDevs(); renderProps(); renderLib(); renderCtl();
   }
   function showRoom() {
-    ['room', 'player', 'devs', 'props', 'lib', 'tune', 'graphSec', 'logSec', 'backRow'].forEach(id => { $(id).hidden = false; });
+    ['room', 'player', 'devs', 'props', 'lib', 'tune', 'meter', 'graphSec', 'logSec', 'backRow'].forEach(id => { $(id).hidden = false; });
     $('start').hidden = true; $('sync').hidden = role !== 'receiver';
     $('role').textContent = role === 'host' ? 'Host' : 'Receiver'; $('roomCode').textContent = roomCode;
-    $('linkRow').hidden = role !== 'host'; $('addRow').hidden = false;
+    $('linkRow').hidden = role !== 'host'; $('btnMeterPlay').hidden = role !== 'host'; $('addRow').hidden = false;
     $('link').textContent = location.origin + location.pathname + '?join=' + roomCode;
     renderLib(); renderCtl(); renderDevs();
   }
@@ -637,7 +753,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     }
   }
   function leaveRoom() {
-    clearTimeout(pingTimer); clearInterval(devTimer); stopSource();
+    clearTimeout(pingTimer); clearInterval(devTimer); stopSource(); stopMeter();
     const wasHost = role === 'host', code = roomCode, cs = conns.slice(), pr = peer;
     if (wasHost) {
       cs.forEach(c => { if (c.open) c.send({ type: 'closed' }); });
@@ -650,8 +766,8 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     peer = null; hostConn = null; conns = []; role = null; roomCode = ''; devN = 0; counter = 0; left = false;
     samples = []; offset = 0; helloSent = false; lastRtt = null; offsetAtPlay = null; state = C.initialState(); lastSeq = 0; seq = 0;
     lib = []; q = { idx: 0, trackPlays: 1, trackReps: 1, listPlays: 1, listReps: 1, shuffle: false };
-    bufs = {}; mine = {}; raw = {}; rx = {}; sent = {}; devList = []; readySet = new Set(); blocked = {}; localInfo = {}; storedP = null; reconTries = 0; pend = {}; myProps = {}; props = []; pts = []; seg = null; errs = []; ratePpm = 0;
-    ['room', 'player', 'devs', 'props', 'lib', 'sync', 'tune', 'graphSec', 'logSec', 'backRow'].forEach(id => { $(id).hidden = true; });
+    bufs = {}; mine = {}; raw = {}; rx = {}; sent = {}; devList = []; readySet = new Set(); blocked = {}; localInfo = {}; storedP = null; reconTries = 0; pend = {}; myProps = {}; props = []; jew = {}; usedMat = new Set(); pts = []; seg = null; errs = []; ratePpm = 0;
+    ['room', 'player', 'devs', 'props', 'lib', 'sync', 'tune', 'meter', 'graphSec', 'logSec', 'backRow'].forEach(id => { $(id).hidden = true; });
     $('start').hidden = false; alertMsg('');
     ['offset', 'rtt', 'spread', 'drift', 'health'].forEach(id => { $(id).textContent = '-'; $(id).className = ''; });
   }
@@ -716,7 +832,18 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   { const l = lastRoom(); if (l) { $('resume').hidden = false; $('btnResume').textContent = 'Resume room ' + l.code + ' as ' + (l.role === 'host' ? 'host' : 'receiver'); } }
   idbAll().then(rs => idbDel(rs.filter(r => Date.now() - r.ts > 12 * 3600e3).map(r => r.k))).catch(() => {});
   $('mYes').onclick = () => answer(true); $('mNo').onclick = () => answer(false);
-  $('btnLeave').onclick = () => { if (role === 'host' && !confirm('Close the room? Uploaded songs will be cleared for everyone.')) return; leaveRoom(); };
+  let leaveRes = null;
+  const askLeave = t => new Promise(res => { $('lmText').textContent = t; $('leaveModal').hidden = false; leaveRes = res; });
+  const leaveAns = v => { $('leaveModal').hidden = true; if (leaveRes) { const r = leaveRes; leaveRes = null; r(v); } };
+  function burnAndLeave() {                  // the page catches fire, burns away, and the home page appears
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { leaveRoom(); return; }
+    const f = $('fire'); f.hidden = false; f.classList.remove('out'); document.body.classList.add('burning');
+    setTimeout(() => { leaveRoom(); window.scrollTo(0, 0); }, 2300);
+    setTimeout(() => { document.body.classList.remove('burning'); f.classList.add('out'); }, 2450);
+    setTimeout(() => { f.hidden = true; f.classList.remove('out'); }, 3250);
+  }
+  $('lmYes').onclick = () => leaveAns(true); $('lmNo').onclick = () => leaveAns(false);
+  $('btnLeave').onclick = async () => { if (!await askLeave(role === 'host' ? 'Close the room? Uploaded songs will be cleared for everyone.' : 'Leave the room?')) return; burnAndLeave(); };
   $('btnCopy').onclick = async () => {
     try { await navigator.clipboard.writeText($('link').textContent); $('btnCopy').textContent = 'Copied'; setTimeout(() => { $('btnCopy').textContent = 'Copy link'; }, 1500); }
     catch (e) { log('Could not copy. Select the link and copy it by hand.'); }
@@ -753,6 +880,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     const b = e.target.closest('button'); if (!b || role !== 'host') return;
     const i = +b.dataset.i, a = b.dataset.a;
     if (a === 'play') { if (isReady(lib[i].id)) playIdx(i, 0); else log('That song is still loading on some devices'); return; }
+    if (a === 'rm') { removeSong(i); return; }
     const cid = curId(); lib = C.moveItem(lib, i, a === 'up' ? -1 : 1); q = Object.assign({}, q, { idx: Math.max(0, lib.findIndex(x => x.id === cid)) }); pushMeta();
   };
   document.querySelectorAll('.nudge').forEach(b => { b.onclick = () => setTrim(trimMs + +b.dataset.n); });
@@ -773,7 +901,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     $('pos').textContent = fmt(p) + ' / ' + fmt(dur);
     if (document.activeElement !== $('seek')) $('seek').value = dur ? Math.round(p / dur * 1000) : 0;
     const it = state.status === 'idle' ? null : lib.find(x => x.id === state.track);
-    $('nowName').textContent = state.status === 'idle' ? 'Nothing playing' : it ? it.name : 'Built-in click track';
+    $('nowName').textContent = state.status === 'idle' ? 'Nothing playing' : it ? it.name : state.track === 'meter' ? 'Sync meter signal' : 'Built-in click track';
     $('btnPlay').innerHTML = state.status === 'playing' ? '&#10074;&#10074;' : '&#9654;';
     if (role === 'host' && state.status === 'playing') autoAdvance();
     $('rate').textContent = (ratePpm >= 0 ? '+' : '') + ratePpm.toFixed(0) + ' ppm';
