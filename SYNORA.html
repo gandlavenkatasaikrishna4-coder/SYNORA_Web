@@ -86,20 +86,25 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 .bar i.fx-sp{animation:sweep 2.6s linear infinite,pulse 1.8s ease-in-out infinite alternate}.bar i.fx-h{animation:sweep 3s linear infinite,hue 6s linear infinite}
 @keyframes sweep{from{background-position:130% 0,0 0}to{background-position:-40% 0,0 0}}
 @keyframes pulse{from{filter:brightness(.85)}to{filter:brightness(1.35)}}@keyframes hue{to{filter:hue-rotate(360deg)}}
-.mbox .row{margin-top:46px}
-.hot{position:relative;overflow:visible;color:#fff;border:0;background:linear-gradient(180deg,#FF6A3D,#B3111F);box-shadow:0 0 16px rgba(255,90,40,.75);animation:glow 1.1s ease-in-out infinite alternate}
-.hot .fl{position:absolute;left:6px;right:6px;bottom:80%;height:36px;pointer-events:none}
-.hot .fl i{position:absolute;bottom:0;width:16px;height:30px;border-radius:50% 50% 45% 45%/85% 85% 25% 25%;background:linear-gradient(0deg,#FFE066,#FF8A1F 55%,rgba(255,60,20,0));transform-origin:50% 100%;animation:flick .45s ease-in-out infinite alternate}
-.hot .fl i:nth-child(1){left:2%;height:22px;animation-delay:-.1s}.hot .fl i:nth-child(2){left:22%;height:34px;animation-delay:-.25s}.hot .fl i:nth-child(3){left:44%;height:28px;animation-delay:-.05s}.hot .fl i:nth-child(4){left:64%;height:36px;animation-delay:-.3s}.hot .fl i:nth-child(5){left:84%;height:24px;animation-delay:-.15s}
-@keyframes flick{from{transform:scaleY(.75) scaleX(1.05) rotate(-4deg);opacity:.85}to{transform:scaleY(1.15) scaleX(.85) rotate(4deg);opacity:1}}@keyframes glow{to{box-shadow:0 0 28px rgba(255,120,40,1)}}
-#fire{position:fixed;inset:0;z-index:90;overflow:hidden}
-#fire .base{position:absolute;left:-10%;right:-10%;bottom:-20vh;height:0;background:linear-gradient(0deg,#FFF3A8,#FFB327 22%,#FF5A1F 48%,#C1121F 75%,rgba(120,10,10,0));filter:blur(6px);animation:rise 2.3s ease-in forwards}
-#fire .t{position:absolute;bottom:-10vh;width:24vw;height:0;border-radius:50% 50% 40% 40%/90% 90% 20% 20%;background:linear-gradient(0deg,#FFF3A8,#FF9A1F 40%,#E5391B 75%,rgba(229,57,27,0));filter:blur(3px);transform-origin:50% 100%;animation:tongue 2.3s ease-in forwards,flick .35s ease-in-out infinite alternate}
-@keyframes rise{to{height:75vh}}@keyframes tongue{0%{height:0}70%{height:var(--h)}100%{height:calc(var(--h)*1.3)}}
-#fire.out{animation:fout .7s ease forwards}@keyframes fout{to{opacity:0}}
-body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forwards}
-@keyframes burnpage{0%{filter:none;opacity:1}35%{filter:sepia(.9) saturate(3) brightness(1.1)}65%{filter:sepia(1) saturate(4) brightness(.55) contrast(1.3);opacity:.9}100%{filter:sepia(1) brightness(.1) blur(3px);opacity:0;transform:translateY(-30px) scale(.97)}}
-@media(prefers-reduced-motion:reduce){.bar i,.hot,.hot .fl i{animation:none!important}}
+.mbox .row{margin-top:14px;gap:18px}
+.lb{position:relative;z-index:2;font-weight:600}
+.hot{position:relative;overflow:visible;color:#fff;border:0;background:linear-gradient(180deg,#B3111F,#E23A1E 65%,#FF8A2A);box-shadow:0 8px 22px rgba(255,100,30,.8);animation:glow 1.1s ease-in-out infinite alternate}
+.hot .fl{position:absolute;left:-2px;right:-2px;bottom:-5px;height:32px;pointer-events:none;z-index:1}
+.hot .fl i{position:absolute;bottom:0;width:15px;border-radius:50% 50% 45% 45%/90% 90% 20% 20%;background:linear-gradient(0deg,#FFF0A0,#FF9A1F 45%,rgba(255,70,20,0));transform-origin:50% 100%;animation:flick .5s ease-in-out infinite alternate}
+.hot .fl i:nth-child(1){left:0;height:18px;animation-delay:-.1s}.hot .fl i:nth-child(2){left:14%;height:27px;animation-delay:-.3s}.hot .fl i:nth-child(3){left:28%;height:20px;animation-delay:-.05s}.hot .fl i:nth-child(4){left:43%;height:30px;animation-delay:-.4s}.hot .fl i:nth-child(5){left:57%;height:22px;animation-delay:-.2s}.hot .fl i:nth-child(6){left:71%;height:27px;animation-delay:-.35s}.hot .fl i:nth-child(7){left:85%;height:18px;animation-delay:-.15s}
+.hot .fl u{position:absolute;bottom:8px;width:3px;height:3px;border-radius:50%;background:#FFD27A;animation:spark 1.3s linear infinite}
+.hot .fl u:nth-of-type(1){left:12%}.hot .fl u:nth-of-type(2){left:38%;animation-delay:-.4s}.hot .fl u:nth-of-type(3){left:62%;animation-delay:-.8s}.hot .fl u:nth-of-type(4){left:84%;animation-delay:-.2s}
+@keyframes flick{from{transform:scaleY(.75) scaleX(1.05) rotate(-4deg);opacity:.85}to{transform:scaleY(1.15) scaleX(.85) rotate(4deg);opacity:1}}
+@keyframes glow{to{box-shadow:0 8px 30px rgba(255,130,40,1)}}@keyframes spark{from{transform:translate(0,0);opacity:1}to{transform:translate(6px,-36px);opacity:0}}
+.ice{position:relative;overflow:visible;color:#06223D;border:1px solid #BFE8FF;background-image:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.8) 50%,transparent 65%),linear-gradient(180deg,#E6F8FF,#8ED0F5 55%,#4A98DC);background-size:250% 100%,100% 100%;background-repeat:no-repeat;animation:sweep 2.4s linear infinite,chill 1.8s ease-in-out infinite alternate}
+.ice .cr i{position:absolute;width:10px;height:10px;background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:tw2 1.8s ease-in-out infinite}
+.ice .cr i:nth-child(1){left:8%;top:-5px}.ice .cr i:nth-child(2){left:36%;top:-7px;animation-delay:-.5s}.ice .cr i:nth-child(3){left:66%;top:-5px;animation-delay:-1s}.ice .cr i:nth-child(4){right:-4px;top:30%;animation-delay:-.3s}.ice .cr i:nth-child(5){left:-4px;top:55%;animation-delay:-1.3s}
+.ice .ik i{position:absolute;bottom:-11px;width:8px;background:linear-gradient(180deg,#E6F8FF,rgba(150,210,250,.15));clip-path:polygon(0 0,100% 0,50% 100%);animation:drip 2.4s ease-in-out infinite alternate}
+.ice .ik i:nth-child(1){left:12%;height:11px}.ice .ik i:nth-child(2){left:34%;height:16px;animation-delay:-.7s}.ice .ik i:nth-child(3){left:58%;height:10px;animation-delay:-1.2s}.ice .ik i:nth-child(4){left:80%;height:14px;animation-delay:-.4s}
+@keyframes chill{from{box-shadow:0 0 8px rgba(130,210,255,.5)}to{box-shadow:0 0 22px rgba(170,230,255,.95)}}@keyframes tw2{0%,100%{opacity:.2;transform:scale(.5)}50%{opacity:1;transform:scale(1.15)}}@keyframes drip{from{transform:scaleY(.8)}to{transform:scaleY(1.1)}}
+#paper{position:fixed;inset:0;z-index:90;overflow:hidden;background:#0B0B10;clip-path:url(#burnClip)}
+#burnfx{position:fixed;inset:0;width:100%;height:100%;z-index:91;pointer-events:none;display:block;background:none;border:0;border-radius:0}
+@media(prefers-reduced-motion:reduce){.bar i,.hot,.hot .fl i,.hot .fl u,.ice,.ice i{animation:none!important}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -205,8 +210,9 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
   <p class="foot">Prototype (Phase 1, web). Tests the timing method only; not verified on real devices or Bluetooth speakers.<br>Created and developed by Joe. Original concept: Sai Krishna. Annamacharya Institute of Technology and Sciences, Rajampet (AITS) &middot; B.Tech Mechanical Engineering.</p>
 </main>
 
-<div id="leaveModal" hidden role="dialog" aria-modal="true"><div class="mbox"><p id="lmText"></p><div class="row" style="justify-content:center"><button id="lmNo" class="alt">Stay</button><button id="lmYes" class="hot">Leave<span class="fl"><i></i><i></i><i></i><i></i><i></i></span></button></div></div></div>
-<div id="fire" hidden aria-hidden="true"><i class="base"></i><i class="t" style="left:-6vw;--h:70vh;animation-delay:0.15s,0s"></i><i class="t" style="left:8vw;--h:85vh;animation-delay:0.00s,0s"></i><i class="t" style="left:22vw;--h:65vh;animation-delay:0.25s,0s"></i><i class="t" style="left:36vw;--h:90vh;animation-delay:0.10s,0s"></i><i class="t" style="left:50vw;--h:72vh;animation-delay:0.30s,0s"></i><i class="t" style="left:62vw;--h:88vh;animation-delay:0.05s,0s"></i><i class="t" style="left:76vw;--h:68vh;animation-delay:0.20s,0s"></i><i class="t" style="left:88vw;--h:80vh;animation-delay:0.12s,0s"></i></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><clipPath id="burnClip"><path id="burnPath" clip-rule="evenodd" d="M0 0"/></clipPath></svg>
+<div id="paper" hidden aria-hidden="true"></div><canvas id="burnfx" hidden></canvas>
+<div id="leaveModal" hidden role="dialog" aria-modal="true"><div class="mbox"><p id="lmText"></p><div class="row" style="justify-content:center"><button id="lmNo" class="ice"><b class="lb">Stay</b><span class="cr"><i></i><i></i><i></i><i></i><i></i></span><span class="ik"><i></i><i></i><i></i><i></i></span></button><button id="lmYes" class="hot"><b class="lb">Leave</b><span class="fl"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><u></u><u></u><u></u><u></u></span></button></div></div></div>
 <div id="modal" hidden role="dialog" aria-modal="true"><div class="mbox"><p id="mtext"></p><div class="row" style="justify-content:center"><button id="mNo" class="alt">&#10060; Cancel</button><button id="mYes">&#9989; Confirm</button></div></div></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -291,8 +297,8 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
       const d = C.clickTrack(ctx.sampleRate, 120); clickBuf = ctx.createBuffer(1, d.length, ctx.sampleRate); clickBuf.copyToChannel(d, 0);
       const mt = C.measureTrack(ctx.sampleRate, 120); meterBuf = ctx.createBuffer(1, mt.length, ctx.sampleRate); meterBuf.copyToChannel(mt, 0);
     }
-    if (ctx.state !== 'running') await ctx.resume();
-    try { if (navigator.wakeLock) await navigator.wakeLock.request('screen'); } catch (e) {}
+    if (ctx.state !== 'running') ctx.resume().catch(() => {});
+    try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {}); } catch (e) {}
   }
   function perfToCtx(ms) {
     if (ctx.getOutputTimestamp) { const ts = ctx.getOutputTimestamp(); if (ts.performanceTime > 0) return ts.contextTime + (ms - ts.performanceTime) / 1000; }
@@ -521,41 +527,95 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
     alertMsg('You are becoming the host...'); startHost(0, snap.code);
   }
 
+  // ---- Fast start: show progress at once, and keep a connection warm --------------
+  let busyTimer = null, warm = null;
+  function busy(on, text) {
+    ['btnHost', 'btnJoin', 'btnRehost', 'btnResume'].forEach(id => { $(id).disabled = on; });
+    clearTimeout(busyTimer);
+    if (on) { alertMsg(text || 'Connecting...'); busyTimer = setTimeout(() => { if (!$('start').hidden) alertMsg('Still connecting... this can take a while on mobile data.'); }, 8000); }
+  }
+  const setBusyText = t => { if (!$('start').hidden) alertMsg(t); };
+  const friendly = type => (['network', 'server-error', 'socket-error', 'socket-closed'].indexOf(type) >= 0) ? 'Could not reach the connection server. Check the internet and try again.' : type === 'browser-incompatible' ? 'This browser cannot make the connection.' : 'Connection problem (' + type + ').';
+  function warmUp() {                        // connect to the server while the page is idle, so Host / Join is instant
+    if (typeof Peer === 'undefined' || warm) return;
+    const code = C.makeRoomCode(Math.random, 4), pr = new Peer('synora-' + code), w = { code: code, peer: pr };
+    warm = w;
+    pr.on('error', e => { if (warm === w) { warm = null; try { pr.destroy(); } catch (x) {} if (e.type === 'unavailable-id') setTimeout(warmUp, 500); } });
+  }
+  function takeWarm() {
+    const w = warm; warm = null;
+    if (w && !w.peer.destroyed && !w.peer.disconnected) return w;
+    if (w) { try { w.peer.destroy(); } catch (x) {} }
+    return null;
+  }
+
   // ---- Remember rooms, devices and songs (survives a refresh) ----------------
   function idbOpen() { return new Promise((res, rej) => { const r = indexedDB.open('synora', 1); r.onupgradeneeded = () => r.result.createObjectStore('files', { keyPath: 'k' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); }
   async function idbAll() { const db = await idbOpen(); return new Promise((res, rej) => { const g = db.transaction('files').objectStore('files').getAll(); g.onsuccess = () => res(g.result); g.onerror = () => rej(g.error); }); }
   async function idbPut(rec) { const db = await idbOpen(); return new Promise((res, rej) => { const t = db.transaction('files', 'readwrite'); t.objectStore('files').put(rec); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
   async function idbDel(keys) { if (!keys.length) return; const db = await idbOpen(); return new Promise((res, rej) => { const t = db.transaction('files', 'readwrite'); keys.forEach(k => t.objectStore('files').delete(k)); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
   const saveFile = (room, id, name, size, bytes) => idbPut({ k: room + ':' + id, room: room, id: id, name: name, size: size, bytes: bytes, ts: Date.now() }).catch(() => log('could not save a song on this phone'));
-  function saveLast() { try { localStorage.setItem('synora.last', JSON.stringify({ role: role, code: roomCode, t: Date.now() })); } catch (e) {} }
-  function saveMeta() { try { localStorage.setItem('synora.room.' + roomCode, JSON.stringify({ role: 'host', counter: counter, lib: lib, q: q })); } catch (e) {} }
-  function lastRoom() { try { const l = JSON.parse(localStorage.getItem('synora.last') || 'null'); return l && l.code && Date.now() - l.t < 6 * 3600e3 ? l : null; } catch (e) { return null; } }
-  async function restoreHost(code) {
+  function saveLast() { try { localStorage.setItem('synora.last', JSON.stringify({ role: role, code: roomCode, t: Date.now() })); localStorage.setItem('synora.act.' + roomCode, String(Date.now())); } catch (e) {} }
+  function saveMeta() { try { localStorage.setItem('synora.room.' + roomCode, JSON.stringify({ role: 'host', counter: counter, lib: lib, q: q })); localStorage.setItem('synora.act.' + roomCode, String(Date.now())); } catch (e) {} }
+  function lastRoom() { try { const l = JSON.parse(localStorage.getItem('synora.last') || 'null'); return l && l.code && Date.now() - l.t < 3600e3 ? l : null; } catch (e) { return null; } }
+  async function restoreHost(code) {         // host re-join: the room opens at once, songs are decoded in the background
     let meta = null; try { meta = JSON.parse(localStorage.getItem('synora.room.' + code) || 'null'); } catch (e) {}
     if (!meta) return;
-    counter = meta.counter || 0; q = meta.q || q; const keep = [];
-    try {
-      const recs = await idbAll();
-      for (const it of meta.lib || []) {
-        const r = recs.find(x => x.room === code && x.id === it.id && x.name === it.name); if (!r) continue;
-        try { bufs[it.id] = await ctx.decodeAudioData(r.bytes.slice(0)); raw[it.id] = r.bytes; mine[it.id] = 100; keep.push(it); } catch (e) {}
-      }
-    } catch (e) {}
+    counter = meta.counter || 0; q = meta.q || q;
+    let recs = []; try { recs = await idbAll(); } catch (e) {}
+    const keep = [], todo = [];
+    for (const it of meta.lib || []) {
+      const r = recs.find(x => x.room === code && x.id === it.id && x.name === it.name); if (!r) continue;
+      raw[it.id] = r.bytes; mine[it.id] = 20; keep.push(it); todo.push(r);
+    }
     lib = keep; q = Object.assign({}, q, { idx: Math.min(q.idx, Math.max(lib.length - 1, 0)) });
-  }
-  async function loadStored(code) {          // receiver: songs already on this phone for this room
-    const have = {};
-    try {
-      for (const r of (await idbAll()).filter(x => x.room === code)) {
-        try { bufs[r.id] = await ctx.decodeAudioData(r.bytes.slice(0)); mine[r.id] = 100; have[r.id] = r.name + '|' + r.size; localInfo[r.id] = have[r.id]; } catch (e) {}
+    setTimeout(async () => {
+      for (const r of todo) {
+        try { bufs[r.id] = await ctx.decodeAudioData(r.bytes.slice(0)); mine[r.id] = 100; }
+        catch (e) { lib = lib.filter(x => x.id !== r.id); delete mine[r.id]; delete raw[r.id]; }
+        renderLib();
       }
+      if (role === 'host') { pushMeta(); broadcastDevs(); }
+    }, 0);
+  }
+  let storedRecs = [];
+  async function loadStored(code) {          // receiver: songs already saved on this phone for this room (names only, fast)
+    const have = {}; storedRecs = [];
+    try {
+      for (const r of (await idbAll()).filter(x => x.room === code)) { have[r.id] = r.name + '|' + r.size; localInfo[r.id] = have[r.id]; storedRecs.push(r); }
     } catch (e) {}
     return have;
   }
+  async function decodeStored() {            // receiver: decode saved songs the host still has, then tell the host they are ready
+    for (const r of storedRecs.slice()) {
+      if (!lib.some(it => it.id === r.id && localInfo[r.id] === it.name + '|' + it.size)) continue;
+      if (!bufs[r.id]) { try { bufs[r.id] = await ctx.decodeAudioData(r.bytes.slice(0)); } catch (e) { continue; } }
+      mine[r.id] = 100;
+      if (hostConn && hostConn.open) hostConn.send({ type: 'prog', id: r.id, pct: 100 });
+      if (state.status === 'playing' && state.track === r.id) startSource(state.startHost, state.startPos);
+      renderLib();
+    }
+  }
   function pruneLocal() {                    // receiver: drop songs the host no longer has
-    const gone = Object.keys(bufs).filter(id => !lib.some(it => it.id === id && localInfo[id] === it.name + '|' + it.size));
+    const ok = id => lib.some(it => it.id === id && localInfo[id] === it.name + '|' + it.size);
+    const gone = Object.keys(bufs).filter(id => !ok(id));
     gone.forEach(id => { delete bufs[id]; delete mine[id]; delete localInfo[id]; });
-    idbDel(gone.map(id => roomCode + ':' + id)).catch(() => {});
+    const stale = storedRecs.filter(r => !ok(r.id)).map(r => r.id); storedRecs = storedRecs.filter(r => stale.indexOf(r.id) < 0);
+    idbDel(gone.concat(stale).map(id => roomCode + ':' + id)).catch(() => {});
+  }
+  // Rooms nobody has touched for 1 hour are forgotten: saved songs, room memory, resume button.
+  function touchRoom() { if (roomCode && role) saveLast(); }
+  async function cleanOld() {
+    const cut = Date.now() - 3600e3, act = {};
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf('synora.act.') === 0) act[k.slice(11)] = +localStorage.getItem(k) || 0; } } catch (e) {}
+    try {
+      const recs = await idbAll(), dead = new Set();
+      recs.forEach(r => { if ((act[r.room] || r.ts) < cut && r.room !== roomCode) dead.add(r.room); });
+      await idbDel(recs.filter(r => dead.has(r.room)).map(r => r.k));
+    } catch (e) {}
+    Object.keys(act).forEach(c => { if (act[c] < cut && c !== roomCode) { try { localStorage.removeItem('synora.act.' + c); localStorage.removeItem('synora.room.' + c); } catch (e) {} } });
+    try { const l = JSON.parse(localStorage.getItem('synora.last') || 'null'); if (l && Date.now() - l.t >= 3600e3 && l.code !== roomCode) localStorage.removeItem('synora.last'); } catch (e) {}
+    if (!roomCode) { const l = lastRoom(); $('resume').hidden = !l; }
   }
 
   // ---- Songs: add, send, receive -----------------------------------------
@@ -607,7 +667,7 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
     offset = est.offset; lastRtt = est.rtt;
     $('offset').textContent = est.offset.toFixed(1) + ' ms'; $('rtt').textContent = est.rtt.toFixed(1) + ' ms'; $('spread').textContent = est.spread.toFixed(1) + ' ms'; $('ppm').textContent = est.slopePpm == null ? 'measuring' : est.slopePpm.toFixed(0) + ' ppm';
     const h = C.syncHealth(est.spread, est.rtt); $('health').textContent = h; $('health').className = h;
-    if (!helloSent && samples.length >= 6) { helloSent = true; (storedP || Promise.resolve({})).then(h => { if (hostConn && hostConn.open) hostConn.send({ type: 'hello', have: h }); }); }
+    if (!helloSent && samples.length >= 3) { helloSent = true; (storedP || Promise.resolve({})).then(h => { if (hostConn && hostConn.open) hostConn.send({ type: 'hello', have: h }); }); }
   }
 
   // ---- Rendering ---------------------------------------------------------
@@ -659,15 +719,17 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
 
   // ---- Networking --------------------------------------------------------
   function startHost(tries, fixed) {
-    roomCode = fixed || C.makeRoomCode(Math.random, 4); peer = new Peer('synora-' + roomCode);
-    peer.on('open', () => { role = 'host'; left = false; alertMsg(''); showRoom(); log('room ' + roomCode + (fixed ? ' re-opened' : ' ready')); saveLast(); saveMeta(); broadcastDevs(); devTimer = setInterval(broadcastDevs, 1500); });
+    if (fixed && warm) { try { warm.peer.destroy(); } catch (x) {} warm = null; }
+    const w = fixed ? null : takeWarm();
+    roomCode = fixed || (w ? w.code : C.makeRoomCode(Math.random, 4)); peer = w ? w.peer : new Peer('synora-' + roomCode);
+    const onOpen = () => { role = 'host'; left = false; alertMsg(''); showRoom(); log('room ' + roomCode + (fixed ? ' re-opened' : ' ready')); saveLast(); saveMeta(); broadcastDevs(); devTimer = setInterval(broadcastDevs, 1500); busy(false); };
     peer.on('error', e => {
       if (e.type === 'unavailable-id') {
         const n = (tries || 0) + 1;
-        if (fixed && n <= 25) { alertMsg('Waiting for the old connection to clear (' + n + ')...'); try { peer.destroy(); } catch (x) {} setTimeout(() => startHost(n, fixed), 3000); return; }
+        if (fixed && n <= 60) { alertMsg('Waiting for the old connection to clear (' + n + ')...'); try { peer.destroy(); } catch (x) {} setTimeout(() => startHost(n, fixed), 1000); return; }
         if (!fixed && n <= 5) { startHost(n); return; }
       }
-      log('network error: ' + e.type);
+      log('network error: ' + e.type); busy(false); alertMsg(friendly(e.type));
     });
     peer.on('connection', conn => {
       conn.info = { name: 'Device', code: '', net: 'unknown', rtt: null, seen: now(), prog: {} };
@@ -675,7 +737,7 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
       conn.on('open', () => log('a device is connecting'));
       conn.on('data', async m => {
         if (m.type === 'ping') { const t1 = now(); conn.info.net = m.net; conn.info.rtt = m.rtt; conn.info.seen = t1; conn.send({ type: 'pong', t0: m.t0, t1: t1, t2: now() }); }
-        else if (m.type === 'hello') { conn.send({ type: 'state', seq: seq, state: state }); conn.send({ type: 'meta', lib: lib, q: q }); const have = m.have || {}; for (const it of lib.slice()) { if (have[it.id] === it.name + '|' + it.size) conn.info.prog[it.id] = 100; else await sendFile(conn, it.id); } }
+        else if (m.type === 'hello') { conn.send({ type: 'state', seq: seq, state: state }); conn.send({ type: 'meta', lib: lib, q: q }); const have = m.have || {}; for (const it of lib.slice()) { if (have[it.id] === it.name + '|' + it.size) conn.info.prog[it.id] = Math.max(conn.info.prog[it.id] || 0, 90); else await sendFile(conn, it.id); } }
         else if (m.type === 'prog') conn.info.prog[m.id] = m.pct;
         else if (m.type === 'prop-start') {
           if (lib.length + Object.keys(pend).length >= MAXF) { conn.send({ type: 'prop-no', pid: m.pid, why: 'The room already has ' + MAXF + ' songs.' }); return; }
@@ -699,28 +761,31 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
       });
       conn.on('close', () => { conns = conns.filter(c => c !== conn); log(conn.info.name + ' left'); });
     });
+    if (peer.open) onOpen(); else peer.on('open', onOpen);
   }
   function startJoin(code) {
-    roomCode = code; left = false; peer = new Peer();
+    const w = takeWarm();
+    roomCode = code; left = false; peer = w ? w.peer : new Peer();
     peer.on('error', e => {
       log('network error: ' + e.type);
+      if (e.type !== 'peer-unavailable') { busy(false); alertMsg(friendly(e.type)); }
       if (e.type === 'peer-unavailable' && !left && peer && reconTries < 30) {
         reconTries++; alertMsg(role ? 'Host connection lost. Reconnecting (' + reconTries + ')...' : 'Waiting for the host (' + reconTries + ')... check the code if this keeps going.');
-        setTimeout(() => { if (peer && !left && !(hostConn && hostConn.open)) connectHost(); }, 3000);
+        setTimeout(() => { if (peer && !left && !(hostConn && hostConn.open)) connectHost(); }, 1500);
       }
     });
-    peer.on('open', connectHost);
+    if (peer.open) { setBusyText('Looking for the host...'); connectHost(); } else peer.on('open', () => { setBusyText('Looking for the host...'); connectHost(); });
   }
   function connectHost() {
     {
       if (peer.disconnected) { try { peer.reconnect(); } catch (e) {} }
       const conn = hostConn = peer.connect('synora-' + roomCode, { reliable: true });
-      hostConn.on('open', () => { reconTries = 0; alertMsg(''); lastPong = now(); samples = []; helloSent = false; conn.send({ type: 'id', code: myCode, name: myName() }); if (role !== 'receiver') { role = 'receiver'; showRoom(); } storedP = loadStored(roomCode); saveLast(); log('connected to host'); schedulePing(); });
+      hostConn.on('open', () => { reconTries = 0; alertMsg(''); busy(false); lastPong = now(); samples = []; helloSent = false; conn.send({ type: 'id', code: myCode, name: myName() }); if (role !== 'receiver') { role = 'receiver'; showRoom(); } storedP = loadStored(roomCode); saveLast(); log('connected to host'); schedulePing(); });
       hostConn.on('data', m => {
         if (m.type === 'pong') onPong(m);
         else if (m.type === 'state') { lastSeq = m.seq; state = m.state; if (state.status === 'playing') startSource(state.startHost, state.startPos); }
         else if (m.type === 'kicked') { left = true; stopSource(); clearTimeout(pingTimer); alertMsg(m.reason === 'blocked' ? 'The host blocked this device for 5 minutes.' : 'The host removed this device.'); }
-        else if (m.type === 'meta') { lib = m.lib; q = m.q; pruneLocal(); renderLib(); renderCtl(); }
+        else if (m.type === 'meta') { lib = m.lib; q = m.q; pruneLocal(); renderLib(); renderCtl(); decodeStored(); }
         else if (m.type === 'ho-offer') {
           if (!lib.every(it => mine[it.id] === 100)) hostConn.send({ type: 'ho-reply', ok: false, why: 'songs not ready' });
           else ask(m.name + ' wants you to take over as host of room ' + roomCode + '. Playback will pause.').then(ok => { if (hostConn && hostConn.open) hostConn.send({ type: 'ho-reply', ok: ok }); });
@@ -748,7 +813,7 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
         clearTimeout(pingTimer); stopSource();
         if (left || !peer || conn !== hostConn) return;
         alertMsg('Host connection lost. Reconnecting...');
-        setTimeout(() => { if (peer && !left && !(hostConn && hostConn.open)) connectHost(); }, 2000);
+        setTimeout(() => { if (peer && !left && !(hostConn && hostConn.open)) connectHost(); }, 1000);
       });
     }
   }
@@ -768,7 +833,7 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
     lib = []; q = { idx: 0, trackPlays: 1, trackReps: 1, listPlays: 1, listReps: 1, shuffle: false };
     bufs = {}; mine = {}; raw = {}; rx = {}; sent = {}; devList = []; readySet = new Set(); blocked = {}; localInfo = {}; storedP = null; reconTries = 0; pend = {}; myProps = {}; props = []; jew = {}; usedMat = new Set(); pts = []; seg = null; errs = []; ratePpm = 0;
     ['room', 'player', 'devs', 'props', 'lib', 'sync', 'tune', 'meter', 'graphSec', 'logSec', 'backRow'].forEach(id => { $(id).hidden = true; });
-    $('start').hidden = false; alertMsg('');
+    $('start').hidden = false; alertMsg(''); busy(false); setTimeout(warmUp, 1500);
     ['offset', 'rtt', 'spread', 'drift', 'health'].forEach(id => { $(id).textContent = '-'; $(id).className = ''; });
   }
 
@@ -813,34 +878,80 @@ body.burning main{transform-origin:50% 100%;animation:burnpage 2.3s ease-in forw
   (function loop() { if (!$('graphSec').hidden) { sample(); drawPulse(); } requestAnimationFrame(loop); })();
 
   // ---- Buttons -----------------------------------------------------------
-  $('btnHost').onclick = async () => { await ensureAudio(); startHost(0); };
+  $('btnHost').onclick = async () => { busy(true, 'Opening your room...'); await ensureAudio(); startHost(0); };
   $('btnJoin').onclick = async () => {
     const code = $('code').value.trim().toUpperCase();
     if (code.length !== 4) { alert('Enter the 4-character room code.'); return; }
-    await ensureAudio(); startJoin(code);
+    busy(true, 'Contacting the server...'); await ensureAudio(); startJoin(code);
   };
   $('btnRehost').onclick = async () => {
     const code = $('code').value.trim().toUpperCase();
     if (code.length !== 4) { alert('Type the 4-character room code first.'); return; }
-    await ensureAudio(); await restoreHost(code); startHost(0, code);
+    busy(true, 'Re-opening the room...'); await ensureAudio(); await restoreHost(code); startHost(0, code);
   };
   $('btnResume').onclick = async () => {
     const l = lastRoom(); if (!l) return;
+    busy(true, 'Resuming the room...');
     await ensureAudio();
     if (l.role === 'host') { await restoreHost(l.code); startHost(0, l.code); } else { $('code').value = l.code; startJoin(l.code); }
   };
   { const l = lastRoom(); if (l) { $('resume').hidden = false; $('btnResume').textContent = 'Resume room ' + l.code + ' as ' + (l.role === 'host' ? 'host' : 'receiver'); } }
-  idbAll().then(rs => idbDel(rs.filter(r => Date.now() - r.ts > 12 * 3600e3).map(r => r.k))).catch(() => {});
+  warmUp();
+  cleanOld(); setInterval(cleanOld, 600000); setInterval(touchRoom, 60000);
+  window.addEventListener('pagehide', e => { touchRoom(); if (e.persisted) return; try { if (peer) peer.destroy(); if (warm) warm.peer.destroy(); } catch (x) {} });
+  window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
   $('mYes').onclick = () => answer(true); $('mNo').onclick = () => answer(false);
   let leaveRes = null;
   const askLeave = t => new Promise(res => { $('lmText').textContent = t; $('leaveModal').hidden = false; leaveRes = res; });
   const leaveAns = v => { $('leaveModal').hidden = true; if (leaveRes) { const r = leaveRes; leaveRes = null; r(v); } };
-  function burnAndLeave() {                  // the page catches fire, burns away, and the home page appears
-    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { leaveRoom(); return; }
-    const f = $('fire'); f.hidden = false; f.classList.remove('out'); document.body.classList.add('burning');
-    setTimeout(() => { leaveRoom(); window.scrollTo(0, 0); }, 2300);
-    setTimeout(() => { document.body.classList.remove('burning'); f.classList.add('out'); }, 2450);
-    setTimeout(() => { f.hidden = true; f.classList.remove('out'); }, 3250);
+  function burnAndLeave() {                  // like a paper lit at one corner: the page burns slowly and fades, the home page shows underneath
+    try {
+      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { leaveRoom(); return; }
+      const W = innerWidth, H = innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1), paper = $('paper'), fx = $('burnfx');
+      paper.innerHTML = '';
+      ['.bg', '.frame', 'main'].forEach(sel => {      // the "paper" is a copy of the page as it looks right now
+        const c = document.querySelector(sel).cloneNode(true);
+        c.querySelectorAll('[id]').forEach(e => e.removeAttribute('id')); c.removeAttribute('id');
+        if (sel === 'main') c.style.marginTop = (-window.scrollY) + 'px';
+        paper.appendChild(c);
+      });
+      $('burnPath').setAttribute('d', 'M0 0H' + W + 'V' + H + 'H0Z');          // whole page visible before the first frame
+      paper.hidden = false; fx.hidden = false; fx.width = W * dpr; fx.height = H * dpr;
+      const g = fx.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      leaveRoom(); window.scrollTo(0, 0);              // the home page is now underneath
+      const ox = W * 0.03, oy = H * 0.97, maxR = Math.hypot(Math.max(ox, W - ox), Math.max(oy, H - oy)) * 1.15 + 70;
+      const ph = [0, 1, 2].map(() => Math.random() * 6.283), N = 140, T = 5200, t0 = performance.now(); let last = t0, flames = [];
+      const rad = (th, r, t) => r * (1 + 0.16 * Math.sin(3 * th + ph[0] + t * 0.8) + 0.10 * Math.sin(7 * th + ph[1] - t * 1.3) + 0.06 * Math.sin(15 * th + ph[2] + t * 2));
+      function done() { paper.hidden = true; paper.innerHTML = ''; fx.hidden = true; $('burnPath').setAttribute('d', 'M0 0'); }
+      function frame(now) {
+        const t = now - t0, dt = Math.min(0.05, (now - last) / 1000); last = now;
+        const k = Math.min(1, t / T), r = maxR * Math.pow(k, 1.25) + 2, ts = t / 1000, pts = [];
+        for (let i = 0; i < N; i++) { const th = i / N * 6.2832, R = rad(th, r, ts); pts.push([ox + R * Math.cos(th), oy + R * Math.sin(th)]); }
+        $('burnPath').setAttribute('d', 'M0 0H' + W + 'V' + H + 'H0Z M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L') + 'Z');
+        g.clearRect(0, 0, W, H);
+        const blob = new Path2D(); pts.forEach((p, i) => { if (i) blob.lineTo(p[0], p[1]); else blob.moveTo(p[0], p[1]); }); blob.closePath();
+        g.lineJoin = 'round';
+        g.strokeStyle = 'rgba(70,32,10,.5)'; g.lineWidth = 78; g.stroke(blob);        // brown scorch
+        g.strokeStyle = 'rgba(22,12,6,.92)'; g.lineWidth = 46; g.stroke(blob);        // black char
+        g.globalCompositeOperation = 'destination-out'; g.fill(blob); g.globalCompositeOperation = 'source-over';   // burnt-through hole
+        g.strokeStyle = 'rgba(255,90,20,.35)'; g.lineWidth = 16; g.stroke(blob);       // glowing edge
+        g.strokeStyle = 'rgba(255,150,30,.8)'; g.lineWidth = 7; g.stroke(blob);
+        g.strokeStyle = 'rgba(255,235,140,.95)'; g.lineWidth = 2.5; g.stroke(blob);
+        const spawn = k < 0.9 ? 6 : k < 1 ? 2 : 0;
+        for (let n = 0; n < spawn; n++) { const p = pts[Math.floor(Math.random() * N)]; if (p[0] > -20 && p[0] < W + 20 && p[1] > -20 && p[1] < H + 20) flames.push({ x: p[0], y: p[1], vx: (Math.random() - 0.5) * 24, vy: -(30 + Math.random() * 60), life: 0, max: 0.5 + Math.random() * 0.6, s: 7 + Math.random() * 10 }); }
+        g.globalCompositeOperation = 'lighter';
+        flames = flames.filter(f => (f.life += dt) < f.max);
+        flames.forEach(f => {
+          f.x += f.vx * dt; f.y += f.vy * dt;
+          const u = f.life / f.max, sz = f.s * (1 - u * 0.7), a = 1 - u, gr = g.createRadialGradient(f.x, f.y, 0, f.x, f.y, sz * 1.6);
+          gr.addColorStop(0, 'rgba(255,240,170,' + a + ')'); gr.addColorStop(0.4, 'rgba(255,140,30,' + (a * 0.8) + ')'); gr.addColorStop(1, 'rgba(255,60,10,0)');
+          g.fillStyle = gr; g.beginPath(); g.ellipse(f.x, f.y, sz, sz * 1.5, 0, 0, 6.2832); g.fill();
+        });
+        g.globalCompositeOperation = 'source-over';
+        if (t < T + 900) requestAnimationFrame(frame); else done();
+      }
+      requestAnimationFrame(frame);
+    } catch (e) { try { $('paper').hidden = true; $('burnfx').hidden = true; } catch (x) {} if (role) leaveRoom(); }
   }
   $('lmYes').onclick = () => leaveAns(true); $('lmNo').onclick = () => leaveAns(false);
   $('btnLeave').onclick = async () => { if (!await askLeave(role === 'host' ? 'Close the room? Uploaded songs will be cleared for everyone.' : 'Leave the room?')) return; burnAndLeave(); };
