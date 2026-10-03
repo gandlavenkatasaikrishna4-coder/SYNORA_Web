@@ -117,6 +117,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   <p class="tag">One Sound. Every Speaker.</p>
   <div class="gl">&#9670;</div>
   <div id="alert" role="alert" hidden></div>
+  <div class="row" id="cancelRow" hidden style="justify-content:center"><button id="btnCancel" class="alt">Cancel</button></div>
 
   <section id="start" class="card">
     <h2>Start a shared sound</h2>
@@ -216,6 +217,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 <div id="modal" hidden role="dialog" aria-modal="true"><div class="mbox"><p id="mtext"></p><div class="row" style="justify-content:center"><button id="mNo" class="alt">&#10060; Cancel</button><button id="mYes">&#9989; Confirm</button></div></div></div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>window.Peer || document.write('<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"><\/script>');</script>
 <script src="synora-core.js"></script>
 <script>
 (function () {
@@ -529,10 +531,21 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 
   // ---- Fast start: show progress at once, and keep a connection warm --------------
   let busyTimer = null, warm = null;
+  const CONNECT_TIMEOUT = 15000;
+  let connTimer = null;
   function busy(on, text) {
     ['btnHost', 'btnJoin', 'btnRehost', 'btnResume'].forEach(id => { $(id).disabled = on; });
+    $('cancelRow').hidden = !on;
     clearTimeout(busyTimer);
-    if (on) { alertMsg(text || 'Connecting...'); busyTimer = setTimeout(() => { if (!$('start').hidden) alertMsg('Still connecting... this can take a while on mobile data.'); }, 8000); }
+    if (on) {
+      alertMsg(text || 'Connecting...');
+      busyTimer = setTimeout(() => { const t = $('alert').textContent; if (!$('start').hidden && t && t.indexOf('longer') < 0) alertMsg(t + ' Taking longer than usual.'); }, 8000);
+    }
+  }
+  function failConnect(msg) {                // stop connecting, free the buttons, say what happened
+    clearTimeout(connTimer);
+    if (role === null) { const pr = peer; peer = null; if (pr) { try { pr.destroy(); } catch (x) {} } }
+    left = false; reconTries = 0; busy(false); alertMsg(msg); setTimeout(warmUp, 1000);
   }
   const setBusyText = t => { if (!$('start').hidden) alertMsg(t); };
   const friendly = type => (['network', 'server-error', 'socket-error', 'socket-closed'].indexOf(type) >= 0) ? 'Could not reach the connection server. Check the internet and try again.' : type === 'browser-incompatible' ? 'This browser cannot make the connection.' : 'Connection problem (' + type + ').';
@@ -719,17 +732,21 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 
   // ---- Networking --------------------------------------------------------
   function startHost(tries, fixed) {
+    if (typeof Peer === 'undefined') { failConnect('The connection library did not load. Check the internet and refresh this page.'); return; }
     if (fixed && warm) { try { warm.peer.destroy(); } catch (x) {} warm = null; }
     const w = fixed ? null : takeWarm();
     roomCode = fixed || (w ? w.code : C.makeRoomCode(Math.random, 4)); peer = w ? w.peer : new Peer('synora-' + roomCode);
-    const onOpen = () => { role = 'host'; left = false; alertMsg(''); showRoom(); log('room ' + roomCode + (fixed ? ' re-opened' : ' ready')); saveLast(); saveMeta(); broadcastDevs(); devTimer = setInterval(broadcastDevs, 1500); busy(false); };
+    clearTimeout(connTimer);
+    if (!fixed) connTimer = setTimeout(() => { if (role !== 'host') failConnect('The connection server did not answer. Your internet may be fine; the free server may be busy. Try again in a minute.'); }, CONNECT_TIMEOUT);
+    const onOpen = () => { clearTimeout(connTimer); role = 'host'; left = false; alertMsg(''); showRoom(); log('room ' + roomCode + (fixed ? ' re-opened' : ' ready')); saveLast(); saveMeta(); broadcastDevs(); devTimer = setInterval(broadcastDevs, 1500); busy(false); };
     peer.on('error', e => {
       if (e.type === 'unavailable-id') {
         const n = (tries || 0) + 1;
         if (fixed && n <= 60) { alertMsg('Waiting for the old connection to clear (' + n + ')...'); try { peer.destroy(); } catch (x) {} setTimeout(() => startHost(n, fixed), 1000); return; }
         if (!fixed && n <= 5) { startHost(n); return; }
       }
-      log('network error: ' + e.type); busy(false); alertMsg(friendly(e.type));
+      log('network error: ' + e.type);
+      if (role === null) failConnect(friendly(e.type)); else { busy(false); alertMsg(friendly(e.type)); }
     });
     peer.on('connection', conn => {
       conn.info = { name: 'Device', code: '', net: 'unknown', rtt: null, seen: now(), prog: {} };
@@ -764,15 +781,24 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     if (peer.open) onOpen(); else peer.on('open', onOpen);
   }
   function startJoin(code) {
+    if (typeof Peer === 'undefined') { failConnect('The connection library did not load. Check the internet and refresh this page.'); return; }
     const w = takeWarm();
     roomCode = code; left = false; peer = w ? w.peer : new Peer();
+    clearTimeout(connTimer);
+    connTimer = setTimeout(() => { if (role !== 'receiver' && !left && peer) failConnect('Could not reach the host. Check the code and try again.'); }, CONNECT_TIMEOUT + 10000);
     peer.on('error', e => {
       log('network error: ' + e.type);
-      if (e.type !== 'peer-unavailable') { busy(false); alertMsg(friendly(e.type)); }
-      if (e.type === 'peer-unavailable' && !left && peer && reconTries < 30) {
-        reconTries++; alertMsg(role ? 'Host connection lost. Reconnecting (' + reconTries + ')...' : 'Waiting for the host (' + reconTries + ')... check the code if this keeps going.');
-        setTimeout(() => { if (peer && !left && !(hostConn && hostConn.open)) connectHost(); }, 1500);
+      if (e.type !== 'peer-unavailable') { if (role === null) failConnect(friendly(e.type)); else { busy(false); alertMsg(friendly(e.type)); } return; }
+      if (left || !peer) return;
+      const first = role === null, limit = first ? 3 : 30;      // a wrong code stops after 3 tries; a lost host is retried for ~45 s
+      if (reconTries >= limit) {
+        if (first) failConnect('No room found with code ' + roomCode + '. Check the code, or ask the host to open the room.');
+        else alertMsg('Could not reach the host. Tap Back and join again.');
+        return;
       }
+      reconTries++;
+      alertMsg(first ? 'Looking for the host (' + reconTries + ')...' : 'Host connection lost. Reconnecting (' + reconTries + ')...');
+      setTimeout(() => { if (peer && !left && !(hostConn && hostConn.open)) connectHost(); }, 1500);
     });
     if (peer.open) { setBusyText('Looking for the host...'); connectHost(); } else peer.on('open', () => { setBusyText('Looking for the host...'); connectHost(); });
   }
@@ -780,7 +806,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     {
       if (peer.disconnected) { try { peer.reconnect(); } catch (e) {} }
       const conn = hostConn = peer.connect('synora-' + roomCode, { reliable: true });
-      hostConn.on('open', () => { reconTries = 0; alertMsg(''); busy(false); lastPong = now(); samples = []; helloSent = false; conn.send({ type: 'id', code: myCode, name: myName() }); if (role !== 'receiver') { role = 'receiver'; showRoom(); } storedP = loadStored(roomCode); saveLast(); log('connected to host'); schedulePing(); });
+      hostConn.on('open', () => { clearTimeout(connTimer); reconTries = 0; alertMsg(''); busy(false); lastPong = now(); samples = []; helloSent = false; conn.send({ type: 'id', code: myCode, name: myName() }); if (role !== 'receiver') { role = 'receiver'; showRoom(); } storedP = loadStored(roomCode); saveLast(); log('connected to host'); schedulePing(); });
       hostConn.on('data', m => {
         if (m.type === 'pong') onPong(m);
         else if (m.type === 'state') { lastSeq = m.seq; state = m.state; if (state.status === 'playing') startSource(state.startHost, state.startPos); }
@@ -954,6 +980,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     } catch (e) { try { $('paper').hidden = true; $('burnfx').hidden = true; } catch (x) {} if (role) leaveRoom(); }
   }
   $('lmYes').onclick = () => leaveAns(true); $('lmNo').onclick = () => leaveAns(false);
+  $('btnCancel').onclick = () => failConnect('');
   $('btnLeave').onclick = async () => { if (!await askLeave(role === 'host' ? 'Close the room? Uploaded songs will be cleared for everyone.' : 'Leave the room?')) return; burnAndLeave(); };
   $('btnCopy').onclick = async () => {
     try { await navigator.clipboard.writeText($('link').textContent); $('btnCopy').textContent = 'Copied'; setTimeout(() => { $('btnCopy').textContent = 'Copy link'; }, 1500); }
