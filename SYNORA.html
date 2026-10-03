@@ -88,10 +88,14 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 @keyframes pulse{from{filter:brightness(.85)}to{filter:brightness(1.35)}}@keyframes hue{to{filter:hue-rotate(360deg)}}
 .mbox .row{margin-top:46px;gap:22px}
 .lb{position:relative;z-index:3;font-weight:600}
-.hot{position:relative;overflow:visible;color:#fff;border:0;background:radial-gradient(circle at 18% 62%,#050202 0 5px,transparent 6px),radial-gradient(circle at 46% 38%,#0b0504 0 4px,transparent 5px),radial-gradient(circle at 74% 66%,#050202 0 7px,transparent 8px),radial-gradient(circle at 90% 34%,#0b0504 0 3px,transparent 4px),linear-gradient(180deg,#3a0906,#8f1a0c 50%,#ff5f1a);box-shadow:0 6px 22px rgba(255,90,20,.75);animation:heat 1.4s ease-in-out infinite alternate}
+.hot .lb{font-size:1.08rem;letter-spacing:.06em;color:#fff;-webkit-text-stroke:.5px #2a0500;text-shadow:0 1px 2px #000,0 0 8px #000,0 0 16px rgba(0,0,0,.85)}
+.hot .lb::before{content:"";position:absolute;inset:-6px -14px;z-index:-1;border-radius:50%;background:radial-gradient(ellipse,rgba(20,2,0,.82),rgba(20,2,0,0) 72%)}
+.hot:active,.ice:active{transform:scale(.95)}
+@keyframes throb{from{transform:scale(1)}to{transform:scale(1.035)}}@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-2px)}}
+.hot{position:relative;overflow:visible;color:#fff;border:0;background:radial-gradient(circle at 18% 62%,#050202 0 5px,transparent 6px),radial-gradient(circle at 46% 38%,#0b0504 0 4px,transparent 5px),radial-gradient(circle at 74% 66%,#050202 0 7px,transparent 8px),radial-gradient(circle at 90% 34%,#0b0504 0 3px,transparent 4px),linear-gradient(180deg,#3a0906,#8f1a0c 50%,#ff5f1a);box-shadow:0 6px 22px rgba(255,90,20,.75);animation:heat 1.4s ease-in-out infinite alternate,throb .8s ease-in-out infinite alternate}
 @keyframes heat{from{filter:brightness(.92);box-shadow:0 6px 18px rgba(255,80,20,.6)}to{filter:brightness(1.18);box-shadow:0 6px 30px rgba(255,130,40,.95)}}
 .firecv{position:absolute;left:-14px;bottom:-10px;width:calc(100% + 28px);height:86px;z-index:1;pointer-events:none;background:none;border:0;border-radius:0}
-.ice{position:relative;overflow:visible;border:0;background:none;color:#06223D;padding:12px 26px;filter:drop-shadow(0 0 8px rgba(150,215,255,.85));animation:chill 2s ease-in-out infinite alternate}
+.ice{position:relative;overflow:visible;border:0;background:none;color:#06223D;padding:12px 26px;filter:drop-shadow(0 0 8px rgba(150,215,255,.85));animation:chill 2s ease-in-out infinite alternate,bob 2.6s ease-in-out infinite alternate}
 .ice::before{content:"";position:absolute;inset:0;z-index:0;clip-path:polygon(7% 14%,19% 0,33% 11%,49% 0,64% 10%,81% 0,94% 15%,100% 42%,95% 66%,100% 90%,85% 100%,67% 91%,51% 100%,34% 92%,17% 100%,4% 85%,0 58%,5% 34%);background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.85) 45%,transparent 60%) 0 0/250% 100% no-repeat,linear-gradient(160deg,rgba(255,255,255,.55) 0 18%,transparent 18% 100%),linear-gradient(20deg,transparent 0 58%,rgba(255,255,255,.35) 58% 64%,transparent 64%),linear-gradient(180deg,#F2FBFF,#9FD8F7 50%,#3F8EDB);animation:shimmer 2.8s linear infinite}
 .ice::after{content:"";position:absolute;left:6%;right:6%;top:-7px;height:11px;z-index:2;background:#fff;clip-path:polygon(0 100%,7% 35%,16% 75%,28% 8%,42% 62%,57% 18%,71% 72%,85% 28%,100% 100%)}
 .snowcv{position:absolute;left:-30px;top:-42px;width:calc(100% + 60px);height:calc(100% + 68px);z-index:2;pointer-events:none;background:none;border:0;border-radius:0}
@@ -927,32 +931,65 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   const reducedMotion = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   const fxl = { on: false };
   function sizeCv(c) { const r = Math.min(2, window.devicePixelRatio || 1); c.width = Math.max(1, Math.round(c.clientWidth * r)); c.height = Math.max(1, Math.round(c.clientHeight * r)); const g = c.getContext('2d'); g.setTransform(r, 0, 0, r, 0, 0); return g; }
-  function flameParticle(x, y, big) { big = big || 1; return { x: x, y: y, vx: (Math.random() - 0.5) * 16, vy: -(45 + Math.random() * 75) * big, life: 0, max: 0.45 + Math.random() * 0.6, s: (5 + Math.random() * 8) * big, ph: Math.random() * 6.283, sw: 8 + Math.random() * 20 }; }
+  function flameParticle(x, y, big) { big = big || 1; const tall = Math.random() < 0.08; return { x: x, y: y, vx: (Math.random() - 0.5) * 16, vy: -(45 + Math.random() * 75) * big * (tall ? 1.3 : 1), life: 0, max: (0.45 + Math.random() * 0.6) * (tall ? 1.3 : 1), s: (5 + Math.random() * 8) * big, asp: tall ? 3.4 : 2, ph: Math.random() * 6.283, sw: 8 + Math.random() * 20 }; }
   function stepFlame(f, dt) { f.life += dt; f.x += (f.vx + Math.sin(f.ph + f.life * 9) * f.sw) * dt; f.y += f.vy * dt; f.vy *= 1 - 0.4 * dt; }
   function drawFlame(g, f) {                 // many soft glowing blobs: white-yellow core, orange body, red tips
-    const u = f.life / f.max, a = 1 - u, w = f.s * (1 - 0.55 * u), h = w * 2, core = u < 0.35 ? '255,238,170' : u < 0.65 ? '255,150,40' : '210,60,20';
+    const u = f.life / f.max, a = 1 - u, w = f.s * (1 - 0.55 * u), h = w * (f.asp || 2), core = u < 0.35 ? '255,238,170' : u < 0.65 ? '255,150,40' : '210,60,20';
     const gr = g.createRadialGradient(0, 0, 0, 0, 0, h);
     gr.addColorStop(0, 'rgba(' + core + ',' + (a * 0.95) + ')'); gr.addColorStop(0.5, 'rgba(255,110,25,' + (a * 0.5) + ')'); gr.addColorStop(1, 'rgba(180,30,10,0)');
     g.save(); g.translate(f.x, f.y); g.scale(w / h, 1); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, h, 0, 6.2832); g.fill(); g.restore();
   }
-  function leaveFx() {                       // real flames rise from the bottom of Leave; snow falls around Stay
+  function leaveFx() {                       // Leave: flames, embers, light; Stay: snow, frost, glints, mist, drips. Pressing a button makes it react.
     const cf = $('fireCv'), cs = $('snowCv'); if (!cf || !cs) return;
-    const gf = sizeCv(cf), gs = sizeCv(cs), Wf = cf.clientWidth, Hf = cf.clientHeight, Ws = cs.clientWidth, Hs = cs.clientHeight, fire = [], snow = [];
-    let last = performance.now(); fxl.on = true;
-    const newSnow = init => ({ x: Math.random() * Ws, y: init ? Math.random() * Hs : -4, r: 0.7 + Math.random() * 2.3, vy: 14 + Math.random() * 30, sw: 4 + Math.random() * 10, ph: Math.random() * 6.283 });
+    const gf = sizeCv(cf), gs = sizeCv(cs), Wf = cf.clientWidth, Hf = cf.clientHeight, Ws = cs.clientWidth, Hs = cs.clientHeight, R = Math.random;
+    const fire = [], embers = [], snow = [], glints = [], mist = [], frost = [], drops = [], bursts = [];
+    let last = performance.now(), surge = 0, accF = 0, accE = 0, accM = 0, accFr = 0, accG = 0, accD = 0; fxl.on = true;
+    const bx0 = 30, bx1 = Ws - 30, by0 = 42, by1 = Hs - 26;      // where the Stay button sits inside its canvas
+    const newSnow = init => ({ x: R() * Ws, y: init ? R() * Hs : -4, r: 0.7 + R() * 2.3, vy: 14 + R() * 30, sw: 4 + R() * 10, ph: R() * 6.283 });
     for (let i = 0; i < 42; i++) snow.push(newSnow(true));
+    $('lmYes').onpointerdown = () => { surge = 1; };
+    $('lmNo').onpointerdown = () => { for (let k = 0; k < 28; k++) { const a = R() * 6.283, v = 60 + R() * 90; bursts.push({ x: (bx0 + bx1) / 2, y: (by0 + by1) / 2, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: 0.6 + R() * 0.5, r: 1 + R() * 2, ph: R() * 6.283 }); } };
+    const flake = (g, x, y, r, al) => { g.strokeStyle = 'rgba(230,246,255,' + al + ')'; g.lineWidth = 0.8; for (let k = 0; k < 3; k++) { const a = k * Math.PI / 3 + 0.4; g.beginPath(); g.moveTo(x - Math.cos(a) * r, y - Math.sin(a) * r); g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); g.stroke(); } };
     (function loop(now) {
       if (!fxl.on) return;
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      gf.clearRect(0, 0, Wf, Hf); gs.clearRect(0, 0, Ws, Hs);
-      for (let n = 0; n < 3; n++) fire.push(flameParticle(14 + Math.random() * Math.max(1, Wf - 28), Hf - 10, 1));
+      const dt = Math.min(0.05, (now - last) / 1000); last = now; surge = Math.max(0, surge - dt * 1.4);
+      // ---------- fire ----------
+      gf.clearRect(0, 0, Wf, Hf);
       gf.globalCompositeOperation = 'lighter';
+      const lg = gf.createRadialGradient(Wf / 2, Hf - 10, 0, Wf / 2, Hf - 10, 80), li = 0.16 + 0.08 * Math.sin(now / 90) + 0.25 * surge;   // firelight
+      lg.addColorStop(0, 'rgba(255,120,30,' + li + ')'); lg.addColorStop(1, 'rgba(255,60,10,0)'); gf.fillStyle = lg; gf.fillRect(0, 0, Wf, Hf);
+      accF += dt * (150 + 420 * surge); while (accF >= 1) { accF--; fire.push(flameParticle(14 + R() * Math.max(1, Wf - 28), Hf - 10, 1 + 0.5 * surge)); }
+      accE += dt * (14 + 40 * surge); while (accE >= 1) { accE--; embers.push({ x: 10 + R() * Math.max(1, Wf - 20), y: Hf - 12, vx: (R() - 0.5) * 30, vy: -(70 + R() * 90), life: 0, max: 0.8 + R() * 1.0, r: 0.8 + R() * 1.6 }); }
       for (let q = fire.length - 1; q >= 0; q--) { const f = fire[q]; stepFlame(f, dt); if (f.life >= f.max) fire.splice(q, 1); else drawFlame(gf, f); }
+      for (let q = embers.length - 1; q >= 0; q--) {
+        const e = embers[q]; e.life += dt; if (e.life >= e.max || e.y < -4) { embers.splice(q, 1); continue; }
+        e.x += (e.vx + Math.sin(e.life * 8 + q) * 12) * dt; e.y += e.vy * dt; const u = e.life / e.max;
+        gf.fillStyle = 'rgba(255,' + Math.round(210 - 120 * u) + ',' + Math.round(110 - 90 * u) + ',' + (1 - u) + ')'; gf.beginPath(); gf.arc(e.x, e.y, e.r * (1 - 0.4 * u), 0, 6.2832); gf.fill();
+      }
       gf.globalCompositeOperation = 'source-over';
+      // ---------- ice and snow ----------
+      gs.clearRect(0, 0, Ws, Hs);
+      accM += dt; if (accM > 0.4) { accM = 0; mist.push({ x: bx0 + R() * (bx1 - bx0), y: by1 + 6 + R() * 10, vx: (R() - 0.5) * 14, life: 0, max: 2.6 + R() * 1.4, s: 14 + R() * 12 }); }
+      for (let q = mist.length - 1; q >= 0; q--) { const m = mist[q]; m.life += dt; if (m.life >= m.max) { mist.splice(q, 1); continue; } m.x += m.vx * dt; m.y -= 3 * dt; const u = m.life / m.max, rr = m.s * (1 + u), gr = gs.createRadialGradient(m.x, m.y, 0, m.x, m.y, rr); gr.addColorStop(0, 'rgba(205,235,255,' + (0.16 * Math.sin(Math.PI * u)) + ')'); gr.addColorStop(1, 'rgba(205,235,255,0)'); gs.fillStyle = gr; gs.beginPath(); gs.arc(m.x, m.y, rr, 0, 6.2832); gs.fill(); }
+      accFr += dt; if (accFr > 0.45 && frost.length < 7) {            // sharp frost crystals grow out from the edge
+        accFr = 0; const side = Math.floor(R() * 4), t = R(), out = [-Math.PI / 2, 0, Math.PI / 2, Math.PI][side], px = side % 2 ? (side === 1 ? bx1 : bx0) : bx0 + t * (bx1 - bx0), py = side % 2 ? by0 + t * (by1 - by0) : (side === 0 ? by0 : by1);
+        frost.push({ x: px, y: py, a: out + (R() - 0.5) * 0.9, L: 12 + R() * 14, t: 0, max: 1.8 + R() * 0.8 });
+      }
+      for (let q = frost.length - 1; q >= 0; q--) {
+        const f = frost[q]; f.t += dt; if (f.t >= f.max) { frost.splice(q, 1); continue; }
+        const p = Math.min(1, f.t / 0.7), al = f.t > f.max - 0.6 ? (f.max - f.t) / 0.6 : 1, L = f.L * p;
+        gs.strokeStyle = 'rgba(235,248,255,' + (0.95 * al) + ')'; gs.lineWidth = 1.2; gs.beginPath(); gs.moveTo(f.x, f.y); gs.lineTo(f.x + Math.cos(f.a) * L, f.y + Math.sin(f.a) * L); gs.stroke();
+        [0.45, 0.7].forEach(k => { const bxp = f.x + Math.cos(f.a) * L * k, byp = f.y + Math.sin(f.a) * L * k; [-0.95, 0.95].forEach(da => { gs.beginPath(); gs.moveTo(bxp, byp); gs.lineTo(bxp + Math.cos(f.a + da) * L * 0.4, byp + Math.sin(f.a + da) * L * 0.4); gs.stroke(); }); });
+      }
+      accG += dt; if (accG > 0.22) { accG = 0; glints.push({ x: bx0 + 8 + R() * (bx1 - bx0 - 16), y: by0 + 6 + R() * (by1 - by0 - 12), life: 0, max: 0.5 + R() * 0.3, r: 3 + R() * 4 }); }
+      for (let q = glints.length - 1; q >= 0; q--) { const gl = glints[q]; gl.life += dt; if (gl.life >= gl.max) { glints.splice(q, 1); continue; } const u = Math.sin(Math.PI * gl.life / gl.max), rr = gl.r * u; gs.strokeStyle = 'rgba(255,255,255,' + u + ')'; gs.lineWidth = 1; gs.beginPath(); gs.moveTo(gl.x - rr, gl.y); gs.lineTo(gl.x + rr, gl.y); gs.moveTo(gl.x, gl.y - rr); gs.lineTo(gl.x, gl.y + rr); gs.stroke(); }
+      accD += dt; if (accD > 1.3) { accD = 0; drops.push({ x: bx0 + (bx1 - bx0) * [0.14, 0.36, 0.6, 0.8][Math.floor(R() * 4)] + 3, y: by1 + 12, vy: 0, life: 0 }); }
+      for (let q = drops.length - 1; q >= 0; q--) { const d = drops[q]; d.life += dt; d.vy += 260 * dt; d.y += d.vy * dt; if (d.y > Hs) { drops.splice(q, 1); continue; } gs.fillStyle = 'rgba(200,235,255,.9)'; gs.beginPath(); gs.ellipse(d.x, d.y, 1.3, 2.4, 0, 0, 6.2832); gs.fill(); }
+      for (let q = bursts.length - 1; q >= 0; q--) { const b = bursts[q]; b.life += dt; if (b.life >= b.max) { bursts.splice(q, 1); continue; } b.x += b.vx * dt; b.y += b.vy * dt; b.vx *= 1 - 2 * dt; b.vy *= 1 - 2 * dt; flake(gs, b.x, b.y, b.r * 2.4, 1 - b.life / b.max); }
       snow.forEach(s => {
         s.y += s.vy * dt; s.x += Math.sin(s.ph + now / 600) * s.sw * dt; if (s.y > Hs + 4) Object.assign(s, newSnow(false));
         gs.fillStyle = 'rgba(255,255,255,0.92)'; gs.beginPath(); gs.arc(s.x, s.y, s.r, 0, 6.2832); gs.fill();
-        if (s.r > 2) { gs.strokeStyle = 'rgba(230,246,255,.9)'; gs.lineWidth = 0.8; for (let k = 0; k < 3; k++) { const a = k * Math.PI / 3 + s.ph; gs.beginPath(); gs.moveTo(s.x - Math.cos(a) * s.r * 1.9, s.y - Math.sin(a) * s.r * 1.9); gs.lineTo(s.x + Math.cos(a) * s.r * 1.9, s.y + Math.sin(a) * s.r * 1.9); gs.stroke(); } }
+        if (s.r > 2) flake(gs, s.x, s.y, s.r * 1.9, 0.9);
       });
       requestAnimationFrame(loop);
     })(last);
@@ -986,27 +1023,35 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
       let mx = 0; fields[0].forEach(v => { if (v > mx) mx = v; });
       const sc = dur / mx, Ac = new Float32Array(cols * rows).fill(1e9);     // seconds until the fire reaches each cell
       fields.forEach((f, k) => { for (let i = 0; i < Ac.length; i++) { const v = srcs[k].d + f[i] * sc; if (v < Ac[i]) Ac[i] = v; } });
+      for (let h = 0, nh = 6 + Math.floor(R() * 8); h < nh; h++) {   // paper also catches in small spots ahead of the fire
+        const cx = Math.floor(R() * cols), cy = Math.floor(R() * rows), th = Ac[cy * cols + cx] - (0.5 + R() * 0.9), spd = 55 + R() * 60;
+        if (th < 0.6) continue;
+        for (let dy = -9; dy <= 9; dy++) for (let dx = -9; dx <= 9; dx++) { const x = cx + dx, y = cy + dy; if (x < 0 || y < 0 || x >= cols || y >= rows) continue; const v = th + Math.hypot(dx, dy) * CS / spd, i = y * cols + x; if (v < Ac[i]) Ac[i] = v; }
+      }
       let endT = 0; Ac.forEach(v => { if (v > endT) endT = v; });
       srcs.forEach(s => { s.px = Math.min(W - 12, Math.max(12, s.p[0] * CS)); s.py = Math.min(H - 12, Math.max(12, s.p[1] * CS)); s.dec = [0, 1, 2].map(() => ({ x: (R() - 0.5) * 70, y: (R() - 0.5) * 70, r: 4 + R() * 7, o: R() * 0.5 })); });
       const MS = 4, mw = Math.ceil(W / MS), mh = Math.ceil(H / MS), A = new Float32Array(mw * mh), jit = new Float32Array(mw * mh);
       for (let py = 0; py < mh; py++) for (let px = 0; px < mw; px++) {   // smooth the coarse fire map and rough up the edge like torn paper
         const gx = px * MS / CS, gy = py * MS / CS, x0 = Math.min(cols - 2, Math.floor(gx)), y0 = Math.min(rows - 2, Math.floor(gy)), fxr = gx - x0, fyr = gy - y0, i0 = y0 * cols + x0;
         A[py * mw + px] = (Ac[i0] * (1 - fxr) + Ac[i0 + 1] * fxr) * (1 - fyr) + (Ac[i0 + cols] * (1 - fxr) + Ac[i0 + cols + 1] * fxr) * fyr;
-        jit[py * mw + px] = (R() - 0.5) * 0.16 + Math.sin(px * 0.55 + py * 0.31) * 0.03;
+        jit[py * mw + px] = (R() - 0.5) * 0.12 + Math.sin(px * 0.55 + py * 0.31) * 0.03 + Math.sin(px * 0.17 - py * 0.23) * 0.05;
       }
       const mkc = () => { const c = document.createElement('canvas'); c.width = mw; c.height = mh; return c; };
       const maskCv = mkc(), mg = maskCv.getContext('2d'), mimg = mg.createImageData(mw, mh), ovCv = mkc(), og = ovCv.getContext('2d'), oimg = og.createImageData(mw, mh);
       const dpr = Math.min(2, window.devicePixelRatio || 1); fx.width = W * dpr; fx.height = H * dpr;
       const g = fx.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const setMask = () => { mg.putImageData(mimg, 0, 0); const u = 'url(' + maskCv.toDataURL() + ')'; paper.style.webkitMaskImage = u; paper.style.maskImage = u; };
+      let tfNow = -1;
+      const maskOK = !!(window.CSS && CSS.supports && (CSS.supports('mask-image', 'url(x)') || CSS.supports('-webkit-mask-image', 'url(x)')));
+      const setMask = () => { if (!maskOK) { paper.style.opacity = String(Math.max(0, 1 - Math.max(0, tfNow + 0.2) / (endT + 0.5))); return; } mg.putImageData(mimg, 0, 0); const u = 'url(' + maskCv.toDataURL() + ')'; paper.style.webkitMaskImage = u; paper.style.maskImage = u; };
       mimg.data.fill(255); setMask(); paper.style.webkitMaskSize = '100% 100%'; paper.style.maskSize = '100% 100%';
       paper.hidden = false; fx.hidden = false;
       leaveRoom(); window.scrollTo(0, 0);                 // the home page is now underneath
-      const flames = [], smoke = []; let last = performance.now(); const t0 = last; let frameNo = 0;
+      const flames = [], smoke = [], ash = []; let last = performance.now(); const t0 = last; let frameNo = 0;
       const blot = (x, y, r) => { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(10,5,2,.95)'); gr.addColorStop(0.6, 'rgba(60,30,10,.8)'); gr.addColorStop(1, 'rgba(90,45,15,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill(); };
-      function done() { paper.hidden = true; paper.innerHTML = ''; paper.style.webkitMaskImage = ''; paper.style.maskImage = ''; fx.hidden = true; }
+      function done() { paper.style.opacity = ''; paper.hidden = true; paper.innerHTML = ''; paper.style.webkitMaskImage = ''; paper.style.maskImage = ''; fx.hidden = true; }
       function frame(now) {
-        const ts = (now - t0) / 1000, dt = Math.min(0.05, (now - last) / 1000), tf = ts - lead; last = now; frameNo++;
+       try {
+        const ts = (now - t0) / 1000, dt = Math.min(0.05, (now - last) / 1000), tf = ts - lead; last = now; frameNo++; tfNow = tf;
         const md = mimg.data, od = oimg.data, front = [];
         for (let i = 0; i < A.length; i++) {
           const d = A[i] + jit[i] - tf, o = i * 4; let r = 0, gg = 0, b = 0, a = 0;
@@ -1014,12 +1059,12 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
           if (d > 0) {                               // paper not burnt yet: it browns and chars as the fire comes close
             if (d < 0.5) {
               const k = 1 - d / 0.5; a = 0.95 * k * Math.sqrt(k); r = 90 - 75 * k; gg = 45 - 37 * k; b = 15 - 11 * k;
-              if (d < 0.07) { const h = (1 - d / 0.07) * 0.85; r += (255 - r) * h; gg += (120 - gg) * h; b += (20 - b) * h; a = Math.max(a, h * 0.9); }
+              if (d < 0.16) { const h = (1 - d / 0.16) * 0.8 * (0.8 + 0.2 * Math.sin(ts * 16 + jit[i] * 50)); r += (255 - r) * h; gg += (115 - gg) * h; b += (20 - b) * h; a = Math.max(a, h * 0.85); }
             }
             if (d < 0.04) front.push(i);
           } else if (d > -0.16) {                    // the glowing edge: white-yellow, then orange, then dark red embers
-            const k = 1 + d / 0.16; a = 0.95 * k;
-            if (k > 0.75) { r = 255; gg = 230; b = 140; } else if (k > 0.4) { r = 255; gg = 135; b = 25; } else { r = 170; gg = 35; b = 10; }
+            const k = 1 + d / 0.16, kk = k * (0.75 + 0.25 * Math.sin(ts * 14 + jit[i] * 60)); a = 0.95 * kk;
+            if (kk > 0.75) { r = 255; gg = 230; b = 140; } else if (kk > 0.4) { r = 255; gg = 135; b = 25; } else { r = 170; gg = 35; b = 10; }
             if (d > -0.03) front.push(i);
           }
           od[o] = r; od[o + 1] = gg; od[o + 2] = b; od[o + 3] = a * 255;
@@ -1048,10 +1093,20 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
           const u = m.life / m.max, gr = g.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.s);
           gr.addColorStop(0, 'rgba(70,60,55,' + (0.14 * (1 - u)) + ')'); gr.addColorStop(1, 'rgba(70,60,55,0)'); g.fillStyle = gr; g.beginPath(); g.arc(m.x, m.y, m.s, 0, 6.2832); g.fill();
         }
+        for (let q = 0; q < 4 && ash.length < 160; q++) {      // flakes of ash lift off the burnt part
+          const i = Math.floor(R() * A.length), d = A[i] + jit[i] - tf;
+          if (d < -0.3 && d > -1.4) ash.push({ x: (i % mw) * MS, y: Math.floor(i / mw) * MS, vx: (R() - 0.5) * 22, vy: -(18 + R() * 40), rot: R() * 6.28, vr: (R() - 0.5) * 5, life: 0, max: 1.2 + R() * 1.4, s: 1.5 + R() * 3 });
+        }
+        for (let q = ash.length - 1; q >= 0; q--) {
+          const f = ash[q]; f.life += dt; if (f.life >= f.max) { ash.splice(q, 1); continue; }
+          f.x += (f.vx + Math.sin(f.life * 5 + f.rot) * 10) * dt; f.y += f.vy * dt; f.rot += f.vr * dt;
+          g.save(); g.translate(f.x, f.y); g.rotate(f.rot); g.fillStyle = 'rgba(35,30,28,' + (0.7 * (1 - f.life / f.max)) + ')'; g.fillRect(-f.s, -f.s * 0.6, f.s * 2, f.s * 1.2); g.restore();
+        }
         g.globalCompositeOperation = 'lighter';
         for (let q = flames.length - 1; q >= 0; q--) { const f = flames[q]; stepFlame(f, dt); if (f.life >= f.max) flames.splice(q, 1); else drawFlame(g, f); }
         g.globalCompositeOperation = 'source-over';
         if (tf < endT + 0.9 || flames.length) requestAnimationFrame(frame); else { setMask(); done(); }
+       } catch (err) { done(); flash('Animation problem: ' + err.message); }
       }
       requestAnimationFrame(frame);
     } catch (e) { try { $('paper').hidden = true; $('burnfx').hidden = true; } catch (x) {} if (role) leaveRoom(); }
