@@ -552,9 +552,15 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     clearInterval(ldTimer);
     const id = 'ld' + (++ldN) + '_' + Math.random(), m = jewel(id);
     $('ldBar').innerHTML = barHtml(id, 0);
-    const fill = $('ldBar').querySelector('.bar i'), lab = $('ldBar').querySelector('.bar b');
+    const bar = $('ldBar').querySelector('.bar'), fill = bar.querySelector('i'), lab = bar.querySelector('b');
+    let u = bar.querySelector('u'); if (!u) { u = document.createElement('u'); u.textContent = m[0]; bar.insertBefore(u, lab); }
     let p = 0;
-    const set = () => { fill.style.clipPath = 'inset(0 ' + (100 - p) + '% 0 0)'; lab.textContent = m[0] + ' \u00B7 ' + Math.floor(p) + '%'; };
+    const set = () => {                      // percentage in the middle; the element name sits small at the end of the fill (hidden mid-way, like the other bars)
+      const k = Math.floor(p); fill.style.clipPath = 'inset(0 ' + (100 - p) + '% 0 0)'; lab.textContent = k + '%';
+      if (k >= 70) { u.style.display = ''; u.style.left = ''; u.style.right = (101 - k) + '%'; }
+      else if (k <= 30) { u.style.display = ''; u.style.right = ''; u.style.left = (k + 1) + '%'; }
+      else u.style.display = 'none';
+    };
     set(); ldTimer = setInterval(() => { p += (94 - p) * 0.04; set(); }, 150);
   }
   function ldStop() { clearInterval(ldTimer); }
@@ -771,14 +777,20 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   }
 
   // ---- Networking --------------------------------------------------------
-  function startHost(tries, fixed) {
+  function startHost(tries, fixed, stall) {
     if (typeof Peer === 'undefined') { failConnect('The connection library did not load. Check the internet and refresh this page.'); return; }
     if (fixed && warm) { try { warm.peer.destroy(); } catch (x) {} warm = null; }
-    const w = fixed ? null : takeWarm();
+    const w = (fixed || stall) ? null : takeWarm();
     roomCode = fixed || (w ? w.code : C.makeRoomCode(Math.random, 4)); peer = w ? w.peer : new Peer('synora-' + roomCode);
     clearTimeout(connTimer);
-    if (!fixed) connTimer = setTimeout(() => { if (role !== 'host') failConnect('The connection server did not answer. Your internet may be fine; the free server may be busy. Try again in a minute.'); }, CONNECT_TIMEOUT);
-    const onOpen = () => { clearTimeout(connTimer); role = 'host'; left = false; alertMsg(''); showRoom(); log('room ' + roomCode + (fixed ? ' re-opened' : ' ready')); saveLast(); saveMeta(); broadcastDevs(); devTimer = setInterval(broadcastDevs, 1500); busy(false); };
+    const myPeer = peer;
+    if (!fixed) connTimer = setTimeout(() => {   // stuck? drop this connection and try again by itself with a fresh one
+      if (role === 'host' || peer !== myPeer) return;
+      const k = (stall || 0) + 1;
+      if (k <= 3) { try { myPeer.destroy(); } catch (x) {} peer = null; log('server did not answer, trying again (' + k + ')'); alertMsg('Still connecting... trying again (' + k + ' of 3).'); startHost(tries, fixed, k); }
+      else failConnect('The connection server did not answer. Your internet may be fine; the free server may be busy. Try again in a minute.');
+    }, 5000);
+    const onOpen = () => { if (peer !== myPeer) return; clearTimeout(connTimer); role = 'host'; left = false; alertMsg(''); showRoom(); log('room ' + roomCode + (fixed ? ' re-opened' : ' ready')); saveLast(); saveMeta(); broadcastDevs(); devTimer = setInterval(broadcastDevs, 1500); busy(false); };
     peer.on('error', e => {
       if (e.type === 'unavailable-id') {
         const n = (tries || 0) + 1;
