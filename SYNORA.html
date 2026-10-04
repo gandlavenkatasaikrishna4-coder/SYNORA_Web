@@ -75,7 +75,7 @@ dl{display:grid;grid-template-columns:auto 1fr;gap:5px 18px;margin:0}dt{color:va
 .good{color:var(--gold);font-weight:500}.fair{color:var(--warn);font-weight:500}.poor{color:var(--bad);font-weight:500}
 canvas{width:100%;height:130px;display:block;background:#0A0A0F;border:1px solid rgba(217,184,108,.4);border-radius:8px}
 pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padding:10px;border-radius:8px;max-height:170px;overflow:auto;font-size:.78rem;white-space:pre-wrap;margin:0}
-#alert{background:#2C1519;border:1px solid var(--bad);color:#FFD9DC;border-radius:10px;padding:10px 14px;margin:12px 0}
+#alert{position:fixed;left:16px;right:16px;bottom:16px;max-width:528px;margin:0 auto;z-index:60;background:#2C1519;border:1px solid var(--bad);color:#FFD9DC;border-radius:10px;padding:10px 14px;box-shadow:0 6px 24px rgba(0,0,0,.6)}
 .foot{color:var(--mute);font-size:.8rem;text-align:center;margin-top:24px}
 #devList .dact{grid-column:2/4;display:flex;gap:8px;margin-top:4px}.dact button{padding:5px 12px;font-size:.78rem}
 #modal,#leaveModal{position:fixed;inset:0;background:rgba(5,5,8,.82);display:grid;place-items:center;z-index:50;padding:20px}.mbox{max-width:360px;border:1px solid var(--gold);border-radius:14px;background:var(--panel);padding:20px;text-align:center}
@@ -105,7 +105,17 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 @keyframes chill{from{filter:drop-shadow(0 0 5px rgba(150,215,255,.6))}to{filter:drop-shadow(0 0 13px rgba(190,235,255,1))}}
 #paper{position:fixed;inset:0;z-index:90;overflow:hidden;background:#0B0B10;-webkit-mask-size:100% 100%;mask-size:100% 100%}
 #burnfx{position:fixed;inset:0;width:100%;height:100%;z-index:91;pointer-events:none;display:block;background:none;border:0;border-radius:0}
-@media(prefers-reduced-motion:reduce){.bar i,.hot,.ice,.ice::before{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.bar i,.hot,.ice,.ice::before,.rodfill,.rodfill i{animation:none!important}.rodfill{width:100%}}
+#rodBox{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.rod{position:relative;height:16px;border-radius:8px;background:linear-gradient(180deg,#6b6f78,#2a2d33 55%,#4d515a);box-shadow:inset 0 1px 1px rgba(255,255,255,.25),inset 0 -2px 3px rgba(0,0,0,.6)}
+.rod::before{content:"";position:absolute;inset:0;border-radius:8px;z-index:2;pointer-events:none;background:radial-gradient(circle at 12% 55%,#0a0a0c 0 2.5px,transparent 3.5px),radial-gradient(circle at 37% 45%,#0a0a0c 0 2px,transparent 3px),radial-gradient(circle at 61% 60%,#0a0a0c 0 3px,transparent 4px),radial-gradient(circle at 86% 42%,#0a0a0c 0 2px,transparent 3px)}
+.rodfill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:8px;background:linear-gradient(90deg,#fff3c4,#ffd36a 12%,#ff9a2a 35%,#ff4d17 65%,#8f1a0c 88%,rgba(60,20,10,.4));box-shadow:0 0 16px rgba(255,110,30,.85);animation:heatup 14s cubic-bezier(.2,.7,.3,1) forwards,hflick .35s ease-in-out infinite alternate}
+.rodfill::before{content:"";position:absolute;right:-24px;top:-18px;width:56px;height:34px;background:radial-gradient(ellipse,rgba(255,150,40,.6),rgba(255,90,20,0) 70%);filter:blur(3px)}
+.rodfill i{position:absolute;right:2px;top:2px;width:3px;height:3px;border-radius:50%;background:#FFD27A;animation:rspark 1s linear infinite}
+.rodfill i:nth-child(2){animation-delay:-.35s;right:10px}.rodfill i:nth-child(3){animation-delay:-.7s;right:-4px}
+@keyframes heatup{to{width:100%}}@keyframes hflick{from{filter:brightness(.9)}to{filter:brightness(1.2)}}@keyframes rspark{from{transform:translate(0,0);opacity:1}to{transform:translate(5px,-26px);opacity:0}}
+#rodMsg{margin:12px 0 0;text-align:center;color:#FFE2C2;font-size:.95rem;letter-spacing:.02em}
+#rodBox.err .rodfill{display:none}#rodBox.err #rodMsg{color:#FFB3B8}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -118,7 +128,6 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   <p class="tag">One Sound. Every Speaker.</p>
   <div class="gl">&#9670;</div>
   <div id="alert" role="alert" hidden></div>
-  <div class="row" id="cancelRow" hidden style="justify-content:center"><button id="btnCancel" class="alt">Cancel</button></div>
 
   <section id="start" class="card">
     <h2>Start a shared sound</h2>
@@ -126,7 +135,13 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     <div class="row"><input type="text" id="code" maxlength="4" placeholder="CODE" aria-label="Room code"><button id="btnJoin" class="alt">Join room</button></div>
     <div class="row"><button id="btnRehost" class="alt">Re-join as host with this code</button></div>
     <div class="row" id="resume" hidden><button id="btnResume"></button></div>
+    <div id="rodBox" hidden>
+      <div class="rod"><div class="rodfill"><i></i><i></i><i></i></div></div>
+      <p id="rodMsg"></p>
+      <div class="row" id="cancelRow" hidden style="justify-content:center"><button id="btnCancel" class="alt">Cancel</button></div>
+    </div>
     <p class="note">Open this page on every phone. One phone hosts and the others join with the code. Tap a button on each phone: browsers need a tap before they can play sound. If a page was refreshed, tap Resume, or type the room code and re-join. Songs already on a phone are kept, so they are not sent again.</p>
+    <div class="row"><button id="btnPreview" class="alt" style="padding:6px 12px;font-size:.8rem">Preview leave animation</button></div>
   </section>
 
   <section id="room" class="card" hidden>
@@ -245,7 +260,13 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   const bufFor = id => id === 'meter' ? meterBuf : id ? bufs[id] : clickBuf;
   const durOf = id => { const b = bufFor(id); return b ? b.duration : 120; };
   const hostNow = () => now() + offset;
-  const alertMsg = t => { $('alert').textContent = t; $('alert').hidden = !t; };
+  let busyOn = false;
+  const alertMsg = t => {                    // start screen: shown under the heating rod; inside a room: a small message at the bottom
+    const onStart = !$('start').hidden;
+    $('alert').textContent = t; $('alert').hidden = !t || onStart;
+    $('rodBox').hidden = !t || !onStart; $('rodMsg').textContent = onStart ? t : '';
+    $('rodBox').classList.toggle('err', !busyOn);
+  };
   const netType = () => { const c = navigator.connection; return c && c.type ? c.type : 'unknown'; };
   const ICON = {
     wifi: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D9B86C" stroke-width="2" stroke-linecap="round" role="img" aria-label="Wi-Fi"><path d="M2 9a15 15 0 0 1 20 0"/><path d="M5.5 12.5a10 10 0 0 1 13 0"/><path d="M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19.5" r="1.3" fill="#D9B86C"/></svg>',
@@ -491,7 +512,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   let hoPending = null, askRes = null;
   const ask = text => new Promise(res => { $('mtext').textContent = text; $('modal').hidden = false; askRes = res; });
   function answer(v) { $('modal').hidden = true; if (askRes) { const r = askRes; askRes = null; r(v); } }
-  function flash(t) { alertMsg(t); setTimeout(() => { if ($('alert').textContent === t) alertMsg(''); }, 5000); }
+  function flash(t, ms) { alertMsg(t); setTimeout(() => { if ($('alert').textContent === t) alertMsg(''); }, ms || 5000); }
   async function startHandover(c) {
     if (hoPending) return;
     if (!await ask('Give the host role to ' + c.info.name + '? Playback will pause and you will become a member.')) return;
@@ -535,17 +556,31 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   let connTimer = null;
   function busy(on, text) {
     ['btnHost', 'btnJoin', 'btnRehost', 'btnResume'].forEach(id => { $(id).disabled = on; });
-    $('cancelRow').hidden = !on;
+    $('cancelRow').hidden = !on; busyOn = on;
     clearTimeout(busyTimer);
     if (on) {
       alertMsg(text || 'Connecting...');
-      busyTimer = setTimeout(() => { const t = $('alert').textContent; if (!$('start').hidden && t && t.indexOf('longer') < 0) alertMsg(t + ' Taking longer than usual.'); }, 8000);
+      busyTimer = setTimeout(() => {        // after 8 s, check the free connection server to say WHY it is slow
+        probeServer().then(r => {
+          const t = $('alert').textContent.replace(/ (Taking longer|The connection server).*$/, '');
+          if (!busyOn || !t || $('start').hidden) return;
+          alertMsg(t + ' ' + (r.ok ? 'The connection server answered in ' + r.ms + ' ms, so it is reachable but slow.' : 'The connection server cannot be reached from this network.'));
+        });
+      }, 8000);
     }
   }
   function failConnect(msg) {                // stop connecting, free the buttons, say what happened
     clearTimeout(connTimer);
     if (role === null) { const pr = peer; peer = null; if (pr) { try { pr.destroy(); } catch (x) {} } }
     left = false; reconTries = 0; busy(false); alertMsg(msg); setTimeout(warmUp, 1000);
+  }
+  function probeServer() {
+    return new Promise(res => {
+      const t0 = performance.now(), ac = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const to = setTimeout(() => { try { if (ac) ac.abort(); } catch (e) {} res({ ok: false, ms: 0 }); }, 6000);
+      try { fetch('https://0.peerjs.com/', { mode: 'no-cors', cache: 'no-store', signal: ac ? ac.signal : undefined }).then(() => { clearTimeout(to); res({ ok: true, ms: Math.round(performance.now() - t0) }); }).catch(() => { clearTimeout(to); res({ ok: false, ms: 0 }); }); }
+      catch (e) { clearTimeout(to); res({ ok: false, ms: 0 }); }
+    });
   }
   const setBusyText = t => { if (!$('start').hidden) alertMsg(t); };
   const friendly = type => (['network', 'server-error', 'socket-error', 'socket-closed'].indexOf(type) >= 0) ? 'Could not reach the connection server. Check the internet and try again.' : type === 'browser-incompatible' ? 'This browser cannot make the connection.' : 'Connection problem (' + type + ').';
@@ -1000,7 +1035,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 
   // The fire is different every time: it starts as black scorch spots, one flame comes out of one spot,
   // then it spreads from that edge. Some fires also start on another edge later. Speed and lean are random.
-  function burnAndLeave() {
+  function burnAndLeave(debug) {
     try {
       if (reducedMotion()) { leaveRoom(); return; }
       const W = innerWidth, H = innerHeight, paper = $('paper'), fx = $('burnfx'), R = Math.random;
@@ -1045,13 +1080,18 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
       const setMask = () => { if (!maskOK) { paper.style.opacity = String(Math.max(0, 1 - Math.max(0, tfNow + 0.2) / (endT + 0.5))); return; } mg.putImageData(mimg, 0, 0); const u = 'url(' + maskCv.toDataURL() + ')'; paper.style.webkitMaskImage = u; paper.style.maskImage = u; };
       mimg.data.fill(255); setMask(); paper.style.webkitMaskSize = '100% 100%'; paper.style.maskSize = '100% 100%';
       paper.hidden = false; fx.hidden = false;
-      leaveRoom(); window.scrollTo(0, 0);                 // the home page is now underneath
-      const flames = [], smoke = [], ash = []; let last = performance.now(); const t0 = last; let frameNo = 0;
+      if (debug) document.querySelector('main').style.visibility = 'hidden';      // preview: show the plain background underneath
+      else leaveRoom();
+      window.scrollTo(0, 0);                 // the home page is now underneath
+      const flames = [], smoke = [], ash = []; let last = performance.now(); const t0 = last; let frameNo = 0, maxDt = 0;
       const blot = (x, y, r) => { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(10,5,2,.95)'); gr.addColorStop(0.6, 'rgba(60,30,10,.8)'); gr.addColorStop(1, 'rgba(90,45,15,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill(); };
-      function done() { paper.style.opacity = ''; paper.hidden = true; paper.innerHTML = ''; paper.style.webkitMaskImage = ''; paper.style.maskImage = ''; fx.hidden = true; }
+      function done() {
+        document.querySelector('main').style.visibility = '';
+        if (debug) { const sec = (performance.now() - t0) / 1000; flash('Preview finished: ' + frameNo + ' frames in ' + sec.toFixed(1) + ' s (about ' + Math.round(sec * 1000 / Math.max(1, frameNo)) + ' ms per frame, slowest ' + Math.round(maxDt) + ' ms). Edge mask: ' + (maskOK ? 'on' : 'off, using a fade') + '.', 15000); }
+        paper.style.opacity = ''; paper.hidden = true; paper.innerHTML = ''; paper.style.webkitMaskImage = ''; paper.style.maskImage = ''; fx.hidden = true; }
       function frame(now) {
        try {
-        const ts = (now - t0) / 1000, dt = Math.min(0.05, (now - last) / 1000), tf = ts - lead; last = now; frameNo++; tfNow = tf;
+        const ts = (now - t0) / 1000, dt = Math.min(0.05, (now - last) / 1000), tf = ts - lead; maxDt = Math.max(maxDt, now - last); last = now; frameNo++; tfNow = tf;
         const md = mimg.data, od = oimg.data, front = [];
         for (let i = 0; i < A.length; i++) {
           const d = A[i] + jit[i] - tf, o = i * 4; let r = 0, gg = 0, b = 0, a = 0;
@@ -1106,11 +1146,12 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
         for (let q = flames.length - 1; q >= 0; q--) { const f = flames[q]; stepFlame(f, dt); if (f.life >= f.max) flames.splice(q, 1); else drawFlame(g, f); }
         g.globalCompositeOperation = 'source-over';
         if (tf < endT + 0.9 || flames.length) requestAnimationFrame(frame); else { setMask(); done(); }
-       } catch (err) { done(); flash('Animation problem: ' + err.message); }
+       } catch (err) { done(); flash('Animation problem: ' + err.message, 12000); }
       }
       requestAnimationFrame(frame);
-    } catch (e) { try { $('paper').hidden = true; $('burnfx').hidden = true; } catch (x) {} if (role) leaveRoom(); }
+    } catch (e) { try { $('paper').hidden = true; $('burnfx').hidden = true; document.querySelector('main').style.visibility = ''; } catch (x) {} if (role && !debug) leaveRoom(); flash('Animation problem: ' + e.message, 12000); }
   }
+  $('btnPreview').onclick = () => burnAndLeave(true);
   $('lmYes').onclick = () => leaveAns(true); $('lmNo').onclick = () => leaveAns(false);
   $('btnCancel').onclick = () => failConnect('');
   $('btnLeave').onclick = async () => { if (!await askLeave(role === 'host' ? 'Close the room? Uploaded songs will be cleared for everyone.' : 'Leave the room?')) return; burnAndLeave(); };
