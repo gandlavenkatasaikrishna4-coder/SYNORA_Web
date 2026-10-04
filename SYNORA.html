@@ -159,6 +159,21 @@ html.intro .tag{animation:fadeIn 1.1s .5s ease both}
 html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
 @media(hover:hover){button:not(:disabled):not(.hot):not(.ice):hover{filter:brightness(1.12)}}
 @media(prefers-reduced-motion:reduce){.enter,.pop,.swap,html.playing #btnPlay,html.playing #libList li.cur .nm::before,html.intro h1,html.intro .tag,html.intro .gl{animation:none!important}}
+
+/* connect finish, notices, code reveal, ready tick */
+@keyframes fadeOutUp{to{opacity:0;transform:translateY(-12px)}}
+@keyframes letterIn{from{opacity:0;transform:translateY(10px) scale(.7)}to{opacity:1;transform:none}}
+@keyframes tickIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.5);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes tickRing{from{transform:scale(.4);opacity:.9}to{transform:scale(1.9);opacity:0}}
+#start.fadeOut{animation:fadeOutUp .3s ease forwards}
+#libList,#devList,#propList{position:relative}
+#roomCode span{display:inline-block;animation:letterIn .5s cubic-bezier(.2,.8,.2,1) both}
+.tick{display:inline-block}
+.tick.new{position:relative;animation:tickIn .6s cubic-bezier(.2,1.2,.4,1) both}
+.tick.new::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--ok);animation:tickRing .7s ease-out both;pointer-events:none}
+.toast{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:60;background:var(--panel);border:1px solid var(--gold);color:var(--ink);padding:8px 18px;border-radius:999px;font-size:.85rem;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.5);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+#paper #roomCode span,#paper .tick{animation:none!important}#paper .tick::after{display:none}
+@media(prefers-reduced-motion:reduce){#roomCode span,.tick.new,.tick.new::after,#start.fadeOut{animation:none!important}}
 </style>
 </head>
 <body>
@@ -305,8 +320,8 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
   const alertMsg = t => {                    // start screen: shown under the heating rod; inside a room: a small message at the bottom
     const onStart = !$('start').hidden;
     $('alert').textContent = t; $('alert').hidden = !t || onStart;
-    $('rodBox').hidden = !t || !onStart; $('rodMsg').textContent = onStart ? t : '';
-    $('rodBox').classList.toggle('err', !busyOn);
+    if (!holdRod) { $('rodBox').hidden = !t || !onStart; $('rodMsg').textContent = onStart ? t : ''; }
+    if (!holdRod) $('rodBox').classList.toggle('err', !busyOn);
   };
   const netType = () => { const c = navigator.connection; return c && c.type ? c.type : 'unknown'; };
   const ICON = {
@@ -562,10 +577,24 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
   }
   const seenKeys = { libList: new Set(), devList: new Set(), propList: new Set() };
   const BARRE = /@@BAR:([^:@]*):(\d+(?:\.\d+)?)@@/g;
+  const calm = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const tickSeen = new Set();
+  function toast(text) {
+    const t = document.createElement('div'); t.className = 'toast'; t.textContent = text; document.body.appendChild(t);
+    if (t.animate && !calm()) t.animate([{ opacity: 0, transform: 'translate(-50%,-14px)' }, { opacity: 1, transform: 'translate(-50%,0)', offset: 0.14 }, { opacity: 1, transform: 'translate(-50%,0)', offset: 0.86 }, { opacity: 0, transform: 'translate(-50%,-10px)' }], { duration: 2600, easing: 'ease-out' }).onfinish = () => t.remove();
+    else setTimeout(() => t.remove(), 2200);
+  }
   function patchList(ul, raw, attr) {        // returns true when the list was rebuilt (false = only bars were updated)
     const bars = [], sig = raw.replace(BARRE, (m, id, pc) => { bars.push(Math.round(+pc)); return '@@'; });
-    if (ul.dataset.sig === sig) { const els = ul.querySelectorAll('.bar'); if (els.length === bars.length) { bars.forEach((v, i) => setBar(els[i], v)); return false; } }
+    if (ul.dataset.sig === sig) { const els = ul.querySelectorAll('li:not([data-ghost]) .bar'); if (els.length === bars.length) { bars.forEach((v, i) => setBar(els[i], v)); return false; } }
+    const oldRows = Array.from(ul.querySelectorAll('li[data-' + attr + ']')).map(li => ({ key: li.dataset[attr], top: li.offsetTop, h: li.offsetHeight, node: li }));
     ul.dataset.sig = sig; ul.innerHTML = raw.replace(BARRE, (m, id, pc) => barHtml(id, Math.round(+pc)));
+    const present = new Set(Array.from(ul.querySelectorAll('li[data-' + attr + ']')).map(li => li.dataset[attr]));
+    if (ul.animate && !calm()) oldRows.forEach(r => {      // a row that is gone fades out and slides away
+      if (present.has(r.key) || !r.h) return; const g = r.node; g.removeAttribute('data-' + attr); g.dataset.ghost = '1'; g.classList.remove('enter');
+      g.style.cssText = 'position:absolute;left:0;right:0;top:' + r.top + 'px;height:' + r.h + 'px;margin:0;pointer-events:none;animation:none';
+      ul.appendChild(g); g.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateX(26px)' }], { duration: 320, easing: 'ease-in' }).onfinish = () => g.remove();
+    });
     const seen = seenKeys[ul.id]; let k = 0;
     ul.querySelectorAll('li[data-' + attr + ']').forEach(li => {         // new rows slide in one after another
       const key = li.dataset[attr]; if (seen.has(key)) return; seen.add(key);
@@ -573,16 +602,16 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
     });
     return true;
   }
-  function flip(ul, tops) {                  // rows that moved (reorder / remove) glide to their new place
-    if (!ul.animate) return;
-    ul.querySelectorAll('li[data-id]').forEach(li => {
-      const t = tops[li.dataset.id]; if (t === undefined || li.classList.contains('enter')) return;
+  function flip(ul, tops, attr) {            // rows that moved (reorder / remove) glide to their new place
+    attr = attr || 'id'; if (!ul.animate || calm()) return;
+    ul.querySelectorAll('li[data-' + attr + ']').forEach(li => {
+      const t = tops[li.dataset[attr]]; if (t === undefined || li.classList.contains('enter')) return;
       const dy = t - li.getBoundingClientRect().top; if (Math.abs(dy) > 2) li.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.2,.8,.2,1)' });
     });
   }
   function popEl(el, cls) { cls = cls || 'pop'; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
   function setTxt(el, text) { if (el.textContent === text) return; el.textContent = text; popEl(el, 'swap'); }
-  document.addEventListener('animationend', e => { const n = e.animationName; if (n === 'popB') e.target.classList.remove('pop'); else if (n === 'swapT') e.target.classList.remove('swap'); else if (n === 'itemIn') e.target.classList.remove('enter'); });
+  document.addEventListener('animationend', e => { const n = e.animationName; if (n === 'popB') e.target.classList.remove('pop'); else if (n === 'swapT') e.target.classList.remove('swap'); else if (n === 'itemIn') e.target.classList.remove('enter'); else if (n === 'tickIn') e.target.classList.remove('new'); });
   let lastSt = null;
   setTimeout(() => document.documentElement.classList.remove('intro'), 2600);
 
@@ -834,13 +863,20 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
         (host ? '<div class="mv">' + (showRm === it.id ? '<button class="ic rm" data-a="rm" data-i="' + i + '" aria-label="Remove this song">&#10060;</button>' : '') + '<button class="ic" data-a="up" data-i="' + i + '" aria-label="Move up">&#11014;</button><button class="ic" data-a="dn" data-i="' + i + '" aria-label="Move down">&#11015;</button></div>' : '<span></span>') +
         '<div style="grid-column:1/3">' + '@@BAR:' + it.id + ':' + p + '@@' + '</div></li>';
     }).join('') : '<li class="empty">No songs yet.</li>';
-    if (patchList($('libList'), rawLib, 'id')) flip($('libList'), tops);
+    if (patchList($('libList'), rawLib, 'id')) {
+      flip($('libList'), tops, 'id');
+      $('libList').querySelectorAll('li[data-id]').forEach(li => {       // a song that just became ready: its tick pops
+        const t = li.querySelector('.tick'); if (!t || tickSeen.has(li.dataset.id)) return; tickSeen.add(li.dataset.id);
+        if (!li.classList.contains('enter') && !calm()) t.classList.add('new');
+      });
+    }
     $('libCount').textContent = lib.length + ' / ' + MAXF;
   }
   function renderDevs() {
     const host = role === 'host';
-    patchList($('devList'), devList.map(d => '<li data-k="' + esc(d.code) + '"><span>' + netIcon(d.net) + '</span><span>' + esc(d.name) + '</span><span class="ds">' + esc(d.str) + '</span>' + '@@BAR:d' + d.code + ':' + d.pct + '@@' +
-      (host && d.code !== 'host' ? '<div class="dact">' + (d.pct === 100 ? '<button class="alt" data-a="mk" data-c="' + esc(d.code) + '">Make host</button>' : '') + '<button class="alt" data-a="rm" data-c="' + esc(d.code) + '">Remove</button><button class="alt" data-a="bl" data-c="' + esc(d.code) + '">Block 5 min</button></div>' : '') + '</li>').join(''), 'k');
+    const dTops = {}; $('devList').querySelectorAll('li[data-k]').forEach(li => { dTops[li.dataset.k] = li.getBoundingClientRect().top; });
+    if (patchList($('devList'), devList.map(d => '<li data-k="' + esc(d.code) + '"><span>' + netIcon(d.net) + '</span><span>' + esc(d.name) + '</span><span class="ds">' + esc(d.str) + '</span>' + '@@BAR:d' + d.code + ':' + d.pct + '@@' +
+      (host && d.code !== 'host' ? '<div class="dact">' + (d.pct === 100 ? '<button class="alt" data-a="mk" data-c="' + esc(d.code) + '">Make host</button>' : '') + '<button class="alt" data-a="rm" data-c="' + esc(d.code) + '">Remove</button><button class="alt" data-a="bl" data-c="' + esc(d.code) + '">Block 5 min</button></div>' : '') + '</li>').join(''), 'k')) flip($('devList'), dTops, 'k');
     $('peers').textContent = Math.max(0, devList.length - 1);
   }
   function renderCtl() {
@@ -861,14 +897,26 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
     conns.forEach(c => c.open && c.send({ type: 'devs', list: devList, ready: ids, props: props }));
     renderDevs(); renderProps(); renderLib(); renderCtl();
   }
+  let holdRod = false;
   function showRoom() {
-    ['room', 'player', 'devs', 'props', 'lib', 'tune', 'meter', 'graphSec', 'logSec', 'backRow'].forEach(id => { $(id).hidden = false; });
-    $('start').hidden = true; $('sync').hidden = role !== 'receiver';
-    $('role').textContent = role === 'host' ? 'Host' : 'Receiver'; $('roomCode').textContent = roomCode;
-    $('linkRow').hidden = role !== 'host'; $('btnMeterPlay').hidden = role !== 'host'; $('addRow').hidden = false;
-    $('link').textContent = location.origin + location.pathname + '?join=' + roomCode;
-    renderLib(); renderCtl(); renderDevs();
-    document.querySelectorAll('main .card:not([hidden])').forEach((c, i) => { c.style.animationDelay = Math.min(i * 80, 640) + 'ms'; });
+    const fromStart = !$('start').hidden && !calm();
+    const reveal = () => {
+      holdRod = false; $('rodBox').hidden = true; $('start').classList.remove('fadeOut');
+      if (role === null) return;
+      ['room', 'player', 'devs', 'props', 'lib', 'tune', 'meter', 'graphSec', 'logSec', 'backRow'].forEach(id => { $(id).hidden = false; });
+      $('start').hidden = true; $('sync').hidden = role !== 'receiver';
+      $('role').textContent = role === 'host' ? 'Host' : 'Receiver';
+      $('roomCode').innerHTML = Array.from(roomCode).map((ch, i) => '<span style="animation-delay:' + (350 + i * 110) + 'ms">' + esc(ch) + '</span>').join('');
+      $('linkRow').hidden = role !== 'host'; $('btnMeterPlay').hidden = role !== 'host'; $('addRow').hidden = false;
+      $('link').textContent = location.origin + location.pathname + '?join=' + roomCode;
+      renderLib(); renderCtl(); renderDevs();
+      document.querySelectorAll('main .card:not([hidden])').forEach((c, i) => { c.style.animationDelay = Math.min(i * 80, 640) + 'ms'; });
+    };
+    if (!fromStart) { reveal(); return; }
+    holdRod = true; ldStop(); const bar = $('ldBar').querySelector('.bar');      // the bar runs to 100%, then the start card fades, then the room rises in
+    $('rodBox').hidden = false; $('rodBox').classList.remove('err'); $('rodMsg').textContent = 'Connected'; $('cancelRow').hidden = true; if (bar) setBar(bar, 100);
+    setTimeout(() => { if (holdRod) $('start').classList.add('fadeOut'); }, 450);
+    setTimeout(() => { if (holdRod) reveal(); else $('start').classList.remove('fadeOut'); }, 750);
   }
 
   // ---- Networking --------------------------------------------------------
@@ -920,10 +968,10 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
           if ((blocked[m.code] || 0) > Date.now()) { conn.send({ type: 'kicked', reason: 'blocked' }); setTimeout(() => conn.close(), 300); return; }
           conns.filter(c => c !== conn && c.info.code === m.code).forEach(c => { try { c.close(); } catch (x) {} });
           conns = conns.filter(c => c === conn || c.info.code !== m.code);
-          conn.info.code = m.code; conn.info.name = m.name; log(m.name + ' joined');
+          conn.info.code = m.code; conn.info.name = m.name; log(m.name + ' joined'); toast(m.name + ' joined');
         }
       });
-      conn.on('close', () => { conns = conns.filter(c => c !== conn); log(conn.info.name + ' left'); });
+      conn.on('close', () => { conns = conns.filter(c => c !== conn); log(conn.info.name + ' left'); if (conn.info.code && !conns.some(c => c.info.code === conn.info.code)) toast(conn.info.name + ' left'); });
     });
     if (peer.open) onOpen(); else peer.on('open', onOpen);
   }
@@ -999,7 +1047,7 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
     }
   }
   function leaveRoom() {
-    Object.keys(seenKeys).forEach(k => seenKeys[k].clear()); ['libList', 'devList', 'propList'].forEach(k => { delete $(k).dataset.sig; });
+    Object.keys(seenKeys).forEach(k => seenKeys[k].clear()); tickSeen.clear(); holdRod = false; ['libList', 'devList', 'propList'].forEach(k => { delete $(k).dataset.sig; });
     clearTimeout(pingTimer); clearInterval(devTimer); stopSource(); stopMeter();
     const wasHost = role === 'host', code = roomCode, cs = conns.slice(), pr = peer;
     if (wasHost) {
@@ -1107,23 +1155,24 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
     const cf = $('fireCv'), cs = $('snowCv'); if (!cf || !cs) return;
     const gf = sizeCv(cf), gs = sizeCv(cs), Wf = cf.clientWidth, Hf = cf.clientHeight, Ws = cs.clientWidth, Hs = cs.clientHeight, R = Math.random;
     const fire = [], embers = [], snow = [], glints = [], mist = [], frost = [], drops = [], bursts = [];
-    let last = performance.now(), surge = 0, accF = 0, accE = 0, accM = 0, accFr = 0, accG = 0, accD = 0; fxl.on = true;
+    let lite = 1, slowN = 0, last = performance.now(), surge = 0, accF = 0, accE = 0, accM = 0, accFr = 0, accG = 0, accD = 0; fxl.on = true;
     const bx0 = 30, bx1 = Ws - 30, by0 = 42, by1 = Hs - 26;      // where the Stay button sits inside its canvas
     const newSnow = init => ({ x: R() * Ws, y: init ? R() * Hs : -4, r: 0.7 + R() * 2.3, vy: 14 + R() * 30, sw: 4 + R() * 10, ph: R() * 6.283 });
-    for (let i = 0; i < 42; i++) snow.push(newSnow(true));
+    for (let i = 0; i < 28; i++) snow.push(newSnow(true));
     $('lmYes').onpointerdown = () => { surge = 1; };
     $('lmNo').onpointerdown = () => { for (let k = 0; k < 28; k++) { const a = R() * 6.283, v = 60 + R() * 90; bursts.push({ x: (bx0 + bx1) / 2, y: (by0 + by1) / 2, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: 0.6 + R() * 0.5, r: 1 + R() * 2, ph: R() * 6.283 }); } };
     const flake = (g, x, y, r, al) => { g.strokeStyle = 'rgba(230,246,255,' + al + ')'; g.lineWidth = 0.8; for (let k = 0; k < 3; k++) { const a = k * Math.PI / 3 + 0.4; g.beginPath(); g.moveTo(x - Math.cos(a) * r, y - Math.sin(a) * r); g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); g.stroke(); } };
     (function loop(now) {
       if (!fxl.on) return;
       const dt = Math.min(0.05, (now - last) / 1000); last = now; surge = Math.max(0, surge - dt * 1.4);
+      if (dt > 0.03) { if (++slowN > 8) lite = 0.5; } else if (slowN > 0) slowN--;
       // ---------- fire ----------
       gf.clearRect(0, 0, Wf, Hf);
       gf.globalCompositeOperation = 'lighter';
       const lg = gf.createRadialGradient(Wf / 2, Hf - 10, 0, Wf / 2, Hf - 10, 80), li = 0.16 + 0.08 * Math.sin(now / 90) + 0.25 * surge;   // firelight
       lg.addColorStop(0, 'rgba(255,120,30,' + li + ')'); lg.addColorStop(1, 'rgba(255,60,10,0)'); gf.fillStyle = lg; gf.fillRect(0, 0, Wf, Hf);
-      accF += dt * (150 + 420 * surge); while (accF >= 1) { accF--; fire.push(flameParticle(14 + R() * Math.max(1, Wf - 28), Hf - 10, 1 + 0.5 * surge)); }
-      accE += dt * (14 + 40 * surge); while (accE >= 1) { accE--; embers.push({ x: 10 + R() * Math.max(1, Wf - 20), y: Hf - 12, vx: (R() - 0.5) * 30, vy: -(70 + R() * 90), life: 0, max: 0.8 + R() * 1.0, r: 0.8 + R() * 1.6 }); }
+      accF += dt * (95 + 270 * surge) * lite; while (accF >= 1) { accF--; fire.push(flameParticle(14 + R() * Math.max(1, Wf - 28), Hf - 10, 1 + 0.5 * surge)); }
+      accE += dt * (10 + 26 * surge) * lite; while (accE >= 1) { accE--; embers.push({ x: 10 + R() * Math.max(1, Wf - 20), y: Hf - 12, vx: (R() - 0.5) * 30, vy: -(70 + R() * 90), life: 0, max: 0.8 + R() * 1.0, r: 0.8 + R() * 1.6 }); }
       for (let q = fire.length - 1; q >= 0; q--) { const f = fire[q]; stepFlame(f, dt); if (f.life >= f.max) fire.splice(q, 1); else drawFlame(gf, f); }
       for (let q = embers.length - 1; q >= 0; q--) {
         const e = embers[q]; e.life += dt; if (e.life >= e.max || e.y < -4) { embers.splice(q, 1); continue; }
@@ -1133,9 +1182,9 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
       gf.globalCompositeOperation = 'source-over';
       // ---------- ice and snow ----------
       gs.clearRect(0, 0, Ws, Hs);
-      accM += dt; if (accM > 0.4) { accM = 0; mist.push({ x: bx0 + R() * (bx1 - bx0), y: by1 + 6 + R() * 10, vx: (R() - 0.5) * 14, life: 0, max: 2.6 + R() * 1.4, s: 14 + R() * 12 }); }
+      accM += dt; if (accM > 0.4 && lite === 1) { accM = 0; mist.push({ x: bx0 + R() * (bx1 - bx0), y: by1 + 6 + R() * 10, vx: (R() - 0.5) * 14, life: 0, max: 2.6 + R() * 1.4, s: 14 + R() * 12 }); }
       for (let q = mist.length - 1; q >= 0; q--) { const m = mist[q]; m.life += dt; if (m.life >= m.max) { mist.splice(q, 1); continue; } m.x += m.vx * dt; m.y -= 3 * dt; const u = m.life / m.max, rr = m.s * (1 + u), gr = gs.createRadialGradient(m.x, m.y, 0, m.x, m.y, rr); gr.addColorStop(0, 'rgba(205,235,255,' + (0.16 * Math.sin(Math.PI * u)) + ')'); gr.addColorStop(1, 'rgba(205,235,255,0)'); gs.fillStyle = gr; gs.beginPath(); gs.arc(m.x, m.y, rr, 0, 6.2832); gs.fill(); }
-      accFr += dt; if (accFr > 0.45 && frost.length < 7) {            // sharp frost crystals grow out from the edge
+      accFr += dt; if (accFr > 0.45 && frost.length < 5) {            // sharp frost crystals grow out from the edge
         accFr = 0; const side = Math.floor(R() * 4), t = R(), out = [-Math.PI / 2, 0, Math.PI / 2, Math.PI][side], px = side % 2 ? (side === 1 ? bx1 : bx0) : bx0 + t * (bx1 - bx0), py = side % 2 ? by0 + t * (by1 - by0) : (side === 0 ? by0 : by1);
         frost.push({ x: px, y: py, a: out + (R() - 0.5) * 0.9, L: 12 + R() * 14, t: 0, max: 1.8 + R() * 0.8 });
       }
@@ -1226,7 +1275,7 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
       }
       const mkc = () => { const c = document.createElement('canvas'); c.width = mw; c.height = mh; return c; };
       const maskCv = mkc(), mg = maskCv.getContext('2d'), mimg = mg.createImageData(mw, mh), ovCv = mkc(), og = ovCv.getContext('2d'), oimg = og.createImageData(mw, mh);
-      const dpr = Math.min(1.5, window.devicePixelRatio || 1); fx.width = W * dpr; fx.height = H * dpr;
+      const dpr = Math.min(1.25, window.devicePixelRatio || 1); fx.width = W * dpr; fx.height = H * dpr;
       const g = fx.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
       let tfNow = -1;
       const maskOK = !!(window.CSS && CSS.supports && (CSS.supports('mask-image', 'url(x)') || CSS.supports('-webkit-mask-image', 'url(x)')));
@@ -1236,7 +1285,7 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
       if (debug) document.querySelector('main').style.visibility = 'hidden';      // preview: show the plain background underneath
       else leaveRoom();
       window.scrollTo(0, 0);                 // the home page is now underneath
-      let lastMask = 0, maskGap = 0;
+      let lastMask = 0, maskGap = 0, lq = 0, slowN = 0;     // lq: 0 full detail, 1 lighter, 2 lightest (chosen by the phone's own speed)
       const flames = [], smoke = [], ash = []; let last = performance.now(); const t0 = last; let frameNo = 0, maxDt = 0;
       const blot = (x, y, r) => { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(10,5,2,.95)'); gr.addColorStop(0.6, 'rgba(60,30,10,.8)'); gr.addColorStop(1, 'rgba(90,45,15,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill(); };
       function done() {
@@ -1245,7 +1294,7 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
         paper.style.opacity = ''; paper.hidden = true; paper.innerHTML = ''; paper.style.webkitMaskImage = ''; paper.style.maskImage = ''; fx.hidden = true; }
       function frame(now) {
        try {
-        const ts = (now - t0) / 1000, dt = Math.min(0.05, (now - last) / 1000), tf = ts - lead; maxDt = Math.max(maxDt, now - last); last = now; frameNo++; tfNow = tf;
+        const ts = (now - t0) / 1000, dt = Math.min(0.05, (now - last) / 1000), tf = ts - lead; maxDt = Math.max(maxDt, now - last); if (now - last > 30) slowN++; else if (slowN > 0) slowN--; if (slowN > 6 && lq < 2) { lq++; slowN = 0; } last = now; frameNo++; tfNow = tf;
         const md = mimg.data, od = oimg.data, front = [];
         for (let i = 0; i < A.length; i++) {
           const d = A[i] + jit[i] - tf, o = i * 4; let r = 0, gg = 0, b = 0, a = 0;
@@ -1274,19 +1323,19 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
             const gl = g.createRadialGradient(s.px, s.py, 0, s.px, s.py, 18), fl = (0.25 + 0.55 * uu) * (0.75 + 0.25 * Math.sin(ts * 25 + k * 2));
             gl.addColorStop(0, 'rgba(255,140,40,' + fl + ')'); gl.addColorStop(1, 'rgba(255,60,10,0)'); g.fillStyle = gl; g.beginPath(); g.arc(s.px, s.py, 18, 0, 6.2832); g.fill();
           }
-          if (tf >= s.d && tf < s.d + 0.5 && flames.length < 600) flames.push(flameParticle(s.px + (R() - 0.5) * 6, s.py, 1.6));
+          if (tf >= s.d && tf < s.d + 0.5 && flames.length < 380) flames.push(flameParticle(s.px + (R() - 0.5) * 6, s.py, 1.6));
         });
         if (front.length) {                          // flames, sparks and smoke along the burning edge
-          const n = Math.max(1, Math.round(Math.min(34, 3 + (front.length >> 3)) * dt * 60));
-          for (let q = 0; q < n && flames.length < 700; q++) { const i = front[Math.floor(R() * front.length)]; flames.push(flameParticle((i % mw) * MS + R() * MS, Math.floor(i / mw) * MS, 1.25)); }
-          if (smoke.length < 120) { const i = front[Math.floor(R() * front.length)]; smoke.push({ x: (i % mw) * MS, y: Math.floor(i / mw) * MS, vx: (R() - 0.5) * 10, vy: -(14 + R() * 22), life: 0, max: 1.2 + R() * 0.9, s: 10 + R() * 16 }); }
+          const n = Math.max(1, Math.round(Math.min(22, 3 + (front.length >> 3)) * dt * 60 * (lq === 0 ? 1 : lq === 1 ? 0.6 : 0.35)));
+          for (let q = 0; q < n && flames.length < (lq ? 240 : 380); q++) { const i = front[Math.floor(R() * front.length)]; flames.push(flameParticle((i % mw) * MS + R() * MS, Math.floor(i / mw) * MS, 1.25)); }
+          if (lq === 0 && smoke.length < 60) { const i = front[Math.floor(R() * front.length)]; smoke.push({ x: (i % mw) * MS, y: Math.floor(i / mw) * MS, vx: (R() - 0.5) * 10, vy: -(14 + R() * 22), life: 0, max: 1.2 + R() * 0.9, s: 10 + R() * 16 }); }
         }
         for (let q = smoke.length - 1; q >= 0; q--) {
           const m = smoke[q]; m.life += dt; if (m.life >= m.max) { smoke.splice(q, 1); continue; }
           m.x += m.vx * dt; m.y += m.vy * dt; m.s += 8 * dt;
           g.globalAlpha = 0.14 * (1 - m.life / m.max); g.drawImage(sprite('smoke', [[0, 'rgba(70,60,55,1)'], [1, 'rgba(70,60,55,0)']], 64), m.x - m.s, m.y - m.s, m.s * 2, m.s * 2); g.globalAlpha = 1;
         }
-        for (let q = 0; q < 4 && ash.length < 160; q++) {      // flakes of ash lift off the burnt part
+        for (let q = 0; q < (lq === 0 ? 3 : lq === 1 ? 1 : 0) && ash.length < 90; q++) {      // flakes of ash lift off the burnt part
           const i = Math.floor(R() * A.length), d = A[i] + jit[i] - tf;
           if (d < -0.3 && d > -1.4) ash.push({ x: (i % mw) * MS, y: Math.floor(i / mw) * MS, vx: (R() - 0.5) * 22, vy: -(18 + R() * 40), rot: R() * 6.28, vr: (R() - 0.5) * 5, life: 0, max: 1.2 + R() * 1.4, s: 1.5 + R() * 3 });
         }
