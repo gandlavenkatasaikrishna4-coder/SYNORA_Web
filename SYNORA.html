@@ -174,6 +174,18 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
 .toast{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:60;background:var(--panel);border:1px solid var(--gold);color:var(--ink);padding:8px 18px;border-radius:999px;font-size:.85rem;pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,.5);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
 #paper #roomCode span,#paper .tick{animation:none!important}#paper .tick::after{display:none}
 @media(prefers-reduced-motion:reduce){#roomCode span,.tick.new,.tick.new::after,#start.fadeOut{animation:none!important}}
+
+/* finishing touches */
+button.alt,button.on{transition:transform .15s ease,filter .2s ease,opacity .2s ease,background .3s ease,color .3s ease,border-color .3s ease}
+input[type=text]{transition:box-shadow .25s ease,border-color .25s ease}
+input[type=text]:focus{box-shadow:0 0 0 3px rgba(217,184,108,.22),0 0 16px rgba(217,184,108,.25)}
+input[type=file]::file-selector-button{transition:background .25s ease,color .25s ease,transform .15s ease}
+input[type=file]::file-selector-button:active{transform:scale(.95)}
+@keyframes breathe{50%{opacity:.5}}
+li.empty{animation:breathe 3.6s ease-in-out infinite}
+#backRow:not([hidden]){animation:fadeIn .5s .5s ease both}
+#paper *,#paper *::before,#paper *::after{animation:none!important}
+@media(prefers-reduced-motion:reduce){li.empty,#backRow:not([hidden]){animation:none!important}input[type=text],input[type=file]::file-selector-button{transition:none}}
 </style>
 </head>
 <body>
@@ -296,6 +308,9 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
   const C = SynoraCore, $ = id => document.getElementById(id), now = () => performance.now();
   const LEAD = 2000, PAUSE_LEAD = 300, MAXF = 8, GRAPH_MS = 10000;
   let ctx = null, gain = null, analyser = null, td = null, fd = null, clickBuf = null, meterBuf = null, src = null;
+  let holdRod = false, lastSt = null, wakeLock = null; const tickSeen = new Set();
+  const seenKeys = { libList: new Set(), devList: new Set(), propList: new Set() };
+  const BARRE = /@@BAR:([^:@]*):(\d+(?:\.\d+)?)@@/g;
   let peer = null, role = null, roomCode = '', conns = [], hostConn = null, devN = 0, devTimer = null;
   let offset = 0, samples = [], pingTimer = null, helloSent = false, lastPong = 0, lastRtt = null, offsetAtPlay = null;
   let state = C.initialState(), lastSeq = 0, seq = 0, left = false;
@@ -575,10 +590,7 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
     let u = bar.querySelector('u'); if (!u && (pct >= 70 || pct <= 30)) { u = document.createElement('u'); u.textContent = bar.dataset.m || ''; bar.insertBefore(u, lab); }
     if (u) { if (pct >= 70) { u.style.display = ''; u.style.left = ''; u.style.right = (101 - pct) + '%'; } else if (pct <= 30) { u.style.display = ''; u.style.right = ''; u.style.left = (pct + 1) + '%'; } else u.style.display = 'none'; }
   }
-  const seenKeys = { libList: new Set(), devList: new Set(), propList: new Set() };
-  const BARRE = /@@BAR:([^:@]*):(\d+(?:\.\d+)?)@@/g;
   const calm = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const tickSeen = new Set();
   function toast(text) {
     const t = document.createElement('div'); t.className = 'toast'; t.textContent = text; document.body.appendChild(t);
     if (t.animate && !calm()) t.animate([{ opacity: 0, transform: 'translate(-50%,-14px)' }, { opacity: 1, transform: 'translate(-50%,0)', offset: 0.14 }, { opacity: 1, transform: 'translate(-50%,0)', offset: 0.86 }, { opacity: 0, transform: 'translate(-50%,-10px)' }], { duration: 2600, easing: 'ease-out' }).onfinish = () => t.remove();
@@ -612,10 +624,9 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
   function popEl(el, cls) { cls = cls || 'pop'; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
   function setTxt(el, text) { if (el.textContent === text) return; el.textContent = text; popEl(el, 'swap'); }
   document.addEventListener('animationend', e => { const n = e.animationName; if (n === 'popB') e.target.classList.remove('pop'); else if (n === 'swapT') e.target.classList.remove('swap'); else if (n === 'itemIn') e.target.classList.remove('enter'); else if (n === 'tickIn') e.target.classList.remove('new'); });
-  let lastSt = null;
   setTimeout(() => document.documentElement.classList.remove('intro'), 2600);
 
-  let wakeLock = null;                       // keep the screen on; the browser drops it when the page is hidden, so ask again when it returns
+                         // keep the screen on; the browser drops it when the page is hidden, so ask again when it returns
   async function keepAwake() {
     try { if (navigator.wakeLock && !document.hidden && !wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } } catch (e) { wakeLock = null; }
   }
@@ -846,7 +857,7 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
     const est = C.predictOffset(samples, now(), 3); if (!est) return;
     offset = est.offset; lastRtt = est.rtt;
     $('offset').textContent = est.offset.toFixed(1) + ' ms'; $('rtt').textContent = est.rtt.toFixed(1) + ' ms'; $('spread').textContent = est.spread.toFixed(1) + ' ms'; $('ppm').textContent = est.slopePpm == null ? 'measuring' : est.slopePpm.toFixed(0) + ' ppm';
-    const h = C.syncHealth(est.spread, est.rtt); $('health').textContent = h; $('health').className = h;
+    const h = C.syncHealth(est.spread, est.rtt); const hc = $('health').className !== h; $('health').textContent = h; $('health').className = h; if (hc) popEl($('health'));
     if (!helloSent && samples.length >= 3) { helloSent = true; (storedP || Promise.resolve({})).then(h => { if (hostConn && hostConn.open) hostConn.send({ type: 'hello', have: h }); }); }
   }
 
@@ -897,7 +908,6 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
     conns.forEach(c => c.open && c.send({ type: 'devs', list: devList, ready: ids, props: props }));
     renderDevs(); renderProps(); renderLib(); renderCtl();
   }
-  let holdRod = false;
   function showRoom() {
     const fromStart = !$('start').hidden && !calm();
     const reveal = () => {
@@ -1098,6 +1108,7 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
     }
     g.strokeStyle = '#FFFFFF'; g.lineWidth = 1.5 * r; g.beginPath();
     pts.forEach((p, i) => { const x = X(p.t), y = base - Math.min(1, p.v) * amp; if (i) g.lineTo(x, y); else g.moveTo(x, y); }); g.stroke();
+    if (pts.length > 1) { g.lineTo(X(pts[pts.length - 1].t), h); g.lineTo(X(pts[0].t), h); g.closePath(); g.fillStyle = 'rgba(217,184,108,0.10)'; g.fill(); }   // soft gold glow under the line
     g.fillStyle = '#FFFFFF'; g.font = (11 * r) + 'px sans-serif'; let last = -1e9;
     for (let i = 1; i < pts.length - 1; i++) {
       const p = pts[i];
@@ -1360,6 +1371,7 @@ html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
     try { await navigator.clipboard.writeText($('link').textContent); $('btnCopy').textContent = 'Copied'; popEl($('btnCopy')); setTimeout(() => { $('btnCopy').textContent = 'Copy link'; }, 1500); }
     catch (e) { log('Could not copy. Select the link and copy it by hand.'); }
   };
+  ['btnShuf', 'btnRepEach', 'btnRepAll', 'btnPrev', 'btnNext'].forEach(id => $(id).addEventListener('click', () => { if (!$(id).disabled) popEl($(id)); }));
   $('btnPlay').onclick = togglePlay; $('btnPrev').onclick = () => skipTrack(-1); $('btnNext').onclick = () => skipTrack(1);
   $('btnShuf').onclick = () => { q = Object.assign({}, q, { shuffle: !q.shuffle }); pushMeta(); const rdy = lib.map((x, i) => i).filter(i => isReady(lib[i].id)); if (q.shuffle && rdy.length) playIdx(rdy[Math.floor(Math.random() * rdy.length)], 0); };
   $('btnRepEach').onclick = () => { q = Object.assign({}, q, { trackReps: q.trackReps % 3 + 1 }); pushMeta(); };
