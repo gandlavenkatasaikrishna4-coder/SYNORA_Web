@@ -103,13 +103,28 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 .ice .ik i:nth-child(1){left:14%;height:13px}.ice .ik i:nth-child(2){left:36%;height:19px}.ice .ik i:nth-child(3){left:60%;height:12px}.ice .ik i:nth-child(4){left:80%;height:16px}
 @keyframes shimmer{from{background-position:130% 0,0 0,0 0,0 0}to{background-position:-40% 0,0 0,0 0,0 0}}
 @keyframes chill{from{filter:drop-shadow(0 0 5px rgba(150,215,255,.6))}to{filter:drop-shadow(0 0 13px rgba(190,235,255,1))}}
-#paper{position:fixed;inset:0;z-index:90;overflow:hidden;background:#0B0B10;-webkit-mask-size:100% 100%;mask-size:100% 100%}
+#paper{position:fixed;inset:0;z-index:90;overflow:hidden;will-change:transform,mask-image;transform:translateZ(0);background:#0B0B10;-webkit-mask-size:100% 100%;mask-size:100% 100%}
 #burnfx{position:fixed;inset:0;width:100%;height:100%;z-index:91;pointer-events:none;display:block;background:none;border:0;border-radius:0}
 @media(prefers-reduced-motion:reduce){.bar i,.hot,.ice,.ice::before{animation:none!important}}
 #rodBox{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
 #rodMsg{margin:12px 0 0;text-align:center;color:#FFE2C2;font-size:.95rem;letter-spacing:.02em}
 #rodBox.err #ldBar{display:none}#rodBox.err #rodMsg{color:#FFB3B8}
 [hidden]{display:none!important}
+
+/* smoother motion */
+#paper *,#paper *::before,#paper *::after{animation-play-state:paused!important}
+#paper .card{animation:none!important}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:none}}
+.card:not([hidden]){animation:cardIn .55s cubic-bezier(.2,.7,.2,1) both}
+#alert:not([hidden]),#rodBox:not([hidden]){animation:fadeIn .35s ease both}
+#leaveModal:not([hidden]),#modal:not([hidden]){animation:fadeIn .25s ease both}
+#leaveModal:not([hidden]) .mbox,#modal:not([hidden]) .mbox{animation:popIn .35s cubic-bezier(.2,.9,.3,1.15) both}
+button{transition:transform .15s ease,filter .2s ease,opacity .2s ease}
+button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:brightness(1.12)}
+.bar i{transition:clip-path .45s cubic-bezier(.3,.7,.3,1)}
+@media(prefers-reduced-motion:reduce){.card,#alert,#rodBox,.mbox{animation:none!important}.bar i,button{transition:none}}
 </style>
 </head>
 <body>
@@ -985,11 +1000,16 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   function sizeCv(c) { const r = Math.min(2, window.devicePixelRatio || 1); c.width = Math.max(1, Math.round(c.clientWidth * r)); c.height = Math.max(1, Math.round(c.clientHeight * r)); const g = c.getContext('2d'); g.setTransform(r, 0, 0, r, 0, 0); return g; }
   function flameParticle(x, y, big) { big = big || 1; const tall = Math.random() < 0.08; return { x: x, y: y, vx: (Math.random() - 0.5) * 16, vy: -(45 + Math.random() * 75) * big * (tall ? 1.3 : 1), life: 0, max: (0.45 + Math.random() * 0.6) * (tall ? 1.3 : 1), s: (5 + Math.random() * 8) * big, asp: tall ? 3.4 : 2, ph: Math.random() * 6.283, sw: 8 + Math.random() * 20 }; }
   function stepFlame(f, dt) { f.life += dt; f.x += (f.vx + Math.sin(f.ph + f.life * 9) * f.sw) * dt; f.y += f.vy * dt; f.vy *= 1 - 0.4 * dt; }
-  function drawFlame(g, f) {                 // many soft glowing blobs: white-yellow core, orange body, red tips
-    const u = f.life / f.max, a = 1 - u, w = f.s * (1 - 0.55 * u), h = w * (f.asp || 2), core = u < 0.35 ? '255,238,170' : u < 0.65 ? '255,150,40' : '210,60,20';
-    const gr = g.createRadialGradient(0, 0, 0, 0, 0, h);
-    gr.addColorStop(0, 'rgba(' + core + ',' + (a * 0.95) + ')'); gr.addColorStop(0.5, 'rgba(255,110,25,' + (a * 0.5) + ')'); gr.addColorStop(1, 'rgba(180,30,10,0)');
-    g.save(); g.translate(f.x, f.y); g.scale(w / h, 1); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, h, 0, 6.2832); g.fill(); g.restore();
+  const SPR = {};                            // glow sprites are drawn once and re-used (much lighter than a new gradient per particle)
+  function sprite(key, stops, size) {
+    if (SPR[key]) return SPR[key];
+    const c = document.createElement('canvas'); c.width = c.height = size; const x = c.getContext('2d'), r = size / 2, gr = x.createRadialGradient(r, r, 0, r, r, r);
+    stops.forEach(t => gr.addColorStop(t[0], t[1])); x.fillStyle = gr; x.fillRect(0, 0, size, size); return (SPR[key] = c);
+  }
+  const FLAME_CORE = ['255,238,170', '255,150,40', '210,60,20'];
+  function drawFlame(g, f) {                 // soft glowing blob: white-yellow core, orange body, red tips
+    const u = f.life / f.max, w = f.s * (1 - 0.55 * u), h = w * (f.asp || 2), k = u < 0.35 ? 0 : u < 0.65 ? 1 : 2, pa = g.globalAlpha;
+    g.globalAlpha = 1 - u; g.drawImage(sprite('f' + k, [[0, 'rgba(' + FLAME_CORE[k] + ',.95)'], [0.5, 'rgba(255,110,25,.5)'], [1, 'rgba(180,30,10,0)']], 96), f.x - w, f.y - h, w * 2, h * 2); g.globalAlpha = pa;
   }
   function leaveFx() {                       // Leave: flames, embers, light; Stay: snow, frost, glints, mist, drips. Pressing a button makes it react.
     const cf = $('fireCv'), cs = $('snowCv'); if (!cf || !cs) return;
@@ -1114,7 +1134,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
       }
       const mkc = () => { const c = document.createElement('canvas'); c.width = mw; c.height = mh; return c; };
       const maskCv = mkc(), mg = maskCv.getContext('2d'), mimg = mg.createImageData(mw, mh), ovCv = mkc(), og = ovCv.getContext('2d'), oimg = og.createImageData(mw, mh);
-      const dpr = Math.min(2, window.devicePixelRatio || 1); fx.width = W * dpr; fx.height = H * dpr;
+      const dpr = Math.min(1.5, window.devicePixelRatio || 1); fx.width = W * dpr; fx.height = H * dpr;
       const g = fx.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
       let tfNow = -1;
       const maskOK = !!(window.CSS && CSS.supports && (CSS.supports('mask-image', 'url(x)') || CSS.supports('-webkit-mask-image', 'url(x)')));
@@ -1124,6 +1144,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
       if (debug) document.querySelector('main').style.visibility = 'hidden';      // preview: show the plain background underneath
       else leaveRoom();
       window.scrollTo(0, 0);                 // the home page is now underneath
+      let lastMask = 0, maskGap = 0;
       const flames = [], smoke = [], ash = []; let last = performance.now(); const t0 = last; let frameNo = 0, maxDt = 0;
       const blot = (x, y, r) => { const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(10,5,2,.95)'); gr.addColorStop(0.6, 'rgba(60,30,10,.8)'); gr.addColorStop(1, 'rgba(90,45,15,0)'); g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill(); };
       function done() {
@@ -1150,7 +1171,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
           }
           od[o] = r; od[o + 1] = gg; od[o + 2] = b; od[o + 3] = a * 255;
         }
-        if (frameNo % 2 === 1) setMask();
+        if (now - lastMask >= maskGap) { const c0 = performance.now(); setMask(); const cost = performance.now() - c0; lastMask = now; maskGap = cost > 7 ? 34 : cost > 3.5 ? 17 : 0; }   // every frame when cheap, slower only if this phone is slow
         og.putImageData(oimg, 0, 0); g.clearRect(0, 0, W, H); g.imageSmoothingEnabled = true; g.drawImage(ovCv, 0, 0, W, H);
         srcs.forEach((s, k) => {                     // black spots first, then ONE flame comes out of the spot
           const u = (tf - (s.d - 0.9)) / 0.9;
@@ -1164,15 +1185,14 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
           if (tf >= s.d && tf < s.d + 0.5 && flames.length < 600) flames.push(flameParticle(s.px + (R() - 0.5) * 6, s.py, 1.6));
         });
         if (front.length) {                          // flames, sparks and smoke along the burning edge
-          const n = Math.min(34, 3 + (front.length >> 3));
+          const n = Math.max(1, Math.round(Math.min(34, 3 + (front.length >> 3)) * dt * 60));
           for (let q = 0; q < n && flames.length < 700; q++) { const i = front[Math.floor(R() * front.length)]; flames.push(flameParticle((i % mw) * MS + R() * MS, Math.floor(i / mw) * MS, 1.25)); }
           if (smoke.length < 120) { const i = front[Math.floor(R() * front.length)]; smoke.push({ x: (i % mw) * MS, y: Math.floor(i / mw) * MS, vx: (R() - 0.5) * 10, vy: -(14 + R() * 22), life: 0, max: 1.2 + R() * 0.9, s: 10 + R() * 16 }); }
         }
         for (let q = smoke.length - 1; q >= 0; q--) {
           const m = smoke[q]; m.life += dt; if (m.life >= m.max) { smoke.splice(q, 1); continue; }
           m.x += m.vx * dt; m.y += m.vy * dt; m.s += 8 * dt;
-          const u = m.life / m.max, gr = g.createRadialGradient(m.x, m.y, 0, m.x, m.y, m.s);
-          gr.addColorStop(0, 'rgba(70,60,55,' + (0.14 * (1 - u)) + ')'); gr.addColorStop(1, 'rgba(70,60,55,0)'); g.fillStyle = gr; g.beginPath(); g.arc(m.x, m.y, m.s, 0, 6.2832); g.fill();
+          g.globalAlpha = 0.14 * (1 - m.life / m.max); g.drawImage(sprite('smoke', [[0, 'rgba(70,60,55,1)'], [1, 'rgba(70,60,55,0)']], 64), m.x - m.s, m.y - m.s, m.s * 2, m.s * 2); g.globalAlpha = 1;
         }
         for (let q = 0; q < 4 && ash.length < 160; q++) {      // flakes of ash lift off the burnt part
           const i = Math.floor(R() * A.length), d = A[i] + jit[i] - tf;
