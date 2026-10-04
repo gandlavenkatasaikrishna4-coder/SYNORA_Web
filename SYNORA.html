@@ -1,9 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="intro">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0B0B10">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="SYNORA - One Sound. Every Speaker. Multi-speaker synchronization prototype.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B0B10'/%3E%3Cpath d='M32 6l7 21 21 5-21 5-7 21-7-21-21-5 21-5z' fill='%23D9B86C'/%3E%3C/svg%3E">
 <title>SYNORA - One Sound. Every Speaker.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,13 +19,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body
 radial-gradient(55% 35% at 12% 8%,rgba(244,198,224,.16),transparent 70%),radial-gradient(50% 32% at 92% 28%,rgba(191,232,255,.15),transparent 70%),
 radial-gradient(60% 38% at 20% 92%,rgba(233,245,201,.11),transparent 70%),radial-gradient(45% 30% at 88% 88%,rgba(217,184,108,.16),transparent 70%),
 repeating-linear-gradient(45deg,rgba(217,184,108,.09) 0 1px,transparent 1px 44px),repeating-linear-gradient(-45deg,rgba(217,184,108,.09) 0 1px,transparent 1px 44px)}
-.bg::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.08) 46%,rgba(244,198,224,.10) 49%,rgba(191,232,255,.10) 52%,rgba(233,245,201,.08) 55%,transparent 62%);background-size:300% 100%;background-position:100% 0}
+.bg::before{content:"";position:absolute;top:0;bottom:0;left:0;width:300%;transform:translateX(-66.6667%);will-change:transform;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.08) 46%,rgba(244,198,224,.10) 49%,rgba(191,232,255,.10) 52%,rgba(233,245,201,.08) 55%,transparent 62%);}
 .gem{position:absolute;width:var(--s);height:var(--s);background:radial-gradient(circle,#fff 0,#fff 25%,#EAF0F8 60%);clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);opacity:.75}
 .frame{position:fixed;inset:7px;border:1px solid rgba(217,184,108,.45);border-radius:6px;pointer-events:none}
 .frame::before{content:"";position:absolute;inset:4px;border:1px solid rgba(217,184,108,.2);border-radius:4px}
 .frame i{position:absolute;font-style:normal;color:var(--gold);font-size:12px;line-height:1;background:var(--bg);padding:2px}
 @media(prefers-reduced-motion:no-preference){.gem{animation:gl 4.5s ease-in-out infinite;animation-delay:var(--d)}.bg::before{animation:rf 9s ease-in-out infinite alternate}h1{animation:sh 7s linear infinite}}
-@keyframes gl{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}@keyframes rf{to{background-position:0 0}}@keyframes sh{to{background-position:-250% 0}}
+@keyframes gl{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}@keyframes rf{to{transform:translateX(0)}}@keyframes sh{to{background-position:-250% 0}}
 main{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:16px 16px 56px}
 h1{font:700 2.5rem/1.1 var(--head);letter-spacing:.2em;margin:6px 0 0;text-align:center;color:transparent;-webkit-background-clip:text;background-clip:text;background-size:250% 100%;
 background-image:linear-gradient(100deg,#B9BEC8 10%,#fff 22%,#F4C6E0 34%,#BFE8FF 46%,#E9F5C9 58%,#fff 70%,#B9BEC8 85%)}
@@ -125,6 +128,37 @@ button{transition:transform .15s ease,filter .2s ease,opacity .2s ease}
 button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:brightness(1.12)}
 .bar i{transition:clip-path .45s cubic-bezier(.3,.7,.3,1)}
 @media(prefers-reduced-motion:reduce){.card,#alert,#rodBox,.mbox{animation:none!important}.bar i,button{transition:none}}
+
+/* phone behaviour */
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{overscroll-behavior-y:contain}
+button,input,label{touch-action:manipulation}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+input.shake{animation:shake .4s ease;border-color:#EF7A86}
+.bgpaused *,.bgpaused *::before,.bgpaused *::after{animation-play-state:paused!important}
+
+/* more motion */
+@keyframes itemIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes popB{40%{transform:scale(1.13)}}
+@keyframes swapT{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes ring{0%{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 0 0 rgba(217,184,108,.55)}100%{box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 0 16px rgba(217,184,108,0)}}
+@keyframes eq{0%,100%{background-size:3px 45%,3px 80%,3px 60%}25%{background-size:3px 90%,3px 40%,3px 75%}50%{background-size:3px 55%,3px 95%,3px 35%}75%{background-size:3px 80%,3px 50%,3px 90%}}
+@keyframes logoIn{from{opacity:0;letter-spacing:.55em;filter:blur(7px)}to{opacity:1;letter-spacing:.2em;filter:none}}
+@keyframes growX{from{opacity:0;transform:scaleX(.15)}to{opacity:1;transform:none}}
+.enter{animation:itemIn .45s cubic-bezier(.2,.8,.2,1) both}
+.pop{animation:popB .35s ease}
+.swap{animation:swapT .4s ease}
+#paper .enter,#paper .pop,#paper .swap{animation:none!important}
+html.playing #btnPlay{animation:ring 2.2s ease-out infinite}
+html.playing #btnPlay.pop{animation:popB .35s ease}
+#libList li.cur .nm::before{content:"";display:inline-block;width:13px;height:11px;margin-right:7px;vertical-align:-1px;background:linear-gradient(var(--gold),var(--gold)) 0 100%/3px 45% no-repeat,linear-gradient(var(--gold),var(--gold)) 5px 100%/3px 80% no-repeat,linear-gradient(var(--gold),var(--gold)) 10px 100%/3px 60% no-repeat}
+html.playing #libList li.cur .nm::before{animation:eq .9s ease-in-out infinite}
+dd{transition:color .4s ease}
+html.intro h1{animation:sh 7s linear infinite,logoIn 1.3s cubic-bezier(.2,.7,.2,1) both}
+html.intro .tag{animation:fadeIn 1.1s .5s ease both}
+html.intro .gl{animation:growX 1s .7s cubic-bezier(.2,.7,.2,1) both}
+@media(hover:hover){button:not(:disabled):not(.hot):not(.ice):hover{filter:brightness(1.12)}}
+@media(prefers-reduced-motion:reduce){.enter,.pop,.swap,html.playing #btnPlay,html.playing #libList li.cur .nm::before,html.intro h1,html.intro .tag,html.intro .gl{animation:none!important}}
 </style>
 </head>
 <body>
@@ -140,7 +174,7 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
   <section id="start" class="card">
     <h2>Start a shared sound</h2>
     <div class="row"><button id="btnHost">Host a room</button></div>
-    <div class="row"><input type="text" id="code" maxlength="4" placeholder="CODE" aria-label="Room code"><button id="btnJoin" class="alt">Join room</button></div>
+    <div class="row"><input type="text" id="code" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="Room code"><button id="btnJoin" class="alt">Join room</button></div>
     <div class="row"><button id="btnRehost" class="alt">Re-join as host with this code</button></div>
     <div class="row" id="resume" hidden><button id="btnResume"></button></div>
     <div id="rodBox" hidden>
@@ -314,7 +348,7 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
   const barHtml = (id, pct) => {
     const m = jewel(id);   // percentage in the middle; the element name sits small at the end of the fill (hidden mid-way so they never overlap)
     const nm = pct >= 70 ? '<u style="right:' + (101 - pct) + '%">' + m[0] + '</u>' : pct <= 30 ? '<u style="left:' + (pct + 1) + '%">' + m[0] + '</u>' : '';
-    return '<div class="bar"><i class="fx fx-' + m[2] + '" style="background-image:' + SHINE + ',' + m[1] + ';background-size:220% 100%,100% 100%;background-repeat:no-repeat,repeat;clip-path:inset(0 ' + (100 - pct) + '% 0 0)"></i>' + nm + '<b>' + pct + '%</b></div>';
+    return '<div class="bar" data-m="' + m[0] + '"><i class="fx fx-' + m[2] + '" style="background-image:' + SHINE + ',' + m[1] + ';background-size:220% 100%,100% 100%;background-repeat:no-repeat,repeat;clip-path:inset(0 ' + (100 - pct) + '% 0 0)"></i>' + nm + '<b>' + pct + '%</b></div>';
   };
 
   // ---- Audio -----------------------------------------------------------
@@ -328,7 +362,7 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
       const mt = C.measureTrack(ctx.sampleRate, 120); meterBuf = ctx.createBuffer(1, mt.length, ctx.sampleRate); meterBuf.copyToChannel(mt, 0);
     }
     if (ctx.state !== 'running') ctx.resume().catch(() => {});
-    try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {}); } catch (e) {}
+    keepAwake();
   }
   function perfToCtx(ms) {
     if (ctx.getOutputTimestamp) { const ts = ctx.getOutputTimestamp(); if (ts.performanceTime > 0) return ts.contextTime + (ms - ts.performanceTime) / 1000; }
@@ -456,11 +490,12 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
   }
   function renderProps() {
     const host = role === 'host';
-    $('propList').innerHTML = props.length ? props.map(p => {
+    const rawP = props.length ? props.map(p => {
       const own = p.code === myCode;
-      return '<li><div><b>' + esc(p.dev) + '</b></div><div class="nm" style="white-space:normal">' + esc(p.name) + '</div><div class="ds">' + (p.done ? 'Uploaded \u2713' : 'Not uploaded yet') + '</div>' + barHtml('p' + p.pid, p.pct) +
+      return '<li data-k="' + esc(p.pid) + '"><div><b>' + esc(p.dev) + '</b></div><div class="nm" style="white-space:normal">' + esc(p.name) + '</div><div class="ds">' + (p.done ? 'Uploaded \u2713' : 'Not uploaded yet') + '</div>' + '@@BAR:p' + p.pid + ':' + p.pct + '@@' +
         (host || own ? '<div class="dact">' + (host ? '<button data-a="add" data-p="' + esc(p.pid) + '"' + (p.done ? '' : ' disabled') + '>Add</button>' : '') + '<button class="alt" data-a="no" data-p="' + esc(p.pid) + '">Cancel</button></div>' : '') + '</li>';
     }).join('') : '<li class="empty">No songs waiting.</li>';
+    patchList($('propList'), rawP, 'k');
   }
   function pendBytes(p) { const all = new Uint8Array(p.parts.reduce((n, x) => n + x.byteLength, 0)); let o = 0; p.parts.forEach(x => { all.set(x, o); o += x.byteLength; }); return all.buffer; }
   function reject(pid, why) {
@@ -519,6 +554,48 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
   let hoPending = null, askRes = null;
   const ask = text => new Promise(res => { $('mtext').textContent = text; $('modal').hidden = false; askRes = res; });
   function answer(v) { $('modal').hidden = true; if (askRes) { const r = askRes; askRes = null; r(v); } }
+  // ---- Smooth updates: change the numbers in place instead of rebuilding lists (keeps the bar animations running and lets bars glide) ----
+  function setBar(bar, pct) {
+    const fill = bar.querySelector('i'), lab = bar.querySelector('b'); fill.style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)'; lab.textContent = pct + '%';
+    let u = bar.querySelector('u'); if (!u && (pct >= 70 || pct <= 30)) { u = document.createElement('u'); u.textContent = bar.dataset.m || ''; bar.insertBefore(u, lab); }
+    if (u) { if (pct >= 70) { u.style.display = ''; u.style.left = ''; u.style.right = (101 - pct) + '%'; } else if (pct <= 30) { u.style.display = ''; u.style.right = ''; u.style.left = (pct + 1) + '%'; } else u.style.display = 'none'; }
+  }
+  const seenKeys = { libList: new Set(), devList: new Set(), propList: new Set() };
+  const BARRE = /@@BAR:([^:@]*):(\d+(?:\.\d+)?)@@/g;
+  function patchList(ul, raw, attr) {        // returns true when the list was rebuilt (false = only bars were updated)
+    const bars = [], sig = raw.replace(BARRE, (m, id, pc) => { bars.push(Math.round(+pc)); return '@@'; });
+    if (ul.dataset.sig === sig) { const els = ul.querySelectorAll('.bar'); if (els.length === bars.length) { bars.forEach((v, i) => setBar(els[i], v)); return false; } }
+    ul.dataset.sig = sig; ul.innerHTML = raw.replace(BARRE, (m, id, pc) => barHtml(id, Math.round(+pc)));
+    const seen = seenKeys[ul.id]; let k = 0;
+    ul.querySelectorAll('li[data-' + attr + ']').forEach(li => {         // new rows slide in one after another
+      const key = li.dataset[attr]; if (seen.has(key)) return; seen.add(key);
+      li.classList.add('enter'); li.style.animationDelay = Math.min(k++ * 70, 420) + 'ms';
+    });
+    return true;
+  }
+  function flip(ul, tops) {                  // rows that moved (reorder / remove) glide to their new place
+    if (!ul.animate) return;
+    ul.querySelectorAll('li[data-id]').forEach(li => {
+      const t = tops[li.dataset.id]; if (t === undefined || li.classList.contains('enter')) return;
+      const dy = t - li.getBoundingClientRect().top; if (Math.abs(dy) > 2) li.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: 300, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    });
+  }
+  function popEl(el, cls) { cls = cls || 'pop'; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); }
+  function setTxt(el, text) { if (el.textContent === text) return; el.textContent = text; popEl(el, 'swap'); }
+  document.addEventListener('animationend', e => { const n = e.animationName; if (n === 'popB') e.target.classList.remove('pop'); else if (n === 'swapT') e.target.classList.remove('swap'); else if (n === 'itemIn') e.target.classList.remove('enter'); });
+  let lastSt = null;
+  setTimeout(() => document.documentElement.classList.remove('intro'), 2600);
+
+  let wakeLock = null;                       // keep the screen on; the browser drops it when the page is hidden, so ask again when it returns
+  async function keepAwake() {
+    try { if (navigator.wakeLock && !document.hidden && !wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } } catch (e) { wakeLock = null; }
+  }
+  document.addEventListener('visibilitychange', () => {
+    document.documentElement.classList.toggle('bgpaused', document.hidden);
+    if (!document.hidden) { if (ctx && ctx.state !== 'running') ctx.resume().catch(() => {}); if (role) keepAwake(); }
+  });
+  window.addEventListener('offline', () => { if (role) flash('This phone is offline. Waiting for the internet...', 8000); });
+  window.addEventListener('online', () => { if (role) flash('Back online. Reconnecting...', 4000); });
   function flash(t, ms) { alertMsg(t); setTimeout(() => { if ($('alert').textContent === t) alertMsg(''); }, ms || 5000); }
   async function startHandover(c) {
     if (hoPending) return;
@@ -558,7 +635,7 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
   }
 
   // ---- Fast start: show progress at once, and keep a connection warm --------------
-  let busyTimer = null, warm = null;
+  let busyTimer = null, warm = null, joinStall = null;
   const CONNECT_TIMEOUT = 15000;
   let connTimer = null;
   // Loading bar: each time it starts it picks a random element (Gold, Ruby, Cobalt ...) and fills slowly while connecting
@@ -596,7 +673,7 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
     }
   }
   function failConnect(msg) {                // stop connecting, free the buttons, say what happened
-    clearTimeout(connTimer);
+    clearTimeout(connTimer); clearTimeout(joinStall);
     if (role === null) { const pr = peer; peer = null; if (pr) { try { pr.destroy(); } catch (x) {} } }
     left = false; reconTries = 0; busy(false); alertMsg(msg); setTimeout(warmUp, 1000);
   }
@@ -748,25 +825,27 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
   function renderLib() {
     if (pressing) return;
     const host = role === 'host';
-    $('libList').innerHTML = lib.length ? lib.map((it, i) => {
+    const tops = {}; $('libList').querySelectorAll('li[data-id]').forEach(li => { tops[li.dataset.id] = li.getBoundingClientRect().top; });
+    const rawLib = lib.length ? lib.map((it, i) => {
       const p = mine[it.id] || 0;
       return '<li data-id="' + it.id + '" class="' + (state.status !== 'idle' && it.id === state.track ? 'cur' : '') + '"><div class="trk">' +
         (host ? '<button class="ic" data-a="play" data-i="' + i + '"' + (isReady(it.id) ? '' : ' disabled') + ' aria-label="Play this song">&#9654;</button>' : '<span class="dia">&#9670;</span>') +
         '<span class="nm">' + esc(it.name) + '</span>' + (p === 100 ? '<span class="tick" aria-label="ready">&#10003;</span>' : '') + '</div>' +
         (host ? '<div class="mv">' + (showRm === it.id ? '<button class="ic rm" data-a="rm" data-i="' + i + '" aria-label="Remove this song">&#10060;</button>' : '') + '<button class="ic" data-a="up" data-i="' + i + '" aria-label="Move up">&#11014;</button><button class="ic" data-a="dn" data-i="' + i + '" aria-label="Move down">&#11015;</button></div>' : '<span></span>') +
-        '<div style="grid-column:1/3">' + barHtml(it.id, p) + '</div></li>';
+        '<div style="grid-column:1/3">' + '@@BAR:' + it.id + ':' + p + '@@' + '</div></li>';
     }).join('') : '<li class="empty">No songs yet.</li>';
+    if (patchList($('libList'), rawLib, 'id')) flip($('libList'), tops);
     $('libCount').textContent = lib.length + ' / ' + MAXF;
   }
   function renderDevs() {
     const host = role === 'host';
-    $('devList').innerHTML = devList.map(d => '<li><span>' + netIcon(d.net) + '</span><span>' + esc(d.name) + '</span><span class="ds">' + esc(d.str) + '</span>' + barHtml('d' + d.code, d.pct) +
-      (host && d.code !== 'host' ? '<div class="dact">' + (d.pct === 100 ? '<button class="alt" data-a="mk" data-c="' + esc(d.code) + '">Make host</button>' : '') + '<button class="alt" data-a="rm" data-c="' + esc(d.code) + '">Remove</button><button class="alt" data-a="bl" data-c="' + esc(d.code) + '">Block 5 min</button></div>' : '') + '</li>').join('');
+    patchList($('devList'), devList.map(d => '<li data-k="' + esc(d.code) + '"><span>' + netIcon(d.net) + '</span><span>' + esc(d.name) + '</span><span class="ds">' + esc(d.str) + '</span>' + '@@BAR:d' + d.code + ':' + d.pct + '@@' +
+      (host && d.code !== 'host' ? '<div class="dact">' + (d.pct === 100 ? '<button class="alt" data-a="mk" data-c="' + esc(d.code) + '">Make host</button>' : '') + '<button class="alt" data-a="rm" data-c="' + esc(d.code) + '">Remove</button><button class="alt" data-a="bl" data-c="' + esc(d.code) + '">Block 5 min</button></div>' : '') + '</li>').join(''), 'k');
     $('peers').textContent = Math.max(0, devList.length - 1);
   }
   function renderCtl() {
     const host = role === 'host', target = state.track || curId(), ok = !lib.length || (target ? isReady(target) : readySet.size > 0);
-    $('ready').textContent = !lib.length ? 'Built-in click track. Add songs below.' : ok ? '\u2713 Ready To Play (' + readySet.size + ' of ' + lib.length + ' songs ready on all devices)' : 'Loading this song on all devices...';
+    setTxt($('ready'), !lib.length ? 'Built-in click track. Add songs below.' : ok ? '\u2713 Ready To Play (' + readySet.size + ' of ' + lib.length + ' songs ready on all devices)' : 'Loading this song on all devices...');
     $('ready').className = 'badge' + (ok ? ' ok' : '');
     $('btnPlay').disabled = !host || !ok; $('btnPrev').disabled = $('btnNext').disabled = !host || !lib.length;
     ['btnShuf', 'btnRepEach', 'btnRepAll', 'seek'].forEach(id => { $(id).disabled = !host; });
@@ -789,6 +868,7 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
     $('linkRow').hidden = role !== 'host'; $('btnMeterPlay').hidden = role !== 'host'; $('addRow').hidden = false;
     $('link').textContent = location.origin + location.pathname + '?join=' + roomCode;
     renderLib(); renderCtl(); renderDevs();
+    document.querySelectorAll('main .card:not([hidden])').forEach((c, i) => { c.style.animationDelay = Math.min(i * 80, 640) + 'ms'; });
   }
 
   // ---- Networking --------------------------------------------------------
@@ -847,10 +927,18 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
     });
     if (peer.open) onOpen(); else peer.on('open', onOpen);
   }
-  function startJoin(code) {
+  function startJoin(code, stall) {
     if (typeof Peer === 'undefined') { failConnect('The connection library did not load. Check the internet and refresh this page.'); return; }
-    const w = takeWarm();
+    const w = stall ? null : takeWarm();
     roomCode = code; left = false; peer = w ? w.peer : new Peer();
+    const myPeer = peer;
+    clearTimeout(joinStall);
+    joinStall = setTimeout(() => {           // the server has not answered at all: drop it and try again by itself (up to 3 times)
+      if (peer !== myPeer || myPeer.open || role === 'receiver' || left) return;
+      const k = (stall || 0) + 1;
+      if (k <= 3) { try { myPeer.destroy(); } catch (x) {} peer = null; log('server did not answer, trying again (' + k + ')'); alertMsg('Still connecting... trying again (' + k + ' of 3).'); startJoin(code, k); }
+      else failConnect('The connection server did not answer. Your internet may be fine; the free server may be busy. Try again in a minute.');
+    }, 5000);
     clearTimeout(connTimer);
     connTimer = setTimeout(() => { if (role !== 'receiver' && !left && peer) failConnect('Could not reach the host. Check the code and try again.'); }, CONNECT_TIMEOUT + 10000);
     peer.on('error', e => {
@@ -911,6 +999,7 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
     }
   }
   function leaveRoom() {
+    Object.keys(seenKeys).forEach(k => seenKeys[k].clear()); ['libList', 'devList', 'propList'].forEach(k => { delete $(k).dataset.sig; });
     clearTimeout(pingTimer); clearInterval(devTimer); stopSource(); stopMeter();
     const wasHost = role === 'host', code = roomCode, cs = conns.slice(), pr = peer;
     if (wasHost) {
@@ -972,14 +1061,17 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
 
   // ---- Buttons -----------------------------------------------------------
   $('btnHost').onclick = async () => { busy(true, 'Opening your room...'); await ensureAudio(); startHost(0); };
+  function badCode(msg) { flash(msg); const c = $('code'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); c.focus(); }
+  $('code').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('btnJoin').click(); } });
+  $('code').addEventListener('animationend', () => $('code').classList.remove('shake'));
   $('btnJoin').onclick = async () => {
     const code = $('code').value.trim().toUpperCase();
-    if (code.length !== 4) { alert('Enter the 4-character room code.'); return; }
+    if (code.length !== 4) { badCode('Enter the 4-character room code.'); return; }
     busy(true, 'Contacting the server...'); await ensureAudio(); startJoin(code);
   };
   $('btnRehost').onclick = async () => {
     const code = $('code').value.trim().toUpperCase();
-    if (code.length !== 4) { alert('Type the 4-character room code first.'); return; }
+    if (code.length !== 4) { badCode('Type the 4-character room code first.'); return; }
     busy(true, 'Re-opening the room...'); await ensureAudio(); await restoreHost(code); startHost(0, code);
   };
   $('btnResume').onclick = async () => {
@@ -1216,7 +1308,7 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
   $('btnCancel').onclick = () => failConnect('');
   $('btnLeave').onclick = async () => { if (!await askLeave(role === 'host' ? 'Close the room? Uploaded songs will be cleared for everyone.' : 'Leave the room?')) return; burnAndLeave(); };
   $('btnCopy').onclick = async () => {
-    try { await navigator.clipboard.writeText($('link').textContent); $('btnCopy').textContent = 'Copied'; setTimeout(() => { $('btnCopy').textContent = 'Copy link'; }, 1500); }
+    try { await navigator.clipboard.writeText($('link').textContent); $('btnCopy').textContent = 'Copied'; popEl($('btnCopy')); setTimeout(() => { $('btnCopy').textContent = 'Copy link'; }, 1500); }
     catch (e) { log('Could not copy. Select the link and copy it by hand.'); }
   };
   $('btnPlay').onclick = togglePlay; $('btnPrev').onclick = () => skipTrack(-1); $('btnNext').onclick = () => skipTrack(1);
@@ -1229,12 +1321,12 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
     if (state.status === 'idle') { const i = Math.min(q.idx, lib.length - 1); if (lib.length && isReady(lib[i].id)) playIdx(i, f * durOf(lib[i].id)); return; }
     send({ type: 'seek', pos: f * durOf(state.track), startHost: now() + LEAD });
   };
-  $('devList').onclick = e => {
+  $('devList').onclick = async e => {
     const b = e.target.closest('button'); if (!b || role !== 'host') return;
     const c = conns.find(x => x.info.code && x.info.code === b.dataset.c); if (!c) return;
     if (b.dataset.a === 'mk') { startHandover(c); return; }
     const bl = b.dataset.a === 'bl';
-    if (!confirm((bl ? 'Block ' : 'Remove ') + c.info.name + (bl ? ' for 5 minutes?' : ' from the room?'))) return;
+    if (!await ask((bl ? 'Block ' : 'Remove ') + c.info.name + (bl ? ' for 5 minutes?' : ' from the room?'))) return;
     if (bl) blocked[c.info.code] = Date.now() + 300000;
     c.send({ type: 'kicked', reason: bl ? 'blocked' : 'removed' }); setTimeout(() => c.close(), 300);
     log(c.info.name + (bl ? ' blocked for 5 minutes' : ' removed'));
@@ -1272,7 +1364,8 @@ button:not(:disabled):not(.hot):not(.ice):active{transform:scale(.94);filter:bri
     $('pos').textContent = fmt(p) + ' / ' + fmt(dur);
     if (document.activeElement !== $('seek')) $('seek').value = dur ? Math.round(p / dur * 1000) : 0;
     const it = state.status === 'idle' ? null : lib.find(x => x.id === state.track);
-    $('nowName').textContent = state.status === 'idle' ? 'Nothing playing' : it ? it.name : state.track === 'meter' ? 'Sync meter signal' : 'Built-in click track';
+    setTxt($('nowName'), state.status === 'idle' ? 'Nothing playing' : it ? it.name : state.track === 'meter' ? 'Sync meter signal' : 'Built-in click track');
+    document.documentElement.classList.toggle('playing', state.status === 'playing'); if (state.status !== lastSt) { if (lastSt !== null) popEl($('btnPlay')); lastSt = state.status; }
     $('btnPlay').innerHTML = state.status === 'playing' ? '&#10074;&#10074;' : '&#9654;';
     if (role === 'host' && state.status === 'playing') autoAdvance();
     $('rate').textContent = (ratePpm >= 0 ? '+' : '') + ratePpm.toFixed(0) + ' ppm';
