@@ -186,6 +186,46 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
 #backRow:not([hidden]){animation:fadeIn .5s .5s ease both}
 #paper *,#paper *::before,#paper *::after{animation:none!important}
 @media(prefers-reduced-motion:reduce){li.empty,#backRow:not([hidden]){animation:none!important}input[type=text],input[type=file]::file-selector-button{transition:none}}
+/* element crystals: they grow and the bar gets more detailed as it fills */
+.bar::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s ease;clip-path:inset(0 calc(100% - var(--p,0) * 1%) 0 0);background:radial-gradient(circle at 18% 32%,#fff 0,transparent 2.6px),radial-gradient(circle at 42% 68%,#fff 0,transparent 2.2px),radial-gradient(circle at 63% 30%,#fff 0,transparent 2.6px),radial-gradient(circle at 86% 66%,#fff 0,transparent 2.2px)}
+.bar::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.85) 50%,transparent 70%);transform:translateX(-120%)}
+.bar .cry{position:absolute;inset:0;pointer-events:none}
+.bar .cry s{position:absolute;top:50%;width:min(var(--sz,6px),12px);height:min(var(--sz,6px),12px);margin:calc(min(var(--sz,6px),12px) / -2) 0 0 calc(min(var(--sz,6px),12px) / -2);background:linear-gradient(135deg,#fff 0,var(--c,#fff) 55%,rgba(0,0,0,.35));clip-path:polygon(50% 0,100% 38%,80% 100%,20% 100%,0 38%);opacity:0;transform:scale(0);transition:width .5s ease,height .5s ease,margin .5s ease}
+.bar .cry s:nth-child(1){left:12%}.bar .cry s:nth-child(2){left:30%}.bar .cry s:nth-child(3){left:48%}.bar .cry s:nth-child(4){left:66%}.bar .cry s:nth-child(5){left:84%}
+.bar .cry s.on{opacity:.95;transform:scale(1)}
+.bar .hd{position:absolute;top:50%;left:calc(var(--p,0) * 1%);width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;pointer-events:none;opacity:0;background:radial-gradient(circle,#fff 0,var(--c,#fff) 45%,transparent 72%);transition:left .45s cubic-bezier(.3,.7,.3,1),opacity .4s ease,width .5s ease,height .5s ease,margin .5s ease}
+.bar[data-lv="1"] .hd{opacity:.8}
+.bar[data-lv="2"] .hd{opacity:.9;width:12px;height:12px;margin:-6px 0 0 -6px}
+.bar[data-lv="3"] .hd{opacity:1;width:18px;height:18px;margin:-9px 0 0 -9px}
+.bar[data-lv="2"]::before,.bar[data-lv="3"]::before,.bar[data-lv="4"]::before{opacity:.8}
+.bar[data-lv="4"] .hd{opacity:0}
+#ldBar .bar{height:24px;border-radius:12px}
+#ldBar .bar .cry s{width:var(--sz,6px);height:var(--sz,6px);margin:calc(var(--sz,6px) / -2) 0 0 calc(var(--sz,6px) / -2);filter:drop-shadow(0 0 1px rgba(0,0,0,.75)) drop-shadow(0 0 3px var(--c,#fff))}
+@keyframes crIn{from{transform:scale(0) rotate(-40deg);opacity:0}to{transform:scale(1);opacity:.95}}
+@keyframes crTw{from{filter:brightness(1)}to{filter:brightness(1.7) drop-shadow(0 0 3px var(--c,#fff))}}
+@keyframes glint{from{opacity:.25}to{opacity:.9}}
+@keyframes doneSweep{from{transform:translateX(-120%);opacity:1}to{transform:translateX(120%);opacity:1}}
+@keyframes donePop{from{box-shadow:0 0 0 0 var(--c,#fff)}to{box-shadow:0 0 0 12px transparent}}
+.bar .cry s.on:not(.st){animation:crIn .55s cubic-bezier(.2,1.7,.4,1) both}
+.bar.done:not(.st)::after{animation:doneSweep .9s ease-out both}
+.bar.done:not(.st){animation:donePop .7s ease-out}
+#ldBar .bar .cry s.on:not(.st){animation:crIn .55s cubic-bezier(.2,1.7,.4,1) both,crTw 1.8s ease-in-out .55s infinite alternate}
+#ldBar .bar[data-lv="2"]::before,#ldBar .bar[data-lv="3"]::before{animation:glint 1.1s ease-in-out infinite alternate}
+#paper .bar::before,#paper .bar::after{animation:none!important}
+.dust,.shoot{display:none}
+@media(prefers-reduced-motion:no-preference){
+.dust,.shoot{display:block;position:absolute;pointer-events:none}
+.dust{bottom:-24px;left:var(--x);width:var(--s);height:var(--s);opacity:0;background:radial-gradient(circle,#fff 0,var(--c) 55%,transparent 75%);clip-path:polygon(50% 0,100% 40%,80% 100%,20% 100%,0 40%);animation:rise var(--t) linear var(--d) infinite}
+.shoot{top:var(--top);left:-12%;width:110px;height:2px;border-radius:2px;opacity:0;background:linear-gradient(90deg,transparent,#fff 72%,#F0D590);animation:shoot var(--t) linear var(--d) infinite}
+.bg::after{content:"";position:absolute;inset:-30%;pointer-events:none;will-change:transform;background:radial-gradient(34% 27% at 26% 30%,rgba(244,198,224,.10),transparent 70%),radial-gradient(30% 25% at 74% 56%,rgba(191,232,255,.09),transparent 70%),radial-gradient(34% 27% at 42% 82%,rgba(217,184,108,.11),transparent 70%);animation:drift 26s ease-in-out infinite alternate}
+.frame i{animation:cpulse 3.4s ease-in-out infinite}.frame i:nth-child(2){animation-delay:.8s}.frame i:nth-child(3){animation-delay:1.6s}.frame i:nth-child(4){animation-delay:2.4s}
+}
+@keyframes rise{0%{transform:translate3d(0,0,0) rotate(0);opacity:0}10%{opacity:.75}88%{opacity:.5}100%{transform:translate3d(var(--dx),-112vh,0) rotate(300deg);opacity:0}}
+@keyframes shoot{0%{opacity:0;transform:translate3d(0,0,0) rotate(27deg)}2%{opacity:1}11%{opacity:0;transform:translate3d(125vw,63vw,0) rotate(27deg)}100%{opacity:0;transform:translate3d(125vw,63vw,0) rotate(27deg)}}
+@keyframes drift{from{transform:translate3d(-4%,-3%,0) rotate(0) scale(1)}to{transform:translate3d(5%,4%,0) rotate(8deg) scale(1.12)}}
+@keyframes cpulse{50%{transform:scale(1.35);text-shadow:0 0 9px rgba(217,184,108,.95)}}
+@media(prefers-reduced-motion:reduce){.bar::before,.bar::after,.bar.done,.bar .cry s{animation:none!important}}
+
 </style>
 </head>
 <body>
@@ -292,6 +332,7 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
 
   <section id="logSec" class="card" hidden><h2>Log</h2><pre id="log"></pre></section>
 
+  <div class="row" style="justify-content:center"><button id="btnSfx" class="alt" type="button">Effect sounds: On</button></div>
   <p class="foot">Prototype (Phase 1, web). Tests the timing method only; not verified on real devices or Bluetooth speakers.<br>Created and developed by Joe. Original concept: Sai Krishna. Annamacharya Institute of Technology and Sciences, Rajampet (AITS) &middot; B.Tech Mechanical Engineering.</p>
 </main>
 
@@ -308,7 +349,7 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
   const C = SynoraCore, $ = id => document.getElementById(id), now = () => performance.now();
   const LEAD = 2000, PAUSE_LEAD = 300, MAXF = 8, GRAPH_MS = 10000;
   let ctx = null, gain = null, analyser = null, td = null, fd = null, clickBuf = null, meterBuf = null, src = null;
-  let holdRod = false, lastSt = null, wakeLock = null; const tickSeen = new Set();
+  let holdRod = false, lastSt = null, wakeLock = null, sfxOn = true, lastSfx = 0, fxOut = null; const tickSeen = new Set();
   const seenKeys = { libList: new Set(), devList: new Set(), propList: new Set() };
   const BARRE = /@@BAR:([^:@]*):(\d+(?:\.\d+)?)@@/g;
   let peer = null, role = null, roomCode = '', conns = [], hostConn = null, devN = 0, devTimer = null;
@@ -375,11 +416,32 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
     const pick = fresh.length ? fresh : free.length ? free : (usedMat = new Set(), MATERIALS);
     const m = pick[Math.floor(Math.random() * pick.length)]; usedMat.add(m[0]); return (jew[id] = m);
   }
+  const ACC = { Diamond: '#BFE8FF', Glass: '#9FD3E8', Aluminium: '#DDE2E8', Opal: '#F4C6E0' };
+  const accentOf = m => ACC[m[0]] || ((m[1].match(/#[0-9A-Fa-f]{6}/g) || ['#FFFFFF'])[1] || '#FFFFFF');   // the bright colour of the element
+  const lvOf = pct => pct >= 100 ? 4 : pct >= 75 ? 3 : pct >= 50 ? 2 : pct >= 25 ? 1 : 0;      // detail level grows with the fill
+  const CRY = [12, 30, 48, 66, 84];                                                                // where the crystals grow along the bar
   const barHtml = (id, pct) => {
     const m = jewel(id);   // percentage in the middle; the element name sits small at the end of the fill (hidden mid-way so they never overlap)
     const nm = pct >= 70 ? '<u style="right:' + (101 - pct) + '%">' + m[0] + '</u>' : pct <= 30 ? '<u style="left:' + (pct + 1) + '%">' + m[0] + '</u>' : '';
-    return '<div class="bar" data-m="' + m[0] + '"><i class="fx fx-' + m[2] + '" style="background-image:' + SHINE + ',' + m[1] + ';background-size:220% 100%,100% 100%;background-repeat:no-repeat,repeat;clip-path:inset(0 ' + (100 - pct) + '% 0 0)"></i>' + nm + '<b>' + pct + '%</b></div>';
+    const cry = CRY.map(a => '<s data-at="' + a + '"' + (pct >= a ? ' class="on st"' : '') + '></s>').join('');
+    return '<div class="bar' + (pct >= 100 ? ' done st' : '') + '" data-lv="' + lvOf(pct) + '" style="--c:' + accentOf(m) + ';--p:' + pct + ';--sz:' + (6 + pct * 0.11).toFixed(1) + 'px" data-m="' + m[0] + '"><i class="fx fx-' + m[2] + '" style="background-image:' + SHINE + ',' + m[1] + ';background-size:220% 100%,100% 100%;background-repeat:no-repeat,repeat;clip-path:inset(0 ' + (100 - pct) + '% 0 0)"></i><em class="hd"></em><span class="cry">' + cry + '</span>' + nm + '<b>' + pct + '%</b></div>';
   };
+
+  // ---- Element sounds: every element has its own note (metals ring like a bell, gems ping like glass). Quiet, never while music plays. ----
+  const METALS = new Set(['Platinum', 'Titanium', 'Bronze', 'Brass', 'Nickel', 'Tin', 'Lead', 'Mercury', 'Chromium', 'Cobalt', 'Obsidian', 'Rose Gold', 'Steel', 'Magnesium', 'Gold', 'Silver', 'Copper', 'Aluminium', 'Zinc', 'Iron']);
+  const PENTA = [0, 2, 4, 7, 9];
+  function sfx(kind, name, step) {
+    if (!sfxOn || !ctx || ctx.state !== 'running' || state.status === 'playing') return;
+    const nowMs = performance.now(); if (nowMs - lastSfx < 110) return; lastSfx = nowMs;
+    if (!fxOut) { fxOut = ctx.createGain(); fxOut.connect(ctx.destination); }              // own output: never goes through the sync graph or the song volume
+    let h = 0; for (const ch of String(name || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const metal = METALS.has(name), base = (metal ? 261.63 : 392) * Math.pow(2, PENTA[h % 5] / 12), t = ctx.currentTime;
+    const voice = (f, at, dur, vol) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, t + at); g.gain.exponentialRampToValueAtTime(vol, t + at + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + at + dur); o.connect(g); g.connect(fxOut); o.start(t + at); o.stop(t + at + dur + 0.05); };
+    if (kind === 'tick') voice(base * 2 * (1 + (step || 0) * 0.5), 0, 0.13, 0.03);
+    else if (metal) { voice(base, 0, 0.9, 0.05); voice(base * 2.76, 0, 0.5, 0.02); voice(base * 5.4, 0, 0.25, 0.01); }
+    else { voice(base * 2, 0, 0.5, 0.04); voice(base * 3, 0.09, 0.5, 0.03); voice(base * 4, 0.18, 0.6, 0.02); }
+  }
+  const paintSfx = () => { $('btnSfx').textContent = 'Effect sounds: ' + (sfxOn ? 'On' : 'Off'); $('btnSfx').classList.toggle('on', sfxOn); };
 
   // ---- Audio -----------------------------------------------------------
   async function ensureAudio() {
@@ -589,6 +651,9 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
     const fill = bar.querySelector('i'), lab = bar.querySelector('b'); fill.style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)'; lab.textContent = pct + '%';
     let u = bar.querySelector('u'); if (!u && (pct >= 70 || pct <= 30)) { u = document.createElement('u'); u.textContent = bar.dataset.m || ''; bar.insertBefore(u, lab); }
     if (u) { if (pct >= 70) { u.style.display = ''; u.style.left = ''; u.style.right = (101 - pct) + '%'; } else if (pct <= 30) { u.style.display = ''; u.style.right = ''; u.style.left = (pct + 1) + '%'; } else u.style.display = 'none'; }
+    bar.dataset.lv = lvOf(pct); bar.style.setProperty('--p', pct); bar.style.setProperty('--sz', (6 + pct * 0.11).toFixed(1) + 'px');   // crystals grow bigger, more detail appears
+    bar.querySelectorAll('.cry s').forEach(c => { const on = pct >= +c.dataset.at; if (on && !c.classList.contains('on')) c.classList.add('on'); else if (!on && c.classList.contains('on')) c.classList.remove('on', 'st'); });
+    if (pct >= 100) bar.classList.add('done'); else bar.classList.remove('done', 'st');
   }
   const calm = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
   function toast(text) {
@@ -682,18 +747,13 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
   let ldTimer = null, ldN = 0;
   function ldStart() {
     clearInterval(ldTimer);
-    const id = 'ld' + (++ldN) + '_' + Math.random(), m = jewel(id);
+    const id = 'ld' + (++ldN) + '_' + Math.random(); jewel(id);
     $('ldBar').innerHTML = barHtml(id, 0);
-    const bar = $('ldBar').querySelector('.bar'), fill = bar.querySelector('i'), lab = bar.querySelector('b');
-    let u = bar.querySelector('u'); if (!u) { u = document.createElement('u'); u.textContent = m[0]; bar.insertBefore(u, lab); }
-    let p = 0;
-    const set = () => {                      // percentage in the middle; the element name sits small at the end of the fill (hidden mid-way, like the other bars)
-      const k = Math.floor(p); fill.style.clipPath = 'inset(0 ' + (100 - p) + '% 0 0)'; lab.textContent = k + '%';
-      if (k >= 70) { u.style.display = ''; u.style.left = ''; u.style.right = (101 - k) + '%'; }
-      else if (k <= 30) { u.style.display = ''; u.style.right = ''; u.style.left = (k + 1) + '%'; }
-      else u.style.display = 'none';
-    };
-    set(); ldTimer = setInterval(() => { p += (94 - p) * 0.04; set(); }, 150);
+    const bar = $('ldBar').querySelector('.bar'); let p = 0, step = 0; setBar(bar, 0);
+    ldTimer = setInterval(() => {
+      p += (94 - p) * 0.04; setBar(bar, Math.floor(p));
+      if (step < 3 && p >= [25, 50, 75][step]) sfx('tick', bar.dataset.m, step++);          // a soft note at 25 / 50 / 75 %
+    }, 150);
   }
   function ldStop() { clearInterval(ldTimer); }
   function busy(on, text) {
@@ -878,7 +938,7 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
       flip($('libList'), tops, 'id');
       $('libList').querySelectorAll('li[data-id]').forEach(li => {       // a song that just became ready: its tick pops
         const t = li.querySelector('.tick'); if (!t || tickSeen.has(li.dataset.id)) return; tickSeen.add(li.dataset.id);
-        if (!li.classList.contains('enter') && !calm()) t.classList.add('new');
+        if (!li.classList.contains('enter') && !calm()) { t.classList.add('new'); const bb = li.querySelector('.bar'); sfx('done', bb ? bb.dataset.m : ''); }
       });
     }
     $('libCount').textContent = lib.length + ' / ' + MAXF;
@@ -924,7 +984,7 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
     };
     if (!fromStart) { reveal(); return; }
     holdRod = true; ldStop(); const bar = $('ldBar').querySelector('.bar');      // the bar runs to 100%, then the start card fades, then the room rises in
-    $('rodBox').hidden = false; $('rodBox').classList.remove('err'); $('rodMsg').textContent = 'Connected'; $('cancelRow').hidden = true; if (bar) setBar(bar, 100);
+    $('rodBox').hidden = false; $('rodBox').classList.remove('err'); $('rodMsg').textContent = 'Connected'; $('cancelRow').hidden = true; if (bar) { setBar(bar, 100); sfx('done', bar.dataset.m); }
     setTimeout(() => { if (holdRod) $('start').classList.add('fadeOut'); }, 450);
     setTimeout(() => { if (holdRod) reveal(); else $('start').classList.remove('fadeOut'); }, 750);
   }
@@ -1372,6 +1432,8 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
     catch (e) { log('Could not copy. Select the link and copy it by hand.'); }
   };
   ['btnShuf', 'btnRepEach', 'btnRepAll', 'btnPrev', 'btnNext'].forEach(id => $(id).addEventListener('click', () => { if (!$(id).disabled) popEl($(id)); }));
+  try { sfxOn = localStorage.getItem('synora.sfx') !== 'off'; } catch (e) {} paintSfx();
+  $('btnSfx').onclick = async () => { sfxOn = !sfxOn; try { localStorage.setItem('synora.sfx', sfxOn ? 'on' : 'off'); } catch (e) {} paintSfx(); if (sfxOn) { try { await ensureAudio(); } catch (e) {} sfx('done', 'Gold'); } };
   $('btnPlay').onclick = togglePlay; $('btnPrev').onclick = () => skipTrack(-1); $('btnNext').onclick = () => skipTrack(1);
   $('btnShuf').onclick = () => { q = Object.assign({}, q, { shuffle: !q.shuffle }); pushMeta(); const rdy = lib.map((x, i) => i).filter(i => isReady(lib[i].id)); if (q.shuffle && rdy.length) playIdx(rdy[Math.floor(Math.random() * rdy.length)], 0); };
   $('btnRepEach').onclick = () => { q = Object.assign({}, q, { trackReps: q.trackReps % 3 + 1 }); pushMeta(); };
@@ -1415,6 +1477,12 @@ li.empty{animation:breathe 3.6s ease-in-out infinite}
     const m = C.median(errs.slice(-10)); setTrim(trimMs + m); log('calibrated: this phone was ' + m.toFixed(0) + ' ms late; trim is now ' + trimMs.toFixed(1) + ' ms');
   };
   $('trim').textContent = trimMs.toFixed(1) + ' ms';
+  (function decorateBackground() {        // drifting crystals, shooting stars and extra twinkles (all on the graphics layer, paused when the page is hidden)
+    const bg = document.querySelector('.bg'), R = Math.random, cols = ['#F0D590', '#DDE2EA', '#F4C6E0', '#BFE8FF', '#E9F5C9'], add = (cls, css) => { const e = document.createElement('i'); e.className = cls; e.style.cssText = css; bg.appendChild(e); };
+    for (let i = 0; i < 14; i++) add('dust', '--x:' + (3 + R() * 94).toFixed(1) + '%;--s:' + (5 + R() * 9).toFixed(0) + 'px;--t:' + (16 + R() * 18).toFixed(1) + 's;--d:-' + (R() * 30).toFixed(1) + 's;--dx:' + ((R() - 0.5) * 80).toFixed(0) + 'px;--c:' + cols[i % 5]);
+    for (let i = 0; i < 2; i++) add('shoot', '--top:' + (6 + R() * 30).toFixed(0) + '%;--t:' + (11 + i * 8) + 's;--d:' + (2 + i * 6) + 's');
+    for (let i = 0; i < 8; i++) add('gem', 'left:' + (R() < 0.5 ? 2 + R() * 12 : 86 + R() * 12).toFixed(0) + '%;top:' + (5 + R() * 90).toFixed(0) + '%;--s:' + (10 + R() * 8).toFixed(0) + 'px;--d:' + (R() * 4).toFixed(1) + 's');
+  })();
   setInterval(control, 1000);
   const params = new URLSearchParams(location.search);
   if (params.get('join')) $('code').value = params.get('join').toUpperCase();
