@@ -105,17 +105,10 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 @keyframes chill{from{filter:drop-shadow(0 0 5px rgba(150,215,255,.6))}to{filter:drop-shadow(0 0 13px rgba(190,235,255,1))}}
 #paper{position:fixed;inset:0;z-index:90;overflow:hidden;background:#0B0B10;-webkit-mask-size:100% 100%;mask-size:100% 100%}
 #burnfx{position:fixed;inset:0;width:100%;height:100%;z-index:91;pointer-events:none;display:block;background:none;border:0;border-radius:0}
-@media(prefers-reduced-motion:reduce){.bar i,.hot,.ice,.ice::before,.rodfill,.rodfill i{animation:none!important}.rodfill{width:100%}}
+@media(prefers-reduced-motion:reduce){.bar i,.hot,.ice,.ice::before{animation:none!important}}
 #rodBox{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
-.rod{position:relative;height:16px;border-radius:8px;background:linear-gradient(180deg,#6b6f78,#2a2d33 55%,#4d515a);box-shadow:inset 0 1px 1px rgba(255,255,255,.25),inset 0 -2px 3px rgba(0,0,0,.6)}
-.rod::before{content:"";position:absolute;inset:0;border-radius:8px;z-index:2;pointer-events:none;background:radial-gradient(circle at 12% 55%,#0a0a0c 0 2.5px,transparent 3.5px),radial-gradient(circle at 37% 45%,#0a0a0c 0 2px,transparent 3px),radial-gradient(circle at 61% 60%,#0a0a0c 0 3px,transparent 4px),radial-gradient(circle at 86% 42%,#0a0a0c 0 2px,transparent 3px)}
-.rodfill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:8px;background:linear-gradient(90deg,#fff3c4,#ffd36a 12%,#ff9a2a 35%,#ff4d17 65%,#8f1a0c 88%,rgba(60,20,10,.4));box-shadow:0 0 16px rgba(255,110,30,.85);animation:heatup 14s cubic-bezier(.2,.7,.3,1) forwards,hflick .35s ease-in-out infinite alternate}
-.rodfill::before{content:"";position:absolute;right:-24px;top:-18px;width:56px;height:34px;background:radial-gradient(ellipse,rgba(255,150,40,.6),rgba(255,90,20,0) 70%);filter:blur(3px)}
-.rodfill i{position:absolute;right:2px;top:2px;width:3px;height:3px;border-radius:50%;background:#FFD27A;animation:rspark 1s linear infinite}
-.rodfill i:nth-child(2){animation-delay:-.35s;right:10px}.rodfill i:nth-child(3){animation-delay:-.7s;right:-4px}
-@keyframes heatup{to{width:100%}}@keyframes hflick{from{filter:brightness(.9)}to{filter:brightness(1.2)}}@keyframes rspark{from{transform:translate(0,0);opacity:1}to{transform:translate(5px,-26px);opacity:0}}
 #rodMsg{margin:12px 0 0;text-align:center;color:#FFE2C2;font-size:.95rem;letter-spacing:.02em}
-#rodBox.err .rodfill{display:none}#rodBox.err #rodMsg{color:#FFB3B8}
+#rodBox.err #ldBar{display:none}#rodBox.err #rodMsg{color:#FFB3B8}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -136,12 +129,11 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
     <div class="row"><button id="btnRehost" class="alt">Re-join as host with this code</button></div>
     <div class="row" id="resume" hidden><button id="btnResume"></button></div>
     <div id="rodBox" hidden>
-      <div class="rod"><div class="rodfill"><i></i><i></i><i></i></div></div>
+      <div id="ldBar"></div>
       <p id="rodMsg"></p>
       <div class="row" id="cancelRow" hidden style="justify-content:center"><button id="btnCancel" class="alt">Cancel</button></div>
     </div>
     <p class="note">Open this page on every phone. One phone hosts and the others join with the code. Tap a button on each phone: browsers need a tap before they can play sound. If a page was refreshed, tap Resume, or type the room code and re-join. Songs already on a phone are kept, so they are not sent again.</p>
-    <div class="row"><button id="btnPreview" class="alt" style="padding:6px 12px;font-size:.8rem">Preview leave animation</button></div>
   </section>
 
   <section id="room" class="card" hidden>
@@ -554,10 +546,23 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
   let busyTimer = null, warm = null;
   const CONNECT_TIMEOUT = 15000;
   let connTimer = null;
+  // Loading bar: each time it starts it picks a random element (Gold, Ruby, Cobalt ...) and fills slowly while connecting
+  let ldTimer = null, ldN = 0;
+  function ldStart() {
+    clearInterval(ldTimer);
+    const id = 'ld' + (++ldN) + '_' + Math.random(), m = jewel(id);
+    $('ldBar').innerHTML = barHtml(id, 0);
+    const fill = $('ldBar').querySelector('.bar i'), lab = $('ldBar').querySelector('.bar b');
+    let p = 0;
+    const set = () => { fill.style.clipPath = 'inset(0 ' + (100 - p) + '% 0 0)'; lab.textContent = m[0] + ' \u00B7 ' + Math.floor(p) + '%'; };
+    set(); ldTimer = setInterval(() => { p += (94 - p) * 0.04; set(); }, 150);
+  }
+  function ldStop() { clearInterval(ldTimer); }
   function busy(on, text) {
     ['btnHost', 'btnJoin', 'btnRehost', 'btnResume'].forEach(id => { $(id).disabled = on; });
     $('cancelRow').hidden = !on; busyOn = on;
     clearTimeout(busyTimer);
+    if (on) ldStart(); else ldStop();
     if (on) {
       alertMsg(text || 'Connecting...');
       busyTimer = setTimeout(() => {        // after 8 s, check the free connection server to say WHY it is slow
@@ -1035,6 +1040,30 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
 
   // The fire is different every time: it starts as black scorch spots, one flame comes out of one spot,
   // then it spreads from that edge. Some fires also start on another edge later. Speed and lean are random.
+  // Fire maps. Used from synora-core.js when it has them; otherwise these built-in copies (so an older synora-core.js cannot break the animation).
+  function localMakeFuel(cols, rows, R, rough) {
+    const gw = 6, gh = 9, g = Array.from({ length: gw * gh }, () => 1 + (R() - 0.5) * 1.1 * rough), f = new Float32Array(cols * rows);
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      const u = x / Math.max(1, cols - 1) * (gw - 1), v = y / Math.max(1, rows - 1) * (gh - 1), x0 = Math.min(gw - 2, Math.floor(u)), y0 = Math.min(gh - 2, Math.floor(v)), a = u - x0, b = v - y0, i = y0 * gw + x0;
+      f[y * cols + x] = Math.max(0.35, (g[i] * (1 - a) + g[i + 1] * a) * (1 - b) + (g[i + gw] * (1 - a) + g[i + gw + 1] * a) * b);
+    }
+    return f;
+  }
+  function localBurnFrom(cols, rows, fuel, sx, sy, wind) {
+    const n = cols * rows, d = new Float64Array(n).fill(1e9), heap = [], push = (c, i) => { heap.push([c, i]); let k = heap.length - 1; while (k > 0) { const p = (k - 1) >> 1; if (heap[p][0] <= heap[k][0]) break; const t = heap[p]; heap[p] = heap[k]; heap[k] = t; k = p; } };
+    const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let k = 0; for (;;) { let l = 2 * k + 1, r = l + 1, m = k; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === k) break; const t = heap[m]; heap[m] = heap[k]; heap[k] = t; k = m; } } return top; };
+    const s0 = Math.max(0, Math.min(rows - 1, Math.round(sy))) * cols + Math.max(0, Math.min(cols - 1, Math.round(sx))); d[s0] = 0; push(0, s0);
+    while (heap.length) {
+      const [c, i] = pop(); if (c > d[i]) continue; const x = i % cols, y = (i - x) / cols;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue; const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+        const len = Math.hypot(dx, dy), push2 = (dx * wind[0] + dy * wind[1]) / len, j = ny * cols + nx;
+        const nc = c + len / ((fuel[i] + fuel[j]) / 2) * Math.max(0.5, 1 - 0.4 * push2);
+        if (nc < d[j]) { d[j] = nc; push(nc, j); }
+      }
+    }
+    return d;
+  }
   function burnAndLeave(debug) {
     try {
       if (reducedMotion()) { leaveRoom(); return; }
@@ -1054,7 +1083,7 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
         : style === 2 ? [{ p: edge(sides[0]), d: 0 }, { p: edge((sides[0] + 2) % 4), d: 0.9 + R() * 1.2 }]
         : [{ p: edge(sides[0]), d: 0 }, { p: edge(sides[1]), d: 0.8 + R() }, { p: edge(sides[2]), d: 1.8 + R() }];
       const wind = [(R() - 0.5) * 1.2, -0.2 - R() * 0.6], dur = 4.2 + R() * 2, lead = 1.0;
-      const fuel = C.makeFuel(cols, rows, R, 0.5 + R() * 0.5), fields = srcs.map(s => C.burnFrom(cols, rows, fuel, s.p[0], s.p[1], wind));
+      const fuel = (C.makeFuel || localMakeFuel)(cols, rows, R, 0.5 + R() * 0.5), fields = srcs.map(s => (C.burnFrom || localBurnFrom)(cols, rows, fuel, s.p[0], s.p[1], wind));
       let mx = 0; fields[0].forEach(v => { if (v > mx) mx = v; });
       const sc = dur / mx, Ac = new Float32Array(cols * rows).fill(1e9);     // seconds until the fire reaches each cell
       fields.forEach((f, k) => { for (let i = 0; i < Ac.length; i++) { const v = srcs[k].d + f[i] * sc; if (v < Ac[i]) Ac[i] = v; } });
@@ -1151,7 +1180,6 @@ pre{background:#0A0A0F;color:#DAD6CE;border:1px solid rgba(217,184,108,.25);padd
       requestAnimationFrame(frame);
     } catch (e) { try { $('paper').hidden = true; $('burnfx').hidden = true; document.querySelector('main').style.visibility = ''; } catch (x) {} if (role && !debug) leaveRoom(); flash('Animation problem: ' + e.message, 12000); }
   }
-  $('btnPreview').onclick = () => burnAndLeave(true);
   $('lmYes').onclick = () => leaveAns(true); $('lmNo').onclick = () => leaveAns(false);
   $('btnCancel').onclick = () => failConnect('');
   $('btnLeave').onclick = async () => { if (!await askLeave(role === 'host' ? 'Close the room? Uploaded songs will be cleared for everyone.' : 'Leave the room?')) return; burnAndLeave(); };
